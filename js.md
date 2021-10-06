@@ -137,7 +137,7 @@ Function.prototype.myBind = function (context, ...args) {
 防抖：在delay时间后执行，如果在 delay 内再次触发，则重新计时。（取消定时器）
 ```
 function debounce(fn, delay) {
-            const timer
+            const timer = 
             return function () {
                 let context = this
                 clearTimeout(timer)
@@ -152,7 +152,7 @@ function debounce(fn, delay) {
 节流：在delay时间后执行，如果在 delay 内再次点击不会触发函数。（判断有定时器时，不会触发函数）
 ```
 function throttle(fn, delay) {
-            const timer
+            const timer = null
             return function () {
                 let context = this
                 if (!timer) {
@@ -180,3 +180,125 @@ https协议由 http + ssl 协议构成，具体的链接过程可参考SSL或TLS
     
     防范方法：
         服务端在发送浏览器的公钥中加入CA证书，浏览器可以验证CA证书的有效性
+
+## 6.JS的四种设计模式
+1.工厂模式
+```
+function createPerson(name, age, sex) {
+            const obj = new Object()
+            obj.name = name;
+            obj.age = age;
+            obj.sex = sex;
+            obj.sayHi = function () {
+                console.log('this.name');
+            }
+            return obj;
+        }
+```
+
+2.单例模式
+```
+    let OnlyPerson = function (name, age) {
+            this.name = name;
+            this.age = age;
+        }
+    OnlyPerson.prototype.sayHi = function () {
+            console.log(this.name);
+        }
+
+    let getInstance = (
+            function () {
+                let Instance = null
+                return function (name, age) {
+                    if (!Instance) {
+                        Instance = new OnlyPerson(name, age);
+                    }
+                    return Instance
+                }
+            })()
+```
+
+3.沙箱模式
+```
+  let sandbox = (function () {
+            function sayName() { }
+            function sayAge() { }
+            return {
+                sayName: sayName,
+                sayAge: sayAge
+            }
+        })()
+```
+
+4.发布者订阅模式
+```
+let Public = {
+            listen: function (key, fn) {
+                if (!this.list[key]) {
+                    this.list[key] = []
+                }
+                this.list[key].push(fn)
+            },
+            trigger: function (key, ...args) {
+                let lists = this.list[key]
+                for (let fn of lists) {
+                    fn.apply(this, ...args)
+                }
+            },
+            list: []
+        }
+```
+
+## 7. JS的变量提升
+    Add JS引擎会在正式执行代码, 加载脚本文件，进行语法分析后，会进行一次"预编译"（简单理解就是在内存中开辟一些空间，存放一些变量和函数）
+        具体步骤如下（browser）：
+        1.页面创建GO全局对象（Global Object）对象（window对象）。
+        2.加载第一个脚本文件
+        3.脚本加载完毕后，进行语法分析。
+        4.开始预编译
+        1.查找函数声明，作为GO属性，值赋予函数体（函数声明优先）
+        2.查找变量声明，作为GO属性，值赋予undefined
+            ```
+            GO / window = {
+            //页面加载创建GO同时，创建了document、navigator、screen等等属性，此处省略
+            a: undefined,
+                c: undefined，
+            b: function(y) {
+                var x = 1;
+                console.log('so easy');
+                }
+            }
+            ```
+
+        5.解释执行代码（直到执行函数b，该部分也被叫做词法分析）
+        6.创建AO活动对象（Active Object）
+        7.在AO活动对象中进行查找形参和变量声明, 并值赋予undefined
+        8.实参值赋给形参
+        9.查找函数声明，值赋给函数体
+        10.解释执行函数中的代码
+
+## 8.Undefined与Null的区别
+ Undefined ：
+ 1.定义变量但没有赋值
+ 2.访问对象上不存在的属性或者未定义的变量
+ 3.函数定义了形参但没有赋值，函数里输出形参为undefined
+ 4.使用Void（ECMAScript 明确规定 void 操作符 对任何表达式求值都返回 undefined）
+
+ Null：
+ 1.如果定义的变量在将来用于保存对象，那么最好将该变量初始化为null，而不是其他值。
+ 2.当一个数据不再需要使用时，通过将其值设置为null来释放其引用（解除引用，让值脱离执行环境，以便垃圾收集器在下次运行时将其回收）
+
+ 区别：
+ ```
+    typeof null; // "object"
+    typeof undefined; // "undefined"
+ ```
+ ```
+    !!(null); // false
+    !!(undefined); // false
+    Number(null); // 0
+    Number(undefined); // NaN
+    null == undefined; //true
+    null === undefined; //false
+ ```
+ 
