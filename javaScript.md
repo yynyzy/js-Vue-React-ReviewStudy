@@ -301,4 +301,21 @@ let Public = {
     null == undefined; //true
     null === undefined; //false
  ```
- 
+
+## 9.前端性能优化
+### .计算性能指标
+可以使用Navigation，timing 统计到的时间数据来计算一些页面性能指标，比如DNS查询耗时、白屏时间、domready等等。如下:
+. DNS查询耗时= domainLookupEnd - domainLookupStart
+. TCP链接耗时= connectEnd - connectStart
+. request请求耗时= responseEnd - responseStart
+· 解析dom树耗时= domComplete - domInteractive
+· 白屏时间= domloadng - fetchStart
+. domready时间= domContentLoadedEventEnd - fetchStart 
+. onload时间= loadEventEnd - fetchStart
+
+所以根据上面的时间点，我们可以计算常规的性能值，如下:
+(使用该api时需要在页面完全加载完成之后才能使用，最简单的办法是在window.onload事件中读取各种数据，因为很多值必须在页面完全加载之后才能得出。)
+
+![window.performance](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\window.performance.png)
+
+##1
