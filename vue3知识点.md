@@ -84,16 +84,6 @@ Vue Router 有内置的基于动态导入的[组件懒加载](https://next.route
 
 
 #  2.插槽(具名插槽，作用域插槽)
-## 1.插槽
-父：
-<child>
-  data
-</child>
-
-子<child>:
-<a>
-  <slot></slot>
-</a>
 
 ## 2.具名插槽
 在向具名插槽提供内容的时候，我们可以在一个 <template> 元素上使用 v-slot 指令，并以 v-slot 的参数的形式提供其名称：
@@ -161,7 +151,7 @@ test('an async feature', async () => {
 ```
 
 # 4.Vue3.0中的响应式原理
-vue2.x的响应式
+## vue2.x的响应式
 ·实现原理:
 ·对象类型:通过 object.defineProperty()对属性的读取、修改进行拦截(数据劫持)。
 ·数组类型:通过重写更新数组的一系列方法来实现拦截。(对数组的变更方法进行了包裹)。
@@ -177,11 +167,11 @@ vue2.x的响应式
           ·get：获取
           ·set：设置
 
- Object.defineProperty(target, key, {
-    get() {
+ const p = Reflect.defineProperty(target, key, {
+   get() {
         return target[key];
     },
-    set(newval) {
+   set(newval) {
         target[key] = newval
     }
 })
@@ -191,18 +181,20 @@ vue2.x的响应式
 ·新增属性、删除属性,界面不会更新。
 ·直接通过下标修改数组,界面不会自动更新。
 
-vue3.0的响应式
+## vue3.0的响应式
 ·实现原理:
 ·通过Proxy (代理)︰拦截对象中任意属性的变化,包括:属性值的读写、属性的添加、属性的删除等。
 ·通过Reflect(反射)︰对被代理对象的属性进行操作。
 ·MDN文档中描述的Proxy与Reflect:
 ```
    const p = new Proxy(obj, {
+     //target就是obj key就是要取obj里面的哪个属性
        get(target,propName) {
-               return target[propName];
+               return Reflect.get(target,propName);
            },
        set(target,propName,newval) {
-              target[propName] = newval
+         return Reflect.set(target,propName, newval);
+
            }
    })
 ```
@@ -282,3 +274,155 @@ class Dep {
   }
 }
 ```
+
+# watchEffect 和 watch 的区别
+## 1.watch侦听器
+  对基本数据类型进行监听----- watch特性：
+  1.具有一定的惰性lazy 第一次页面展示的时候不会执行，只有数据变化的时候才会执行 
+  2.参数可以拿到当前值和原始值 
+  3.可以侦听多个数据的变化，用一个侦听器承载
+  4.如果监听rective对象中的属性,必须通过函数来指定,如果监听多个数据,需要使用数组来指定。
+
+```
+watch (
+  prop,             //如果监听的是一个对象，第一个参数传入回调  ()=>{obj.prop} 
+  (newValue, oldValue) => {
+      console.log(newValue, oldValue);
+  },{
+    immediate:true, //默认初始时不执行回调，通过配置immediate未true，来指定初始时立即执行
+    deep:true       //通过配置deep为true，来指定深度监听。
+  })监听新旧属性
+```
+
+侦听器还可以使用数组以同时侦听多个源：
+```
+watch([fooRef, barRef], ([foo, bar], [prevFoo, prevBar]) => {
+  /* ... */
+}
+```
+
+## 2.watchEffect
+  1.立即执行传入的一个函数，同时响应式追踪其依赖，并在其依赖变更时重新运行该函数。
+  2.立即执行，没有惰性，页面的首次加载就会执行。
+  3.不需要传递要侦听的内容,只要传递一个回调函数
+  4.不能获取之前数据的值 只能获取当前值
+  5.一些异步的操作放在这里会更加合适
+```
+const count = ref(0)
+watchEffect( () => {
+  console.log(count.value)
+  },
+  {
+   flush:'post' //添加flush:'post'会在onBeforeUpdate之后执行 没有会在之前
+  }
+})
+
+```
+
+## 3.watch和watchEffect停止监听
+1.watch 与 watchEffect 在手动停止侦听、清除副作用 (将 onInvalidate 作为第三个参数传递给回调)、刷新时机和调试方面有相同的行为。
+2.将watch/watchEffect 赋值给一个变量，调用这个变量，函数执行就会停止监听，一般在组件销毁时执行。
+```
+var stop =  watchEffect(async (onInvalidate)=>{
+       var a = states.value
+       console.log('watchEffect')
+       onInvalidate(()=>{ //没有stop先执行回调 在执行副作用
+           console.log("onInvalidate") //有stop 执行会停在这里 副作用不在执行
+       })
+})
+
+setTimeout(()=>{
+  stop()
+},2000)
+
+```
+
+# 5.reactive对比ref
+·从定义数据角度对比:
+    ·ref用来定义:       基本类型数据
+    ·reactive用来定义:  对象(或数组)类型数据
+    ·备注: ref也可以用来定义对象（或数组）类型数据，它内部会自动通过reactive转为代理对象。
+·从原理角度对比:
+    ·ref通过 Object.defineProperty() 的get与set来实现响应式(数据劫持)。
+    ·reactive通过使用 Proxy 来实现响应式(数据劫持)﹐并通过Reflect操作源对象内部的数据。
+·从使用角度对比:
+    ·ref定义的数据:操作数据需要.value，读取数据时模板中直接读取不需要.value
+    ·reactive定义的数据:操作数据与读取数据:均不需要.value 
+
+# 6.component中的 is
+Props：
+  is - string | Component
+用法：
+渲染一个“元组件”为动态组件。依 is 的值，来决定哪个组件被渲染。is 的值是一个字符串，它既可以是 HTML 标签名称也可以是组件名称。
+```
+<!--  动态组件由 vm 实例的 `componentId` property 控制 -->
+<component :is="componentId"></component>
+
+<!-- 也能够渲染注册过的组件或 prop 传入的组件-->
+<component :is="$options.components.child"></component>
+
+<!-- 可以通过字符串引用组件 -->
+<component :is="condition ? 'FooComponent' : 'BarComponent'"></component>
+
+<!-- 可以用来渲染原生 HTML 元素 -->
+<component :is="href ? 'a' : 'span'"></component>
+```
+
+# 7.setup的两个注意点
+.setup执行的时机
+    在beforeCreate之前执行一次，this是undefined。
+.setup的参数(props,context):
+
+  1.props:值为对象，包含:组件外部传递过来，且组件内部声明接收了的属性。
+    setup 函数中的 props 是响应式的，当传入新的 prop 时，它将被更新。
+```
+    export default {
+      props: {
+        title: String
+      },
+      setup(props) {
+        console.log(props.title)
+      }
+    }
+    ```
+    WARNING!!!   因为 props 是响应式的，你不能使用 ES6 解构，它会消除 prop 的响应性。
+    如果需要解构 prop，可以在 setup 函数中使用 toRefs 函数来完成此操作：
+    ```
+    import { toRefs } from 'vue'
+    setup(props) {
+      const { title } = toRefs(props)
+      console.log(title.value)
+    }
+```
+
+  2.context:上下文对象(context 是一个普通 JavaScript 对象，暴露了其它可能在 setup 中有用的值：)
+      ·attrs:值为对象，包含:组件外部传递过来，但没有在props配置中声明的属性,相当于 this.$attrs.
+      ·slots:收到的插槽内容,相当于this.$slots 。
+      ·emit:分发自定义事件的函数,相当于this.$emit。
+```
+export default {
+  setup(props, context) {
+    // Attribute (非响应式对象，等同于 $attrs)
+    console.log(context.attrs)
+
+    // 插槽 (非响应式对象，等同于 $slots)
+    console.log(context.slots)
+
+    // 触发事件 (方法，等同于 $emit)
+    console.log(context.emit)
+
+    // 暴露公共 property (函数)
+    console.log(context.expose)
+  }
+}
+```
+context 是一个普通的 JavaScript 对象,它不是响应式的，这意味着你可以安全地对 context 使用 ES6 解构。
+//但 attrs, slots 是有状态的对象，应该尽量少用解构
+```
+      export default {
+        setup(props, { attrs, slots, emit, expose }) {
+          ...
+        }
+      }
+```
+
