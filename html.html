@@ -10,21 +10,77 @@
 
 <body>
     <script>
-        let obj = {
-            a: 1
-        }
-        Object.defineProperty(obj, "a", {
-            get() {
-                console.log("get");
-                return val
-            },
-            set(newVal) {
-                console.log("set");
-                val = newVal
+
+        function observer(target) {
+            if (!target && typeof target !== 'object') {
+                return
             }
-        })
-        obj.a = 2
-        console.log(obj.a);
+            Object.keys(target).forEach((k) => {
+                defineReactive(target, key, target[k])
+            })
+        }
+
+        function defineReactive(target, key, val) {
+            // 递归响应，处理嵌套对象
+            observer(val)
+
+            // 创建Dep实例： Dep和key一对一对应
+            const dep = new Dep()
+
+            Object.defineProperty(obj, key, {
+                get() {
+                    //收集依赖
+                    Dep.target && dep.addSub(Dep.target)
+                    return val
+                },
+                set(newV) {
+                    if (val !== newV) {
+                        //传入的新值可能是对象，需要遍历
+                        observe(newV)
+                        val = newV
+                        dep.notify()
+                    }
+                }
+            })
+        }
+
+        // Dep: 管理若干watcher实例，它和key一对一关系
+        class Dep {
+            constructor() {
+                this.subs = []
+            }
+            addSub(sub) {
+
+                this.subs.push(sub)
+            }
+            notify(val) {
+                this.subs.forEach((sub) => {
+                    sub.update()
+                })
+            }
+        }
+
+        // 实现update函数可以更新
+        class Watcher {
+            constructor(vm, key, cb) {
+                // this.vm = vm
+                // this.key = key
+                // this.cb = cb
+
+                // 将当前实例指向Dep.target
+                Dep.target = this
+                // this.vm[this.key]
+                // Dep.target = null
+            }
+
+            update() {
+                console.log(`${this.key}属性更新了`)
+                // this.cb(this.vm.$data[this.key])
+            }
+        }
+        //new Watcher(this, 'test')  //对当前的组件创建一个watcher 用于更新
+        //observe(vue.$data)        
+
     </script>
 </body>
 

@@ -199,80 +199,102 @@ test('an async feature', async () => {
    })
 ```
 
-## vue2完整响应式原理
- 在Vue中，每个组件实例都有相应的watcher实例对象，它会在组件渲染的过程中把属性记录为依赖，
-之后当依赖项的setter被调用时，会通知watcher重新计算，从而致使它关联的组件得以更新。
-这是一个典型的观察者模式。
-关键角色
-在 Vue 数据双向绑定的实现逻辑里，有这样三个关键角色：
-1.Observer: 它的作用是给对象的属性添加getter和setter，用于依赖收集和派发更新
+## 面试回答 Vue2完整响应式原理
+1.有这样三个关键角色：(Observer,Watcher,Dep)
+  ·Observer: 
+    1.在数据初始化时，vue会将 data选项转换成 Observer 对象。
+    2.Observer 会遍历对象的属性。多层对象是通过递归来实现。数组类型，通过重写数组方法来实现。
+    3.通过调用 defineReactive 方法，使用 Object.defineProperty 将属性进行劫持。
+    
 
-2.Dep: 用于收集当前响应式对象的依赖关系,每个响应式对象包括子对象都拥有一个Dep实例（里面subs是Watcher实例数组）,当数据有变更时,会通过dep.notify()通知各个watcher。
+  ·Watcher: 观察者对象 ,执⾏更新函数（更新dom）
+  实例分为渲染 watcher (render watcher),计算属性 watcher (computed  watcher),侦听器 watcher（user watcher）三种
 
-3.Watcher: 观察者对象 , 实例分为渲染 watcher (render watcher),计算属性 watcher (computed watcher),侦听器 watcher（user watcher）三种
+  ·Dep: 用于收集当前响应式对象的依赖关系,每个响应式对象包括子对象都拥有一个Dep实例, 当数据有变更时,setter 里面会触发 dep.notify() 通知各个watcher去改动。
 
-Watcher 和 Dep 的关系
-为什么要单独拎出来一小节专门来说这个问题呢？因为大部分同学只是知道：Vue的响应式原理是通过Object.defineProperty实现的。被Object.defineProperty绑定过的对象，会变成「响应式」化。也就是改变这个对象的时候会触发get和set事件。
 
 ![vue2响应式](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\vue2响应式.png)
-如上图所示：一个属性可能有多个依赖，每个响应式数据都有一个Dep来管理它的依赖。
-一段话总结原理
-上面说了那么多，下面我总结一下Vue响应式的核心设计思路：
-当创建Vue实例时,vue会遍历data选项的属性,利用Object.defineProperty为属性添加getter和setter对数据的读取进行劫持（getter用来依赖收集,setter用来派发更新）,并且在内部追踪依赖,在属性被访问和修改时通知变化。
-每个组件实例会有相应的watcher实例,会在组件渲染的过程中记录依赖的所有数据属性（进行依赖收集,还有computed watcher,user watcher实例）,之后依赖项被改动时,setter方法会通知依赖与此data的watcher实例重新计算（派发更新）,从而使它关联的组件重新渲染。
-到这里，我们已经了解了“套路”，下面让我们用伪代码来实现一下Vue的响应式吧！
-核心实现
+
+
+## 核心实现
 ```
 /**
  * @name Vue数据双向绑定（响应式系统）的实现原理
  */
 
-// observe方法遍历并包装对象属性
-function observe(target) {
-  // 若target是一个对象，则遍历它
-  if (target && typeof target === "Object") {
-    Object.keys(target).forEach((key) => {
-      // defineReactive方法会给目标属性装上“监听器”
-      defineReactive(target, key, target[key]);
-    });
-  }
-}
-// 定义defineReactive方法
-function defineReactive(target, key, val) {
-  const dep = new Dep();
-  // 属性值也可能是object类型，这种情况下需要调用observe进行递归遍历
-  observe(val);
-  // 为当前属性安装监听器
-  Object.defineProperty(target, key, {
-    // 可枚举
-    enumerable: true,
-    // 不可配置
-    configurable: false,
-    get: function () {
-      return val;
-    },
-    // 监听器函数
-    set: function (value) {
-      dep.notify();
-    },
-  });
-}
+  <script>
 
-class Dep {
-  constructor() {
-    this.subs = [];
-  }
+        function observer(target) {
+            if (!target && typeof target !== 'object') {
+                return
+            }
+            Object.keys(target).forEach((k) => {
+                defineReactive(target, key, target[k])
+            })
+        }
 
-  addSub(sub) {
-    this.subs.push(sub);
-  }
+        function defineReactive(target, key, val) {
+            // 递归响应，处理嵌套对象
+            observer(val)
 
-  notify() {
-    this.subs.forEach((sub) => {
-      sub.update();
-    });
-  }
-}
+            // 创建Dep实例： Dep和key一对一对应
+            const dep = new Dep()
+
+            Object.defineProperty(obj, key, {
+                get() {
+                    //收集依赖
+                    Dep.target && dep.addSub(Dep.target)
+                    return val
+                },
+                set(newV) {
+                    if (val !== newV) {
+                        //传入的新值可能是对象，需要遍历
+                        observe(newV)
+                        val = newV
+                        dep.notify()
+                    }
+                }
+            })
+        }
+
+        // Dep: 管理若干watcher实例，它和key一对一关系
+        class Dep {
+            constructor() {
+                this.subs = []
+            }
+            addSub(sub) {
+
+                this.subs.push(sub)
+            }
+            notify(val) {
+                this.subs.forEach((sub) => {
+                    sub.update()
+                })
+            }
+        }
+
+        // 实现update函数可以更新
+        class Watcher {
+            constructor(vm, key, cb) {
+                // this.vm = vm
+                // this.key = key
+                // this.cb = cb
+
+                // 将当前实例指向Dep.target
+                Dep.target = this
+                // this.vm[this.key]
+                // Dep.target = null
+            }
+
+            update() {
+                console.log(`${this.key}属性更新了`)
+                // this.cb(this.vm.$data[this.key])
+            }
+        }
+        //new Watcher(this, 'test')  //对当前的组件创建一个watcher 用于更新
+        //observe(vue.$data)        
+
+    </script>
 ```
 
 # 5.watchEffect 和 watch 的区别
@@ -512,8 +534,8 @@ let fullName = computed({
 
 
 # 14. VUEX 模块化+命名空间 与 mapstate 等辅助函数的使用 
-1.目的:让代码更好维护，让多种数据分类更加明确。
-2.修改store.js
+## 1.目的:让代码更好维护，让多种数据分类更加明确。
+## 2.修改store.js
 ```
 const countAbout = {
       namespaced:true,   //用辅助函数就得开开启命名空间
@@ -541,14 +563,14 @@ const store = createStore({
 ```
 
 
-3.开启命名空间后，组件中读取state数据:
+## 3.开启命名空间后，组件中读取state数据:
 ```
   //方式一:自己直接读取
   this.$store.state.personAbout.list
   //方式二:借助mapState读取:
   ...mapState( 'countAbout' ,[ 'sum' , 'school' , 'subject' ])
 ```
-4.开启命名空间后，组件中读取getters数据:
+## 4.开启命名空间后，组件中读取getters数据:
 ```
   //方式一:自己直接读取
   this.$store.getters [ 'personAbout/firstPersonName ' ]
@@ -556,7 +578,7 @@ const store = createStore({
   ...mapGetters( 'countAbout',[ 'bigSum'])
 ```
 
-5.开启命名空间后，组件中调用dispatch
+## 5.开启命名空间后，组件中调用dispatch
 ```
   //方式一，自己直接dispatch
   this.$store.dispatch( ' personAbout/addPersonWang ' ,person)
@@ -564,7 +586,7 @@ const store = createStore({
   ...mapActions( 'countAbout' ,{incrementOdd: 'jiaodd' ,incrementWait: 'jiawait '})
 ```
 
-6.开启命名空间后，组件中调用commit
+## 6.开启命名空间后，组件中调用commit
   ```
   //方式一:自己直接commit
   this.$store.commit( " personAbout/ADD_PERSON ' , person)
@@ -579,10 +601,10 @@ toRef是对原始数据的引用，修改toRef数据时，原始数据也会发�
 ```
 let b = "yzy"
 let a = ref（b）
-
-<div>{{a}}</div>
 <div>{{b}}</div>
+<div>{{a}}</div>
 <button @click=" a += '#'  "></button>
+```
 触发点击事件后，a变了，b不变。因为 ref 是对原数据的深拷贝，触发事件，ref响应式触发造成页面重新渲染，不会对原数据造成影响。
 如果直接对原数据修改，原数据变了，但不是响应式，所以页面不刷新，UI也就不会变。
 <div>{{a}}</div>
@@ -590,6 +612,7 @@ let a = ref（b）
 
 -------------------------------------
 此外 
+```
 let  person= reactive（{
     name：123
 }）
@@ -598,5 +621,156 @@ return {
   }
 }
 <div>{{name}}</div>
-这里的 name 也是一个ref 后的对象，是深拷贝，不会对原数据影响
+通过这种类型传递的 name 也是一个 ref类型的对象，是深拷贝，不会对原数据影响
 ```
+
+
+# 16.vue 的一些不常用指令或API
+## 1. VUE2 的 filter过滤器 （Vue3 已经移除，推荐使用计算属性）
+  定义:对要显示的数据进行特定格式化后再显示（适用于一些简单逻辑的处理)。语法:
+    1.注册过滤器:
+       ·在全局注册 Vue.filter(name, callback)
+       ·在组件中定义 （不用写在method中，和data，computed，method同一级别）
+            filters:{
+              过滤器名(){
+                return ···
+              }
+           } 
+
+    2.使用过滤器:{{ xxx│过滤器名 }}或  v-bind:属性= "xxx│过滤器名"
+  备注:
+    1.过滤器也可以接收额外参数、多个过滤器也可以串联
+    2.并没有改变原本的数据,是产生新的对应的数据
+
+
+## 2.v-html指令:
+1.作用:向指定节点中渲染包含html结构的内容。
+2.与插值语法的区别;
+  (1).v-html会替换掉节点中所有的内容，{{xx}}则不会。
+  (2).v-html可以识别html结构。
+3.严重注意:v-html有安全性问题!!!!
+  (1).在网站上动态渲染任意HTML是非常危险的，容易导致XSS攻击。
+  (2).一定要在可信的内容上使用v-html，永不要用在用户提交的内容上!
+
+## 3.v-text指令:
+  1.和v-html一样功能，会替换节点中所有的内容，不过不能识别 HTML 结构。
+
+## 4.v-cloak指令（没有值):
+1.本质是一个特殊属性，Vue实例创建完毕并接管容都后，会删掉v-cloak属性。
+2.使用css配合v-cloak可以解决网速慢时页面展示出{{xxx}}的问题。不要让用户看到差值语法
+```
+[v-cloak] {
+  display: none;
+}
+-----------------------
+<div v-cloak>
+  {{ message }}
+</div>
+```
+
+## 5.v-once 指令:
+1.v-once所在节点在初次动态渲染后,就视为静态内容了。(等于展示初始值后不变)
+2.以后数据的改变不会引起v-once所在结构的更新，可以用于优化性能。
+
+## 6.v-pre 指令:
+1.跳过其所在节点的编译过程。
+2.可利用它跳过:没有使用指令语法、没有使用插值语法的节点，会加快编译。
+
+
+## 7.自定义指令
+```
+const app = Vue.createApp({})
+// 注册一个全局自定义指令 `v-focus`
+app.directive('focus', {
+  // 当被绑定的元素挂载到 DOM 中时……
+  mounted(el) {
+    // 聚焦元素
+    el.focus()
+  }
+})
+```
+如果想注册局部指令，组件中也接受一个 directives 的选项：
+```
+directives: {
+  focus: {
+    // 指令的定义
+    mounted(el) {
+      el.focus()
+    }
+  }
+}
+```
+
+# 17.跨域解决（代理转发，cors,JSONP）
+## 代理转发
+```
+在 vue.config.js 文件中配置
+module.exports = {
+  devServer: {
+    proxy: {
+        '/api': {
+          target: 'http://localhost:3000' // 要代理的真实接口地址
+          changeOrigin:true,              //代理是否告诉目标服务器 自己的真正端口还是目标的3000
+          pathRewrite:''                  //重写，将 '/api' 重写(这里重写为空，保证路径正确)
+        }
+      }
+    }
+  }
+```
+
+## cors 跨域资源共享
+### 后端设置
+```
+var express = require('express');
+var app = express();
+var Head = function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3001');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+}
+app.use(Head);
+```
+### 前端 配合(withCredentials: true)
+```
+Axios 配置
+
+const axiosInstance = axios.create({
+  withCredentials: true
+})
+axiosInstance.interceptors.request.use(config => {
+  const token = ls.get('token') //从 localstorage 中获取token
+  if (token) {
+    config.headers['auth-token'] = token
+  }
+  return config
+}, function (error) {
+  return Promise.reject(error)
+})
+axiosInstance.interceptors.response.use(response => {
+  const token = response.headers['auth-token']
+  token && ls.set('token', token) //将 token 存入 localstorage
+  return response.data
+}, function (error) {
+  return Promise.reject(error)
+})
+ 
+```
+
+# 100.Vue2监视数据的原理及一些问题,Vue.set:
+1.vue会监视data中所有层次的数据。
+## 1.如何监测对象中的数据?
+通过setter实现监视,且要在new Vue时就传入要监测的数据。
+    (1).对象中后追加的属性，Vue默认不做响应式处理
+    (2).如需给后添加的属性做响应式,请使用如下API:
+              Vue.set(target, propertyName/index, value）或 
+              vm.$set(target, propertyName/index,value)
+## 2.如何监测数组中的数据?
+通过包裹数组更新元素的方法实现,本质就是做了两件事:
+      (1).调用原生对应的方法对数组进行更新。
+      (2).重新解析模板，进而更新页面。
+4.在Vue修改数组中的某个元素一定要用如下方法:
+      1.使用这些API:push()、pop()、shift()、unshift()、splice()、sort()、reverse()
+      2.Vue.set(）或vm.$set()
+
+
