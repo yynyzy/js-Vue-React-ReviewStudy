@@ -570,8 +570,33 @@ const store = createStore({
   this.$store.commit( " personAbout/ADD_PERSON ' , person)
   //方式二:借助 mapMutations:
   ...mapMutations( 'countAbout' ,{increment: '"IA' , decrement : ' JIAN'}),
-```
+  ```
 
 # 15.ref 和 toRef 的区别
 ref是对原始数据的拷贝，当修改ref数据时，模板中的视图会发生改变，但是原始数据并不会改变。
 toRef是对原始数据的引用，修改toRef数据时，原始数据也会发生改变，但是视图并不会更新。
+
+```
+let b = "yzy"
+let a = ref（b）
+
+<div>{{a}}</div>
+<div>{{b}}</div>
+<button @click=" a += '#'  "></button>
+触发点击事件后，a变了，b不变。因为 ref 是对原数据的深拷贝，触发事件，ref响应式触发造成页面重新渲染，不会对原数据造成影响。
+如果直接对原数据修改，原数据变了，但不是响应式，所以页面不刷新，UI也就不会变。
+<div>{{a}}</div>
+<div>{{b}}</div>
+
+-------------------------------------
+此外 
+let  person= reactive（{
+    name：123
+}）
+return {
+    name:person.name
+  }
+}
+<div>{{name}}</div>
+这里的 name 也是一个ref 后的对象，是深拷贝，不会对原数据影响
+```
