@@ -1,4 +1,5 @@
 # JS
+ES6 箭头函数时的this在定义时就绑定了
 ## 1.REM适配方案
 ```
 <div id="demo"></div>
@@ -320,6 +321,149 @@ let Public = {
 
 ![window.performance](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\window.performance.png)
 
+### .减少DNS查询 
+    ·由于DNS查找是需要时间的，而且它们通常都是只缓存一定的时间，所以应该尽可能地减少DNS查找的次数。
+    ·减少DNS查找次数，最理想的方法就是将所有的内容资源都放在同一个域(Domain)下面，这样访问整个网站就只需要进行一次DNS查找，这样可以提高性能。
+    ·但理想总归是理想，上面的理想做法会带来另外一个问题，就是由于这些资源都在同一个域，而HTTP /1.1 中推荐客户端针对每个域只有一定数量的并行度（它的建议是2），那么就会出现下载资源时的排队现象，这样就会降低性能。
+    ·所以，折衷的做法是：建议在一个网站里面使用至少2个域，但不多于4个域来提供资源。我认为这条建议是很合理的，也值得我们在项目实践中去应用。
+
+## 10.new 一个函数时发生了什么
+    1.创建一个空对象 {}
+    2.将空对象的原型(__proto__) 指向 构造函数(new的那个函数)的原型对象(prototype)
+    3.将构造函数中的this指向新对象
+    4.构造函数中若有返回值，就直接返回；否则返回新对象
+```
+    function myNew(fn){
+        let obj = Object.create({})
+        obj.__proto__ = fn.prototype
+        let args =[...Arguments].slice(1)
+        const res = fn.apply(obj,args)
+        if(Object.prototype.toString.call(res) === '[object Object]'){
+            return res
+        }
+        return obj
+    }
+```
+
+## 11.闭包
+闭包是指有权访问另外一个函数作用域中的变量的函数。
+
+
+## 12.数组扁平化（ES6自带和自己实现）
+    设定一个多维数组
+    ```
+    let arr = [1,[2,[3,4],5,],6,7,8,9]
+    ```
+
+   ### 一、使用ES6自带的flat（），如果括号里不写默认为1，Infinity代表正无穷，即对多维数组全部拉平
+```
+let newarr = arr.flat(Infinity)
+```
+
+   ### 二、正则表达式改良版
+```
+let newarr = JSON.parse("["+JSON.stringify(arr).replace(/\[|\]/g, '')+"]")
+console.log(newarr);  //[ 1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+
+   ### 三、递归
+```
+let newarr = []
+const fnc = function (arr) {
+    for (let i = 0; i < arr.length; i++) {
+        if (Array.isArray(arr[i])) {
+            fnc(arr[i])
+        } else {
+            newarr.push(arr[i])
+        }
+    }
+ }
+fnc(arr)
+console.log(newarr);  // [1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+
+
+
+
+
+
+
+
+
+## 13.浅拷贝和深拷贝
+   ### 浅拷贝实现
+    1.手写
+```
+     function shallowClone(obj) {
+         let target = {}
+         for (k in obj) {
+             if (obj.hasOwnProperty(k)) {
+             target[k] = obj[k]
+             }
+         }
+         return target
+     }
+```
+    2.Object.assign
+       Object.assign()方法复制的是源对象的属性值，如果源对象的属性是指向另一个对象的引用，那么它只会复制这个引用值（浅复制），不会深复制这个引用值所引用的对象。
+```
+     let newObj = Object.assign({}, obj)
+```
+
+
+   ### 深拷贝实现
+    1. JSON.parse( JSON.stringify() ) 序列化和反序列
+     缺点:会丢失undefined、function、symbol这三种类型的值。原因是JSON在执行字符串化时，会先进行一个JSON格式化，非安全的JSON值，就会被丢弃掉。
+
+    2. 手写
+    ```
+    const deepClone = function (obj) {
+        if (typeof obj !== 'object') return obj;
+        if (obj == null) return;
+        if (obj instanceof RegExp) return new RegExp(obj);
+        if (obj instanceof Date) return new Date(obj);
+    
+        //=>不直接创建空对象目的:克隆的结果和之前保持相同的所属类
+        let newObj = new obj.constructor
+    
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                //Object的hasOwnProperty()方法返回一个布尔值，判断对象是否包含特定的自身（非继承）属性。
+                newObj[key] = typeof obj[key] === 'object' ? deepClone(obj[key]) : obj[key];
+            }
+        }
+        return newObj;
+    }
+    ```
+
+
+
+## 14.js延迟加载的几种方式
+    js延迟加载的六种方式
+　　一般有六种方式；defer属性、async属性、动态创建dom方式、使用jquery的getScript方法、使用setTimeout延迟方法,让js最后加载。
+   ### 一、defer属性
+   HTML 4.01为 <script>标签定义了defer属性（延迟脚本的执行）。
+    其用途是：表明脚本在执行时不会影响页面的构造，浏览器会立即下载，但延迟执行，即脚本会被延迟到整个页面都解析完毕之后再执行。
+   ### 二、async属性
+    HTML5为 <script>标签定义了async属性。添加此属性后，脚本和HTML将一并加载（异步），代码将顺利运行。
+    浏览器遇到async脚本时不会阻塞页面渲染，而是直接下载然后运行。但这样的问题是，不同脚本运行次序就无法控制，只是脚本不会阻止剩余页面的显示。
+   ### 三、动态创建DOM方式
+   ```
+    var element = document.createElement("script");
+    element.src = "xxx.js";
+    document.body.appendChild(element); 
+   ```
+
+
+## 15.null 和 undefined
+   1. null == undefined   //true
+    // == 会进行转换 : toString(undefined) => '[object Undefined]'
+                      toString(null) => '[object Undefined]' 
+   2.null === undefined   //false       
+   3.typeof(null)  => Object   //设计师先设计的 null ，认为表示空值的类型不应该是对象，所以又创造了undefined
+   3.typeof(undefined)  => undefined  
+
+   
 # TS
 typescript在编译阶段进行类型检查，当类型不合符预期结果的时候则会出现错误提示
 

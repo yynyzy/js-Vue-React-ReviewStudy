@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <script>
+    <!-- <script>
 
         function observer(target) {
             if (!target && typeof target !== 'object') {
@@ -81,7 +81,19 @@
         //new Watcher(this, 'test')  //对当前的组件创建一个watcher 用于更新
         //observe(vue.$data)        
 
-    </script>
+    </script> -->
 </body>
+<script>
+    var a = 11;
+    function test2() {
+        this.a = 22;
+        this.b = () => {
+            console.log(this)
+            console.log(this.a)
+        }
+        this.b();
+    }
+    var x = new test2();
+</script>
 
 </html>
