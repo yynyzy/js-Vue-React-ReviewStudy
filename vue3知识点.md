@@ -151,7 +151,7 @@ test('an async feature', async () => {
 ```
 
 # 4.Vue3.0中的响应式原理
-## vue2.x的响应式
+  ## vue2.x的响应式
 ·实现原理:
 ·对象类型:通过 object.defineProperty()对属性的读取、修改进行拦截(数据劫持)。
 ·数组类型:通过重写更新数组的一系列方法来实现拦截。(对数组的变更方法进行了包裹)。
@@ -181,7 +181,7 @@ test('an async feature', async () => {
 ·新增属性、删除属性,界面不会更新。
 ·直接通过下标修改数组,界面不会自动更新。
 
-## vue3.0的响应式
+  ## vue3.0的响应式
 ·实现原理:
 ·通过Proxy (代理)︰拦截对象中任意属性的变化,包括:属性值的读写、属性的添加、属性的删除等。
 ·通过Reflect(反射)︰对被代理对象的属性进行操作。
@@ -199,7 +199,7 @@ test('an async feature', async () => {
    })
 ```
 
-## 面试回答 Vue2完整响应式原理
+  ## 面试回答 Vue2完整响应式原理
 1.有这样三个关键角色：(Observer,Watcher,Dep)
   ·Observer: 
     1.在数据初始化时，vue会将 data选项转换成 Observer 对象。
@@ -216,7 +216,7 @@ test('an async feature', async () => {
 ![vue2响应式](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\vue2响应式.png)
 
 
-## 核心实现
+  ## 核心实现
 ```
 /**
  * @name Vue数据双向绑定（响应式系统）的实现原理
@@ -489,7 +489,7 @@ let fullName = computed({
 ·应用:要将响应式对象中的某个属性单独提供给外部使用时。
 ·扩展: toRefs 与toRef功能一致，但可以批量创建多个ref对象，语法: toRefs(person)
 
-# 12.其它一些不常用 composition API
+# 12.vue不常用 composition API
  1. shallowReactive               //只对第一层响应式，深层次对象里面的不会改变
     shallowRef                    //只处理基本类型的响应式，不进行对象的响应式处理
     ·什么时候使用?
@@ -677,28 +677,51 @@ return {
 2.可利用它跳过:没有使用指令语法、没有使用插值语法的节点，会加快编译。
 
 
-  ## 7.自定义指令
+  ## 7.自定义指令（vue3的自定义指令里的生命周期与vue2的不同）
+ 注意：指令定义时不需要加v-, 使用时需要加 
+  ### 可以接受两个参数：
+  ·el
+    指令绑定到的元素。这可用于直接操作 DOM。
+  ·binding
+    包含以下 property 的对象：
+      ·instance：使用指令的组件实例。
+      ·value：传递给指令的值。
+      ·oldValue：先前的值，仅在 beforeUpdate 和 updated 中可用。值是否已更改都可用。
+      ·arg：参数传递给指令 (如果有)。
+      ·modifiers：包含修饰符 (如果有) 
+      ·dir：一个对象，在注册指令时作为参数传递。
 ```
-const app = Vue.createApp({})
-// 注册一个全局自定义指令 `v-focus`
-app.directive('focus', {
-  // 当被绑定的元素挂载到 DOM 中时……
-  mounted(el) {
-    // 聚焦元素
-    el.focus()
-  }
-})
-```
-如果想注册局部指令，组件中也接受一个 directives 的选项：
-```
-directives: {
-  focus: {
-    // 指令的定义
-    mounted(el) {
-      el.focus()
+    const app = Vue.createApp({})
+    // 注册一个全局自定义指令 `v-focus`
+    app.directive('focus', {
+       // 指令是具有一组生命周期的钩子：
+      // 在绑定元素的 attribute 或事件监听器被应用之前调用
+      created(el,binding) {},
+      // 在绑定元素的父组件挂载之前调用
+      beforeMount() {},
+      // 当被绑定的元素挂载到 DOM 中时……
+      mounted() {}，
+      // 在包含组件的 VNode 更新之前调用
+      beforeUpdate() {},
+      // 在包含组件的 VNode 及其子组件的 VNode 更新之后调用
+      updated() {},
+      // 在绑定元素的父组件卸载之前调用
+      beforeUnmount() {},
+      // 卸载绑定元素的父组件时调用
+      unmounted() {}
+
+    })
+    ```
+    如果想注册局部指令，组件中也接受一个 directives 的选项：
+    ```
+    directives: {
+      focus: {
+        // 指令的定义
+        mounted(el,binding) {
+          el.focus()
+        }
+      }
     }
-  }
-}
 ```
 
 # 17.跨域解决（代理转发，cors,JSONP）
@@ -756,6 +779,29 @@ axiosInstance.interceptors.response.use(response => {
 })
  
 ```
+
+# 18.VUE2全局事件总线(GlobalEventBus)
+1.一种组件间通信的方式，适用于任意组件间通信。
+2.安装全局事件总线:
+new vue({
+      ·····
+      beforeCreate(){
+      Vue.prototype.$bus = this //安装全局事件总线，$bus就是当前应用的vm
+      },
+})
+3.使用事件总线:
+1.接收数据:A组件想接收数据，则在A组件中给$bus绑定自定义事件，事件的回调留在A组件自身。
+methods(){
+  demo(data){
+    ......
+    }
+......
+  mounted() {
+  this.$bus.$on( 'xxxx' ,this.demo)
+  }
+
+2.提供数据:this.$bus.$emit( 'xxxx',数据)
+4.最好在beforeDestroy钩子中，用$off去解绑当前组件所用到的事件。
 
 # 100.Vue2监视数据的原理及一些问题,Vue.set:
 1.vue会监视data中所有层次的数据。
