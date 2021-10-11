@@ -780,7 +780,8 @@ axiosInstance.interceptors.response.use(response => {
  
 ```
 
-# 18.VUE2全局事件总线(GlobalEventBus)
+# 18.Vue2 和 Vue3 全局事件总线(GlobalEventBus)
+  ## Vue2
 1.一种组件间通信的方式，适用于任意组件间通信。
 2.安装全局事件总线:
 new vue({
@@ -802,6 +803,58 @@ methods(){
 
 2.提供数据:this.$bus.$emit( 'xxxx',数据)
 4.最好在beforeDestroy钩子中，用$off去解绑当前组件所用到的事件。
+
+  ## Vue3
+Vue3.x以后从实例中移除了 $on ,$off 和 $once 方法,$emit 仍然是现有 API 的一部分，只能实现子组件触发父组件的方法。
+使用mitt之前先安装mitt模块
+```
+  1.安装mitt
+    npm install --save mitt或者yarn add mitt -S
+
+  2.推荐独立为它在src目录下创建utils文件夹下创建index.ts文件
+    import mitt from 'mitt'
+    const bus = mitt()
+    export default bus
+
+  3.哪个文件要使用就在文件里引用
+  import bus from '@/utils'
+```
+
+# 19.子组件传递父组件(emit)注意点
+## 子组件 child.vue
+```
+<template>
+       <div>
+           <button @click ="go" >go</button>
+       </div>
+</template>
+ 
+<script>
+import Vue from 'vue'
+import {defineComponent} from "vue"
+export default defineComponent({
+  emits:['haha'],                      //注意要加emits 告诉vue使用 emit
+   setup(prop,context){
+           go(){
+               context.emit("haha")  
+       }
+       return {
+           
+       }
+   } 
+})
+</script>
+```
+## 父组件
+```
+<child @haha = 'gogo'><child>
+<script>
+···
+const gogo =() ={
+  console.log("这里是父组件方法，被子组件的点击事件通过emit触发")
+}
+</script>
+```
 
 # 100.Vue2监视数据的原理及一些问题,Vue.set:
 1.vue会监视data中所有层次的数据。
