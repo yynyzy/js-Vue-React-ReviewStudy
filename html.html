@@ -84,16 +84,18 @@
     </script> -->
 </body>
 <script>
-    var a = 11;
-    function test2() {
-        this.a = 22;
-        this.b = () => {
-            console.log(this)
-            console.log(this.a)
-        }
-        this.b();
+    var a = {}
+    var b = {
+        key: 'a'
     }
-    var x = new test2();
+    var c = {
+        key: 'c'
+    }
+    a[b] = '123'
+    a[c] = '456'
+    console.log(a[b])
+
+
 </script>
 
 </html>
