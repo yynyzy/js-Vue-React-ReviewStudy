@@ -463,7 +463,18 @@ console.log(newarr);  // [1, 2, 3, 4, 5, 6, 7, 8, 9]
    3.typeof(null)  => Object   //设计师先设计的 null ，认为表示空值的类型不应该是对象，所以又创造了undefined
    3.typeof(undefined)  => undefined  
 
-   
+## 16.如何判断是不是一个数组
+```
+    typeof千万别写
+1.Array.isArray([]);   //true
+
+2. [].constructor.toString().indexOf("Array")  //9
+
+3. Array.prototype.isPrototypeof([])        //true
+
+4.Array.prototype.toString.call([]);  // [Object Array]
+```
+
 # TS
 typescript在编译阶段进行类型检查，当类型不合符预期结果的时候则会出现错误提示
 
@@ -574,6 +585,7 @@ function hello(): void {
     alert("Hello Runoob");
 }
 ```
+
 ## 10.never
 never是其他类型 （包括null和 undefined）的子类型，可以赋值给任何类型，代表从不会出现的值
 但是没有类型是 never 的子类型，这意味着声明 never 的变量只能被 never 类型所赋值。

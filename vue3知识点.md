@@ -497,9 +497,9 @@ let fullName = computed({
         ·如果有一个对象数据，后续功能不会修改该对象中的属性，而是生新的对象来替换===> shallowRef。
 
 2.readonly 与shallowReadonly
-    . readonly:让一个响应式数据变为只读的（深只读)。
-    . shallowReadonly: 让一个响应式数据变为只读的(浅只读)。
-    ·应用场景:不希望数据被修改时。
+      . readonly:让一个响应式数据变为只读的（深只读)。
+      . shallowReadonly: 让一个响应式数据变为只读的(浅只读)。
+      ·应用场景:不希望数据被修改时。
 3.toRaw markRaw
     .toRaw:
       ·作用:将一个由reactive 生成的响应式对象转为普通对象。（ref没有）
@@ -508,15 +508,15 @@ let fullName = computed({
       ·作用:标记一个对象，使其永远不会再成为响应式对象。
       ·有些值不应该被设置为响应式对象，列入第三方库
 4.customRef
-    ·作用:创建一个自定义的ref，并对其依赖项跟踪和更新触发进行显式控制。
+      ·作用:创建一个自定义的ref，并对其依赖项跟踪和更新触发进行显式控制。
 5.provide 与 inject
-  父组件：provide('name',obj)
-  孙组件: const myobj = inject('name')
+      父组件：provide('name',obj)
+      孙组件: const myobj = inject('name')
 6响应式数据的判断
-· isRef:检查一个值是否为一个ref 对象
-·isReactive:检查一个对象是否是由reactive创建的响应式代理
-·isReadonly:检查一个对象是否是由readonly创建的只读代理
-·isProxy:检查一个对象是否是由 reactive 或者 readonly 方法创建的代理
+      ·isRef:检查一个值是否为一个ref 对象
+      ·isReactive:检查一个对象是否是由reactive创建的响应式代理
+      ·isReadonly:检查一个对象是否是由readonly创建的只读代理
+      ·isProxy:检查一个对象是否是由 reactive 或者 readonly 方法创建的代理
 
 # 13.vue3.0对这些API做出了调整
 
