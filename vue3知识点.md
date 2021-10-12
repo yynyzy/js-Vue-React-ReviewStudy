@@ -677,53 +677,6 @@ return {
 2.可利用它跳过:没有使用指令语法、没有使用插值语法的节点，会加快编译。
 
 
-  ## 7.自定义指令（vue3的自定义指令里的生命周期与vue2的不同）
- 注意：指令定义时不需要加v-, 使用时需要加 
-  ### 可以接受两个参数：
-  ·el
-    指令绑定到的元素。这可用于直接操作 DOM。
-  ·binding
-    包含以下 property 的对象：
-      ·instance：使用指令的组件实例。
-      ·value：传递给指令的值。
-      ·oldValue：先前的值，仅在 beforeUpdate 和 updated 中可用。值是否已更改都可用。
-      ·arg：参数传递给指令 (如果有)。
-      ·modifiers：包含修饰符 (如果有) 
-      ·dir：一个对象，在注册指令时作为参数传递。
-```
-    const app = Vue.createApp({})
-    // 注册一个全局自定义指令 `v-focus`
-    app.directive('focus', {
-       // 指令是具有一组生命周期的钩子：
-      // 在绑定元素的 attribute 或事件监听器被应用之前调用
-      created(el,binding) {},
-      // 在绑定元素的父组件挂载之前调用
-      beforeMount() {},
-      // 当被绑定的元素挂载到 DOM 中时……
-      mounted() {}，
-      // 在包含组件的 VNode 更新之前调用
-      beforeUpdate() {},
-      // 在包含组件的 VNode 及其子组件的 VNode 更新之后调用
-      updated() {},
-      // 在绑定元素的父组件卸载之前调用
-      beforeUnmount() {},
-      // 卸载绑定元素的父组件时调用
-      unmounted() {}
-
-    })
-    ```
-    如果想注册局部指令，组件中也接受一个 directives 的选项：
-    ```
-    directives: {
-      focus: {
-        // 指令的定义
-        mounted(el,binding) {
-          el.focus()
-        }
-      }
-    }
-```
-
 # 17.跨域解决（代理转发，cors,JSONP）
 ## 代理转发
 ```
@@ -854,6 +807,53 @@ const gogo =() ={
   console.log("这里是父组件方法，被子组件的点击事件通过emit触发")
 }
 </script>
+```
+
+# 20.自定义指令（vue3的自定义指令里的生命周期与vue2的不同）
+ 注意：指令定义时不需要加v-, 使用时需要加 
+  ### 可以接受两个参数：
+  ·el
+    指令绑定到的元素。这可用于直接操作 DOM。
+  ·binding
+    包含以下 property 的对象：
+      ·instance：使用指令的组件实例。
+      ·value：传递给指令的值。
+      ·oldValue：先前的值，仅在 beforeUpdate 和 updated 中可用。值是否已更改都可用。
+      ·arg：参数传递给指令 (如果有)。
+      ·modifiers：包含修饰符 (如果有) 
+      ·dir：一个对象，在注册指令时作为参数传递。
+```
+    const app = Vue.createApp({})
+    // 注册一个全局自定义指令 `v-focus`
+    app.directive('focus', {
+       // 指令是具有一组生命周期的钩子：
+      // 在绑定元素的 attribute 或事件监听器被应用之前调用
+      created(el,binding) {},
+      // 在绑定元素的父组件挂载之前调用
+      beforeMount() {},
+      // 当被绑定的元素挂载到 DOM 中时……
+      mounted() {}，
+      // 在包含组件的 VNode 更新之前调用
+      beforeUpdate() {},
+      // 在包含组件的 VNode 及其子组件的 VNode 更新之后调用
+      updated() {},
+      // 在绑定元素的父组件卸载之前调用
+      beforeUnmount() {},
+      // 卸载绑定元素的父组件时调用
+      unmounted() {}
+
+    })
+    ```
+    如果想注册局部指令，组件中也接受一个 directives 的选项：
+    ```
+    directives: {
+      focus: {
+        // 指令的定义
+        mounted(el,binding) {
+          el.focus()
+        }
+      }
+    }
 ```
 
 # 100.Vue2监视数据的原理及一些问题,Vue.set:
