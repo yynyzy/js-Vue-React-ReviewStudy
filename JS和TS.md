@@ -475,6 +475,55 @@ console.log(newarr);  // [1, 2, 3, 4, 5, 6, 7, 8, 9]
 4.Array.prototype.toString.call([]);  // [Object Array]
 ```
 
+## 17.说一下从url输入到返回请求的过程
+
+## 18.浏览器事件循环
+    1.JS调用栈采用的是后进先出的规则，当函数执行的时候，会被添加到栈的顶部，当执行栈执行完成后，就会从栈顶移出，直到栈内被清空。遇到异步任务会放入任务队列中，先执行同步任务，直到调用栈为空。
+    2.同步任务会在调用栈中按照顺序等待主线程依次执行，异步任务会在调用栈被清空，被读取到栈内等待主线程的执行。
+    3.异步任务又有宏认为和微任务。当同步任务执行完，会查看有没有微任务，如果有，从微任务队列中读取执行完的所有微任务。当所有微任务执行完毕后，开始执行宏任务，每完成一个宏任务，浏览器都会重新看一下有没有新的微任务产生，如果有执行微任务，没有执行下一个宏任务。
+    4.依照此循环运作
+
+
+
+## 19.手写 Promise
+
+## 20.手写 Promise.all
+  ### Promise.all: 传入的所有Promise最终都转化为fulfilled态时，则会执行resolve回调，并将返回值是的所有的Promise的resolve的回调的value的数组。其中一个任何Promise为reject状态时，则返回的Promise的状态更改为rejected。
+  ```
+  function myAll(arr) {
+        return new Promise((resolve, reject) => {
+            if (!Array.isArray(arr)) { return reject(new Error('请输入数组')) }
+            const len = arr.length
+            let count = 0
+            let result = []
+            for (let i = 0; i < len; i++) {
+                Promise.resolve(arr[i]).then((val, reason) => {
+                    result[i] = val
+                    count++
+                    if (count === len) {
+                        resolve(result)
+                    }
+                }).catch(err => reject(err))
+            }
+        })
+  ```
+### Promise.race: 传入的所有Promise其中任何一个有状态转化为fulfilled或者rejected，则将执行对应的回调。
+```
+ function race(arr) {
+        return new Promise((resolve, reject) => {
+            if (!Array.isArray(arr)) { return reject(new Error('请输入数组')) }
+            for (let i = 0; i < arr.length; i++) {
+                Promise.resolve(arr[i]).then((val) => {
+                    resolve(val)
+                }).catch(err => {
+                    reject
+                })
+            }
+        })
+    }
+```
+
+
 # TS
 typescript在编译阶段进行类型检查，当类型不合符预期结果的时候则会出现错误提示
 
