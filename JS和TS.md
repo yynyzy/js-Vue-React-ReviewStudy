@@ -346,7 +346,7 @@ let Public = {
 ```
 
 ## 11.闭包
-闭包是指有权访问另外一个函数作用域中的变量的函数。
+闭包是指有权访问另外一个函数作用域中的变量的函数。持有它的引用。
 
 
 ## 12.数组扁平化（ES6自带和自己实现）
@@ -521,6 +521,47 @@ console.log(newarr);  // [1, 2, 3, 4, 5, 6, 7, 8, 9]
             }
         })
     }
+```
+
+
+## 21.手写 filter,Map,Reduce 方法
+   ### filter
+```
+Array.prototype.myFilter = function (fn) {
+        if (!Array.isArray(this) || !this.length || typeof fn !== 'function') {
+            return []
+        } else {
+            let res = []
+            for (let i = 0; i < this.length; i++) {
+                if (fn(this[i], i, this)) {
+                    res.push(this[i])
+                }
+            }
+            return res
+        }
+    }
+```
+
+   ### map 
+```
+   Array.prototype.myMap = function (fn) {
+
+        if (!Array.isArray(this) || !this.length || typeof fn !== 'function') {
+            return []
+        } else {
+            let res = []
+            for (let i = 0; i < this.length; i++) {
+                res[i] = fn(this[i], i, this)
+            }
+            return res
+        }
+    }
+```
+
+
+   ### reduce
+```
+
 ```
 
 
