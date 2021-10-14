@@ -349,24 +349,24 @@ let Public = {
 闭包是指有权访问另外一个函数作用域中的变量的函数。保持对它的引用。
 
 
-## 12.数组扁平化（ES6自带和自己实现）
+## 12.数组扁平化（ES6自带和自己实现）与数组去重
+   ### 数组扁平化
     设定一个多维数组
     ```
     let arr = [1,[2,[3,4],5,],6,7,8,9]
     ```
-
-   ### 一、使用ES6自带的flat（），如果括号里不写默认为1，Infinity代表正无穷，即对多维数组全部拉平
+   #### 一、使用ES6自带的flat（），如果括号里不写默认为1，Infinity代表正无穷，即对多维数组全部拉平
 ```
 let newarr = arr.flat(Infinity)
 ```
 
-   ### 二、正则表达式改良版
+   #### 二、正则表达式改良版
 ```
 let newarr = JSON.parse("["+JSON.stringify(arr).replace(/\[|\]/g, '')+"]")
 console.log(newarr);  //[ 1, 2, 3, 4, 5, 6, 7, 8, 9]
 ```
 
-   ### 三、递归
+   #### 三、递归
 ```
  const flatten = function (arr) {
         let res = []
@@ -381,6 +381,40 @@ console.log(newarr);  //[ 1, 2, 3, 4, 5, 6, 7, 8, 9]
     }
 
 ```
+
+
+
+
+### 数组去重
+   #### 1.filter实现
+   ```
+   function distinct4(arr = testArr) {
+    return arr.filter((v, i, array) => array.indexOf(v, i+1) < 0)
+}
+   ```
+   ```
+   function distinct5(arr = testArr) {
+    return arr.filter((v, i, array) => array.indexOf(v) === i)
+}
+   ```
+  #### 2.es6的set方法
+```
+function distinct6(arr = testArr) {
+    return [...new Set(arr)]
+}
+```
+
+ #### 3.利用indexOf和forEach/for循环去重
+ ```
+ function distinct2(arr = testArr) {
+    let result = [];
+    arr.forEach((v, i, array) => {
+        array.indexOf(v, i+1) === -1 && result.push(v)
+    });
+    return result
+}
+```
+
 
 ## 13.浅拷贝和深拷贝
    ### 浅拷贝实现
@@ -587,7 +621,7 @@ Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES202
 ·通过 addEventListener 注册 click 事件,再给这个 dom 添加一个 addEventListener(click)，可以重复，一个事件可以有多个事件处理程序，按顺序执行。捕获事件和冒泡事件通过 removeEventListener 来删除事件
 
 ## 25.什么是作用域？什么是作用域链？
-·ES5 中只存在两种作用域：全局作用域和函数作用域。
+·ES5 中只存在两种作用域：全局作用域和函数作用域。ES6 中有块级作用域(let const)
  作用域([[Scope]])就是变量与函数的可访问范围，即作用域控制着变量与函数的可见性和生命周期。
 
 ·当所需要的变量在所在的作用域中查找不到的时候，它会一层一层向上查找，直到找到全局作用域还没有找到的时候，就会放弃查找。这种一层一层的关系，就是作用域链。
