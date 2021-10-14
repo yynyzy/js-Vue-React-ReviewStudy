@@ -368,27 +368,19 @@ console.log(newarr);  //[ 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
    ### 三、递归
 ```
-let newarr = []
-const fnc = function (arr) {
-    for (let i = 0; i < arr.length; i++) {
-        if (Array.isArray(arr[i])) {
-            fnc(arr[i])
-        } else {
-            newarr.push(arr[i])
+ const flatten = function (arr) {
+        let res = []
+        for (let i = 0; i < arr.length; i++) {
+            if (Array.isArray(arr[i])) {
+                res = res.concat(flatten(arr[i]))
+            } else {
+                res = res.concat(arr[i])
+            }
         }
+        return res
     }
- }
-fnc(arr)
-console.log(newarr);  // [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
 ```
-
-
-
-
-
-
-
-
 
 ## 13.浅拷贝和深拷贝
    ### 浅拷贝实现
@@ -438,9 +430,10 @@ console.log(newarr);  // [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 
 
-## 14.js延迟加载的几种方式
-    js延迟加载的六种方式
-　　一般有六种方式；defer属性、async属性、动态创建dom方式、使用jquery的getScript方法、使用setTimeout延迟方法,让js最后加载。
+## 14.js延迟加载的几种方式 && 方法 async、defer问题
+    ·defer属性、async属性、动态创建dom方式、使用setTimeout让js最后加载。
+    ·如果依赖其他脚本和 DOM 结果，使用 defer
+    ·如果与 DOM 和其他脚本依赖不强时，使用 async
    ### 一、defer属性
    HTML 4.01为 <script>标签定义了defer属性（延迟脚本的执行）。
     其用途是：表明脚本在执行时不会影响页面的构造，浏览器会立即下载，但延迟执行，即脚本会被延迟到整个页面都解析完毕之后再执行。
@@ -561,8 +554,51 @@ Array.prototype.myFilter = function (fn) {
 
    ### reduce
 ```
-
+    Array.prototype.myReduce = function (fn, initVal) {
+        if (!Array.isArray(this) || !this.length || typeof fn !== 'function') {
+            return []
+        } else {
+            //如果给了初始参数，就将循环的第一项设为 初始参数，如果没有，将其设为数组的第一项当做循环的起始
+            let res = initVal ? initVal : this[0]
+            // 初始参数 ？ index 设置为0，从数组第一项开始遍历操作  ：一开始就将数组第一项作为起始
+            let index = initVal ? 0 : 1
+            for (let i = index; i < this.length; i++) {
+                fn(res, this[i], i, this)
+            }
+            return res
+        }
+    }
 ```
+
+
+## 22.JS 数据类型
+Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES2020)
+
+## 23.JS 整数是怎么表示的？Number()的存储空间是多大？如果后台发送了一个超过最大自己的数字怎么办
+·通过 Number 类型来表示，遵循 IEEE754 标准，通过 64 位来表示一个数字，（1 + 11 + 52），最大安全数字是 Math.pow(2, 53) - 1，对于 16 位十进制。（符号位 + 指数位 + 小数部分有效位）
+
+·Math.pow(2, 53) ，53 为有效数字，会发生截断，等于 JS 能支持的最大数字。
+
+## 24.事件是如何实现的？on-事件 和 addEventListener的不同
+·基于发布订阅模式，就是在浏览器加载的时候会读取事件相关的代码，但是只有实际等到具体的事件触发的时候才会执行。
+·比如点击按钮，这是个事件（Event），而负责处理事件的代码段通常被称为事件处理程序(Event Handler)。
+
+·给一个 dom 绑定一个 onclick,如果再给这个 dom 添加一个 onclick,后面的会覆盖前面的,同一个事件只能有一个处理程序。取消事件 =>(dom.onclick = null)
+·通过 addEventListener 注册 click 事件,再给这个 dom 添加一个 addEventListener(click)，可以重复，一个事件可以有多个事件处理程序，按顺序执行。捕获事件和冒泡事件通过 removeEventListener 来删除事件
+
+## 25.什么是作用域？什么是作用域链？
+·ES5 中只存在两种作用域：全局作用域和函数作用域。我们将作用域定义为一套规则，这套规则用来管理引擎如何在当前作用域以及嵌套子作用域中根据标识符名称进行变量（变量名或者函数名）查找
+·首先要了解作用域链，当访问一个变量时，编译器在执行这段代码时，会首先从当前的作用域中查找是否有这个标识符，如果没有找到，就会去父作用域查找，如果父作用域还没找到继续向上查找，直到全局作用域为止,，而作用域链，就是有当前作用域与上层作用域的一系列变量对象组成，它保证了当前执行的作用域对符合访问权限的变量和函数的有序访问。
+
+## 26.如果一个构造函数，bind了一个对象，用这个构造函数创建出的实例会继承这个对象的属性吗？为什么？
+ 不会继承，因为根据 this 绑定四大规则，new 绑定的优先级高于 bind 显示绑定，通过 new 进行构造函数调用时，会创建一个新对象，这个新对象会代替 bind 的对象绑定，作为此函数的 this，并且在此函数没有返回对象的情况下，返回这个新建的对象
+
+
+
+
+
+
+
 
 
 # TS
