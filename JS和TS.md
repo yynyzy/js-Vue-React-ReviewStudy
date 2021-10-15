@@ -84,7 +84,7 @@ fetch('http://localhost:3000/,
 	json(): 返回结果和JSON.parse(responseText)一样
 
 
-## 3.说说bind、call、apply 区别？手写它们
+## 3.手写、说说bind、call、apply 区别？
 都是改变this指向，不过bind返回的是一个函数，而apply和call 直接返回结果。
 apply的第二个参数接受的是一个数组，而 call 接受的是参数列表
 
@@ -92,7 +92,6 @@ apply的第二个参数接受的是一个数组，而 call 接受的是参数列
 1. Function.prototype.myCall = function (context) {
             var context = context || window
             context.Fn = this
-            console.log(context.Fn);
             let args = [...arguments].slice(1)
             const result = context.Fn(...args)
             delete context.Fn
@@ -102,7 +101,6 @@ apply的第二个参数接受的是一个数组，而 call 接受的是参数列
 Function.prototype.myApply = function (context) {
             var context = context || window
             context.Fn = this
-            console.log(arguments);
             let result
             if (arguments[1]) {
                 if ((arguments[1] instanceof Array)) {
@@ -345,8 +343,23 @@ let Public = {
     }
 ```
 
-## 11.闭包
+## 11.闭包(普通函数闭包中的this)
 闭包是指有权访问另外一个函数作用域中的变量的函数。保持对它的引用。
+```
+var name = "Window";
+var obj = {
+  name : "Obj",
+  run : function(){
+  		//这里的 this 指向 obj对象,
+  		console.log(this.name)
+     return function(){
+     	//这里的this指向window,因为这里通过闭包返回了一个匿名函数,匿名函数的执行环境具有全局性，因此其this对象通常指向window。
+     	console.log(this.name)
+    };
+  }
+}
+    obj.run()(); //"The Window" 
+```
 
 
 ## 12.数组扁平化（ES6自带和自己实现）与数组去重
@@ -605,28 +618,51 @@ Array.prototype.myFilter = function (fn) {
 ```
 
 
-## 22.JS 数据类型
+## 22.find和filter有什么不同
+find 返回的是匹配到的第一个值
+filter 返回的是符合要求的所有值的一个数组
+
+## 23.手写 typeof 与 instanceof
+   ### typeof
+```
+function Mytypeof(obj) {
+        const type = Object.prototype.toString.call(obj).slice(8, -1).toLowerCase();
+        const map = new Map()
+        map.set('number', true)
+        map.set('string', true)
+        map.set('boolean', true)
+        map.set('function', true)
+        map.set('undefined', true)
+        map.set('symbol', true)
+        return map.get(type) ? type : 'Object'
+    }
+```
+   ### instanceof
+```
+```
+
+## 23.JS 数据类型
 Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES2020)
 
-## 23.JS 整数是怎么表示的？Number()的存储空间是多大？如果后台发送了一个超过最大自己的数字怎么办
+## 24.JS 整数是怎么表示的？Number()的存储空间是多大？如果后台发送了一个超过最大自己的数字怎么办
 ·通过 Number 类型来表示，遵循 IEEE754 标准，通过 64 位来表示一个数字，（1 + 11 + 52），最大安全数字是 Math.pow(2, 53) - 1，对于 16 位十进制。（符号位 + 指数位 + 小数部分有效位）
 
 ·Math.pow(2, 53) ，53 为有效数字，会发生截断，等于 JS 能支持的最大数字。
 
-## 24.事件是如何实现的？on-事件 和 addEventListener的不同
+## 25.事件是如何实现的？on-事件 和 addEventListener的不同
 ·基于发布订阅模式，就是在浏览器加载的时候会读取事件相关的代码，但是只有实际等到具体的事件触发的时候才会执行。
 ·比如点击按钮，这是个事件（Event），而负责处理事件的代码段通常被称为事件处理程序(Event Handler)。
 
 ·给一个 dom 绑定一个 onclick,如果再给这个 dom 添加一个 onclick,后面的会覆盖前面的,同一个事件只能有一个处理程序。取消事件 =>(dom.onclick = null)
 ·通过 addEventListener 注册 click 事件,再给这个 dom 添加一个 addEventListener(click)，可以重复，一个事件可以有多个事件处理程序，按顺序执行。捕获事件和冒泡事件通过 removeEventListener 来删除事件
 
-## 25.什么是作用域？什么是作用域链？
+## 26.什么是作用域？什么是作用域链？
 ·ES5 中只存在两种作用域：全局作用域和函数作用域。ES6 中有块级作用域(let const)
  作用域([[Scope]])就是变量与函数的可访问范围，即作用域控制着变量与函数的可见性和生命周期。
 
 ·当所需要的变量在所在的作用域中查找不到的时候，它会一层一层向上查找，直到找到全局作用域还没有找到的时候，就会放弃查找。这种一层一层的关系，就是作用域链。
 
-## 26.如果一个构造函数，bind了一个对象，用这个构造函数创建出的实例会继承这个对象的属性吗？为什么？
+## 27.如果一个构造函数，bind了一个对象，用这个构造函数创建出的实例会继承这个对象的属性吗？为什么？
  不会继承，因为根据 this 绑定四大规则，new 绑定的优先级高于 bind 显示绑定，通过 new 进行构造函数调用时，会创建一个新对象，这个新对象会代替 bind 的对象绑定，作为此函数的 this，并且在此函数没有返回对象的情况下，返回这个新建的对象
 
 
