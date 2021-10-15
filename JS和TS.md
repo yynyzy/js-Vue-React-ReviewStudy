@@ -132,12 +132,11 @@ Function.prototype.myBind = function (context, ...args) {
 ```
 
 
-
 ## 4.防抖节流
 防抖：在delay时间后执行，如果在 delay 内再次触发，则重新计时。（取消定时器）
 ```
 function debounce(fn, delay) {
-            const timer = 
+            const timer = null
             return function () {
                 let context = this
                 clearTimeout(timer)
@@ -639,6 +638,18 @@ function Mytypeof(obj) {
 ```
    ### instanceof
 ```
+function myInstanceof(obj, fn) {
+        if (typeof obj !== "object") return false
+        const $proto = obj.__proto__
+        if ($proto == null) return false
+        if ($proto !== fn.prototype) {
+            return myInstanceof($proto, fn)
+        } else {
+            console.log(true);
+            return true
+        }
+
+    }
 ```
 
 ## 23.JS 数据类型
