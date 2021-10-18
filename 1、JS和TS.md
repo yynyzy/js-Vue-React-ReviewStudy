@@ -677,9 +677,44 @@ Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES202
  不会继承，因为根据 this 绑定四大规则，new 绑定的优先级高于 bind 显示绑定，通过 new 进行构造函数调用时，会创建一个新对象，这个新对象会代替 bind 的对象绑定，作为此函数的 this，并且在此函数没有返回对象的情况下，返回这个新建的对象
 
 
+## 28.JS用 FileReader 对象读取blob对象二进制数据
+使用FileReader对象，web应用程序可以异步的读取存储在用户计算机上的文件(或者原始数据缓冲)内容，可以使用File对象或者Blob对象来指定所要处理的文件或数据
+  ### 1.创建实例
+  var reader = new FileReader();
+
+  ### 2.方法
+  方法定义	                                 描述
+  abort():void	                            终止文件读取操作
+  readAsArrayBuffer(file):void	            异步按字节读取文件内容，结果用ArrayBuffer对像表示
+  readAsBinaryString(file):void	            异步按字节读取文件内容，结果为文件的二进制串
+  readAsDataURL(file):void	                异步读取文件内容，结果用data:url的字符串形式表示
+  readAsText(file,encoding):void	        异步按字符读取文件内容，结果用字符串形式表示
+
+  ### 3.事件
+  事件名称	        描述
+  onabort	        当读取操作被中止时调用
+  onerror	        当读取操作发生错误时调用
+  onload	        当读取操作成功完成时调用
+  onloadend	        当读取操作完成时调用,不管是成功还是失败
+  onloadstart	    当读取操作将要开始之前调用
+  onprogress	    在读取数据过程中周期性调用
 
 
 
+
+
+## JS继承的圣杯模式
+    ```
+    const inherit =(function(){
+        const F = function(){}
+        return function(target,origin){
+            F.prototype = origin.prototype;
+            target.prototype = new F();
+            target.prototype.constructor = target
+            target.prototype.super_class = origin
+        }
+    })()
+    ```
 
 
 
