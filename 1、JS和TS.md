@@ -703,7 +703,7 @@ Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES202
 
 
 
-## JS继承的圣杯模式
+## 29.JS继承的圣杯模式
     ```
     const inherit =(function(){
         const F = function(){}
@@ -715,6 +715,12 @@ Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES202
         }
     })()
     ```
+
+
+
+
+## 30.npm install原理图
+![npm install原理图](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\npm_install原理图.png)
 
 
 
