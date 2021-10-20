@@ -1,4 +1,4 @@
-#  1.VUE3新特性：suspense
+# 1.VUE3新特性：suspense
 
 在正确渲染组件之前进行一些异步请求是很常见的事。组件通常会在本地处理这种逻辑，绝大多数情况下这是非常完美的做法。该 `<suspense>` 组件提供了另一个方案，允许将等待过程提升到组件树中处理，而不是在单个组件中。
 
@@ -83,7 +83,7 @@ Vue Router 有内置的基于动态导入的[组件懒加载](https://next.route
 
 
 
-#  2.插槽(具名插槽，作用域插槽)
+# 2.插槽(具名插槽，作用域插槽)
 
 ## 2.具名插槽
 在向具名插槽提供内容的时候，我们可以在一个 <template> 元素上使用 v-slot 指令，并以 v-slot 的参数的形式提供其名称：
@@ -125,7 +125,7 @@ Vue Router 有内置的基于动态导入的[组件懒加载](https://next.route
 
 ![vue插槽](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\vue插槽.png)
 
-#  3.nextTick
+# 3.nextTick
     1.语法: this.$nextTick(回调函数)
     2.作用:在下一次DOM更新结束后执行其指定的回调。
     3.什么时候用:当改变数据后，要基于更新后的新DOM进行某些操作时，要在nextTick所指定的回调函数中执行。
@@ -872,4 +872,54 @@ const gogo =() ={
       1.使用这些API:push()、pop()、shift()、unshift()、splice()、sort()、reverse()
       2.Vue.set(）或vm.$set()
 
+
+
+# 101.Vue路由组件化(运用require.context)
+```
+require.context(directory, useSubdirectories = false, regExp = /^.//)
+第一个参数目标文件夹
+是否查找子集 true | false
+正则匹配
+```
+  ## 主路由文件中代码
+```
+import Vue from "vue";
+import VueRouter from "vue-router";
+Vue.use(VueRouter);
+
+const routerList = [];
+function importAll(r) {
+    r.keys().forEach((key) => {
+        routerList.push(r(key).default);
+    });
+}
+、
+importAll(require.context("./", true, /\.routes\.js/));//这里的目录和规则可以看自己习惯，这里获取的是当前同一个文件夹下的所有以 .routes.js 结尾的各个不同功能路由模块文件
+
+const routes = [
+    ...routerList,
+    {
+      path: './',
+      name: 'Home',
+      component: Home
+    }
+];
+
+const router = new VueRouter({
+    routes,
+});
+
+export default router;
+```
+  ## 各个模块路由文件
+```
+export default {
+  path:'./login',
+  name:'./login',
+  component
+  children:[
+
+  ]
+}
+```
 
