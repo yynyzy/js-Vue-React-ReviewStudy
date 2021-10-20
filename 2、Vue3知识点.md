@@ -923,3 +923,41 @@ export default {
 }
 ```
 
+# 102.Vue 权限控制技巧
+1.单独一个文件保存权限判断函数
+```
+export function checkArray (key){
+  //权限数组
+  let arr = [1, 2, 3 ,4]
+  let index = arr.indexOf(key)
+  if( index > -1 ){
+    return true
+  }else{
+    return false
+  }
+}
+```
+2.可以在 main.js 中定义一个自定义指令
+```
+import {checkArray} from '../..'
+Vue.directive('display-key',{
+  inserted(el, binding){
+    let displayKey = binding.value
+    if( displayKey ){
+      //使用函数判断是否有权限，返回 true 或 false
+      let hasPermissin = checkArray(displayKey)
+      if(!hasPermissin){
+        el.parentNode && el.parentNode.removeChild(el)
+      }
+    } else {
+      throw new Error(`need v-display-key`)
+    }
+  }
+})
+```
+3. 在各个组件中可以在组件标签上使用指令
+```
+//有1,2,3,4的都是有权限的，超过4的没有权限会删除
+<button v-display-key='1'>按钮一</button>
+<button v-display-key='2'>按钮一</button>
+```
