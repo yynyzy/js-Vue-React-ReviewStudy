@@ -138,14 +138,31 @@ Function.prototype.myBind = function (context, ...args) {
 function debounce(fn, delay) {
             const timer = null
             return function () {
+                if(timer) clearTimeout(timer)
                 let context = this
-                clearTimeout(timer)
+          
                 timer = setTimeout(() => {
-                    fn.apply(context, arguments)
+                    fn.apply(context,  [...arguments])
                 }
                     , delay)
             }
         }
+
+//----------------------------------------------------------------
+//立即执行版
+function debounce(func,wait) {
+  let timeout;
+  return function () {
+      const context = this;
+      const args = [...arguments];
+      if (timeout) clearTimeout(timeout);
+      const callNow = !timeout;
+      timeout = setTimeout(() => {
+          timeout = null;
+      }, wait)
+      if (callNow) func.apply(context, args)
+  }
+}
 ```
 
 节流：在delay时间后执行，如果在 delay 内再次点击不会触发函数。（判断有定时器时，不会触发函数）
@@ -156,7 +173,7 @@ function throttle(fn, delay) {
                 let context = this
                 if (!timer) {
                     timer = setTimeout(() => {
-                        fn.apply(context, arguments)
+                        fn.apply(context, [...arguments])
                         clearTimeout(timer)
                     }, delay)
                 }
@@ -723,6 +740,42 @@ Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES202
 ![npm install原理图](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\npm_install原理图.png)
 
 
+
+
+## 31.this是什么？
+### 当前执行上下文的一个属性，在非严格模式下，总是指向一个对象，在严格模式下可以是任意值。
+首先：有隐式绑定、显式绑定、new 绑定和 window 绑定
+在函数内部，this的值取决于函数被调用的方式。
+   ### 1. 箭头函数(this是继承自父执行上下文！)
+    箭头函数排在第一个是因为它的 this 不会被改变，创建时就确定。
+    箭头函数的 this 是在创建它时外层 this 的指向。这里的重点有两个：
+        1.创建箭头函数时，就已经确定了它的 this 指向。
+        2.箭头函数内的 this 指向外层的 this。
+   ### 2. new
+    当使用 new 关键字调用函数时，函数中的 this 一定是 JS 创建的新对象。
+    （箭头函数不能当做构造函数，所以不能与 new 一起执行。）
+   ### 3.多次 bind 时只认第一次 bind 的值
+    !!! 易错点
+    ```
+    function func() {
+      console.log(this)
+    }
+
+    func.bind(1).bind(2)()     // 1
+    ```
+    !!! 箭头函数中 this 不会被修改
+    ```
+        func = () => {
+          // 这里 this 指向取决于外层 this
+          console.log(this)
+        }
+        func.bind(1)()          // Window
+    ```
+   ### 4. apply 和 call
+    apply() 和 call() 的第一个参数都是 this，区别在于通过 apply 调用时实参是放到数组中的，而通过 call 调用时实参是逗号分隔的。
+
+   ### 5. 直接调用
+    在函数不满足前面的场景，被直接调用时，this 将指向全局对象。在浏览器环境中全局对象是 Window，在 Node.js 环境中是 Global。
 
 
 # TS
