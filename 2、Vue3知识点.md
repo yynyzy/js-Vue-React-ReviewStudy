@@ -298,7 +298,7 @@ test('an async feature', async () => {
 ```
 
 # 5.watchEffect 和 watch 的区别
-## 1.watch侦听器
+  ## 1.watch侦听器
   对基本数据类型进行监听----- watch特性：
   1.具有一定的惰性lazy 第一次页面展示的时候不会执行，只有数据变化的时候才会执行 
   2.参数可以拿到当前值和原始值 
@@ -323,7 +323,7 @@ watch([fooRef, barRef], ([foo, bar], [prevFoo, prevBar]) => {
 }
 ```
 
-## 2.watchEffect
+  ## 2.watchEffect
   1.立即执行传入的一个函数，同时响应式追踪其依赖，并在其依赖变更时重新运行该函数。
   2.立即执行，没有惰性，页面的首次加载就会执行。
   3.不需要传递要侦听的内容,只要传递一个回调函数
@@ -774,7 +774,7 @@ Vue3.x以后从实例中移除了 $on ,$off 和 $once 方法,$emit 仍然是现�
 ```
 
 # 19.子组件传递父组件(emit)注意点
-## 子组件 child.vue
+  ## 子组件 child.vue
 ```
 <template>
        <div>
@@ -798,7 +798,7 @@ export default defineComponent({
 })
 </script>
 ```
-## 父组件
+  ## 父组件
 ```
 <child @haha = 'gogo'><child>
 <script>
