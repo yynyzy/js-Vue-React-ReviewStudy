@@ -23,3 +23,10 @@ BFC 是 Block Formatting Context 的缩写，即块格式化上下文。可以�
 ·DOM 是指文档对象模型
 可以访问HTML文档的所有元素。
 
+# 5.设置3D效果
+//这个属性允许你改变3D元素是怎样查看透视图。加在最外面的包裹3D元素的元素上
+ perspective：800px
+ //开启3D
+ transform-style:preserve-3d
+ //写3D代码
+ 　transform:rotateX(45deg)rotateY(45deg);

@@ -1,5 +1,6 @@
 # JS
 ES6 箭头函数时的this在定义时就绑定了
+
 ## 0.ES6
 ·新增symbol类型 表示独一无二的值，用来定义独一无二的对象属性名;
 ·const/let  都是用来声明变量,不可重复声明，具有块级作用域。存在暂时性死区，也就是不存在变量提升。(const一般用于声明常量)
@@ -131,18 +132,19 @@ Function.prototype.myApply = function (context) {
 }
 
 Function.prototype.myBind = function (context, ...args) {
-            if (typeof this !== 'function') {
-                throw new TypeError('ERROR')
-            }
-            let self = this
-            //bind前后都可以传递参数
-            return function F(...arguments) {
-                //考虑到bind后返回的函数可以被 new ，所以new后函数的 this 应该指向 new的实例
-                if (this instanceof F) {
-                    return self.apply(this, [...args, ...arguments])
-                }
-                return self.apply(context, [...args, ...arguments])
-            }
+            var self = this;
+    var args = Array.prototype.slice.call(arguments, 1);
+
+    var fNOP = function () {};
+
+    var fBound = function () {
+        var bindArgs = Array.prototype.slice.call(arguments);
+        return self.apply(this instanceof fNOP ? this : context, args.concat(bindArgs));
+    }
+
+    fNOP.prototype = this.prototype;
+    fBound.prototype = new fNOP();
+    return fBound;
 }
 ```
 
@@ -926,6 +928,15 @@ ajax是一种异步通信的方法,从服务端获取数据,达到局部刷新�
     ·调用send方法传递参数。
 
 
+## 35.js 去除小数点，保留位数
+向上取整  Math.ceil(3.14159) => 4
+向下取整  Math.floor(3.14159) => 3
+四舍五入  Math.round(3.14159) => 3
+// 如果去零时需要保留位数： （比如 19.520100 --> 19.52）
+parseFloat(Number(19.520100).toFixed(2))
+
+// 如果只想去除小数点后多余的0 （比如 18.2300 -->  18.23）
+parseFloat(arg)
 # TS
 typescript在编译阶段进行类型检查，当类型不合符预期结果的时候则会出现错误提示
 
