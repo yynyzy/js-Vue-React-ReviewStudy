@@ -1,3 +1,7 @@
+# 0.简述MVVM
+MVVM 是 Model-View-ViewModel 缩写，也就是把 MVC 中的 Controller 演变成 ViewModel。Model 层代表数据模型，View代表UI组件，ViewModel是View和Model层的桥梁，数据会绑定到viewModel层并自动将数据渲染到页面中，视图变化的时候会通知 viewModel 层更新数据。
+
+
 # 1.VUE3新特性：suspense
 
 在正确渲染组件之前进行一些异步请求是很常见的事。组件通常会在本地处理这种逻辑，绝大多数情况下这是非常完美的做法。该 `<suspense>` 组件提供了另一个方案，允许将等待过程提升到组件树中处理，而不是在单个组件中。
@@ -449,7 +453,7 @@ context 是一个普通的 JavaScript 对象,它不是响应式的，这意味�
       }
 ```
 
-# 9.computed计算属性
+# 9.Vue3中的computed计算属性
 ·vue2单独一个computed:{} ，vue3中写法改变，变成一个组合式API，需要引入
 ```
 import {computed} from 'vue'
@@ -855,6 +859,95 @@ const gogo =() ={
       }
     }
 ```
+
+# 21.computed与watch
+·watch 属性监听
+是一个对象，键是需要观察的属性，值是对应回调函数，主要用来监听某些特定数据的变化，从而进行某些具体的业务逻辑操作,监听属性的变化，需要在数据变化时执行异步或开销较大的操作时使用
+
+·computed 计算属性
+属性的结果会被缓存，当computed中的函数所依赖的属性没有发生改变的时候，那么调用当前函数的时候结果会从缓存中读取。除非依赖的响应式属性变化时才会重新计算，主要当做属性来使用computed中的函数必须 return返回最终的结果，computed更高效，优先使用
+
+·使用场景
+computed：当一个属性受多个属性影响的时候使用，例：购物车商品结算功能
+watch：当一条数据影响多条数据的时候使用，例：搜索数据
+
+# 22.vnode的理解
+vnode 虚拟DOM节点 创建：
+```
+export function Vnode (){
+    return {
+        tag:'div',
+        children: 'span',
+        attr:'',
+        text:'你好!'
+    }
+}
+```
+
+# 23.new Vue后整个的流程
+·initProxy：作用域代理，拦截组件内访问其它组件的数据。
+·initLifecycle：建立父子组件关系，在当前组件实例上添加一些属性和生命周期标识。如[Math ·Processing Error]parent,parent,refs,$children,_isMounted等。
+·initEvents：对父组件传入的事件添加监听，事件是谁创建谁监听，子组件创建事件子组件监听
+·initRender：声明[Math Processing Error]slots和slots和createElement()等。
+·initInjections：注入数据，初始化inject，一般用于组件更深层次之间的通信。
+·initState：重要）数据响应式：初始化状态。很多选项初始化的汇总：data,methods,props,computed和watch。
+·initProvide：提供数据注入。
+
+  ## 思考：为什么先注入再提供呢？？
+答：1、首先来自祖辈的数据要和当前实例的data,等判重，相结合，所以注入数据的initInjections一定要在InitState的上面。2. 从上面注入进来的东西在当前组件中转了一下又提供给后代了，所以注入数据也一定要在上面。
+
+
+
+# 24.你知道Vue3有哪些新特性吗？它们会带来什么影响？
+·性能提升
+  更小巧、更快速
+  支持自定义渲染器
+  支持摇树优化：一种在打包时去除无用代码的优化手段
+  支持Fragments和跨组件渲染
+
+·API变动
+  模板语法99%保持不变
+  原生支持基于class的组件，并且无需借助任何编译及各种stage阶段的特性
+  在设计时也考虑TypeScript的类型推断特性
+  重写虚拟DOM可以期待更多的编译时提示来减少运行时的开销
+  优化插槽生成可以单独渲染父组件和子组件
+  静态树提升降低渲染成本
+  基于Proxy的观察者机制节省内存开销
+
+·不兼容IE11
+  检测机制更加全面、精准、高效,更具可调试式的响应跟踪
+
+# 25.你都做过哪些Vue的性能优化？
+```
+编码阶段
+尽量减少data中的数据，data中的数据都会增加getter和setter，会收集对应的watcher
+v-if和v-for不能连用
+如果需要使用v-for给每项元素绑定事件时使用事件代理
+SPA 页面采用keep-alive缓存组件
+在更多的情况下，使用v-if替代v-show
+key保证唯一
+使用路由懒加载、异步组件
+防抖、节流
+第三方模块按需导入
+长列表滚动到可视区域动态加载
+图片懒加载
+SEO优化
+预渲染
+服务端渲染SSR
+打包优化
+压缩代码
+Tree Shaking/Scope Hoisting
+使用cdn加载第三方模块
+多线程打包happypack
+splitChunks抽离公共文件
+sourceMap优化
+用户体验
+骨架屏
+PWA
+还可以使用缓存(客户端缓存、服务端缓存)优化、服务端开启gzip压缩等。
+```
+
+# ·····················································
 
 # 100.Vue2监视数据的原理及一些问题,Vue.set:
 1.vue会监视data中所有层次的数据。
