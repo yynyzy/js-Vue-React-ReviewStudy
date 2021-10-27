@@ -167,19 +167,21 @@ function debounce(fn, delay) {
 
 //----------------------------------------------------------------
 //立即执行版
-function debounce(func,wait) {
-  let timeout;
-  return function () {
-      const context = this;
-      const args = [...arguments];
-      if (timeout) clearTimeout(timeout);
-      const callNow = !timeout;
-      timeout = setTimeout(() => {
-          timeout = null;
-      }, wait)
-      if (callNow) func.apply(context, args)
-  }
-}
+const debounce = (fn, wait, immediate) => {
+      let timer = null;
+      return function (...args) {
+        const context = this;
+        const args = [...arguments];
+        if (timer) clearTimeout(timer);
+        if (immediate && !timer) {
+          fn.apply(context, args);
+        }
+        timer = setTimeout(() => {
+           fn.apply(context, args)
+        }, wait);
+      };
+    };
+
 ```
 
 节流：在delay时间后执行，如果在 delay 内再次点击不会触发函数。（判断有定时器时，不会触发函数）
@@ -406,10 +408,14 @@ var obj = {
 let newarr = arr.flat(Infinity)
 ```
 
-   #### 二、正则表达式改良版
+   #### 二、reduce
 ```
-let newarr = JSON.parse("["+JSON.stringify(arr).replace(/\[|\]/g, '')+"]")
-console.log(newarr);  //[ 1, 2, 3, 4, 5, 6, 7, 8, 9]
+function flatten(arr) {
+      return arr.reduce((result, item) => {
+        return result.concat(Array.isArray(item) ? flatten(item) : item);
+      }, []);
+}
+
 ```
 
    #### 三、递归
@@ -490,14 +496,13 @@ function distinct6(arr = testArr) {
     2. 手写
     ```
     const deepClone = function (obj) {
-        if (typeof obj !== 'object') return obj;
-        if (obj == null) return;
+        if (!obj || typeof obj !== "object") return;
         if (obj instanceof RegExp) return new RegExp(obj);
         if (obj instanceof Date) return new Date(obj);
     
-        //=>不直接创建空对象目的:克隆的结果和之前保持相同的所属类
-        let newObj = new obj.constructor
-    
+        <!-- //=>不直接创建空对象目的:克隆的结果和之前保持相同的所属类
+        let newObj = new obj.constructor -->
+        let newObj = Array.isArray(obj) ? [] : {};
         for (var key in obj) {
             if (obj.hasOwnProperty(key)) {
                 //Object的hasOwnProperty()方法返回一个布尔值，判断对象是否包含特定的自身（非继承）属性。
