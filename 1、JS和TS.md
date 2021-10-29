@@ -1114,6 +1114,54 @@ class SubType extends SuperType {
 
 ```
 
+
+
+## 37.
+
+## 100.generator函数(迭代函数—不常用)
+  ### 基本用法
+generator函数跟普通函数在写法上的区别就是，多了一个星号*，并且只有在generator函数中才能使用yield，什么是yield呢，他相当于generator函数执行的中途暂停点，比如下方有3个暂停点。而怎么才能暂停后继续走呢？那就得使用到next方法，next方法执行后会返回一个对象，对象中有value 和 done两个属性
+
+value：暂停点后面接的值，也就是yield后面接的值
+done：是否generator函数已走完，没走完为false，走完为true
+```js
+function* gen() {
+  yield 1
+  yield 2
+  yield 3
+}
+const g = gen()
+console.log(g.next()) // { value: 1, done: false }
+console.log(g.next()) // { value: 2, done: false }
+console.log(g.next()) // { value: 3, done: false }
+console.log(g.next()) // { value: undefined, done: true }
+```
+可以看到最后一个是undefined，这取决于你generator函数有无返回值
+
+  ### next函数传参
+generator函数可以用next方法来传参，并且可以通过yield来接收这个参数，注意两点
+
+第一次next传参是没用的，只有从第二次开始next传参才有用
+next传值时，要记住顺序是，先右边yield，后左边接收参数
+```js
+function* gen() {
+  const num1 = yield 1
+  console.log(num1)
+  const num2 = yield 2
+  console.log(num2)
+  return 3
+}
+const g = gen()
+console.log(g.next()) // { value: 1, done: false }
+console.log(g.next(11111))
+// 11111
+//  { value: 2, done: false }
+console.log(g.next(22222)) 
+// 22222
+// { value: 3, done: true }
+```
+
+
 # TS
 typescript在编译阶段进行类型检查，当类型不合符预期结果的时候则会出现错误提示
 
