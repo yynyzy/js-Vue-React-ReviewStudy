@@ -169,7 +169,7 @@ function debounce(fn, delay) {
 //立即执行版
 const debounce = (fn, wait, immediate) => {
       let timer = null;
-      return function (...args) {
+      return function () {
         const context = this;
         const args = [...arguments];
         if (timer) clearTimeout(timer);
@@ -710,7 +710,7 @@ function distinct6(arr = testArr) {
                 Promise.resolve(arr[i]).then((val) => {
                     resolve(val)
                 }).catch(err => {
-                    reject
+                    reject(err)
                 })
             }
         })
@@ -866,13 +866,10 @@ Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES202
             F.prototype = origin.prototype;
             target.prototype = new F();
             target.prototype.constructor = target
-            target.prototype.super_class = origin
+           // target.prototype.super_class = origin //可以看情况加，用于知道继承了谁
         }
     })()
     ```
-
-
-
 
 ## 30.npm install原理图
 ![npm install原理图](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\npm_install原理图.png)
@@ -957,7 +954,7 @@ SuperType.prototype.getSuperValue= function (){
 function SubType (){
     this.Subproperty = false;
 }
-// 将子类的实例赋给父类的原型
+// 将父类的实例 赋给继承者的原型
 SubType.prototype = new SuperType();
 SuperType.prototype.getSubValue= function (){
     return this.Subproperty;
@@ -1038,7 +1035,6 @@ SubType.prototype.sayAge = function(){
 ```
 
    ### 5.寄生式继承 
-
 ```js
 function createAnother(original){
     const clone = Object(original)  // 通过调用 object() 函数创建一个新对象
@@ -1048,7 +1044,7 @@ function createAnother(original){
     return clone                    // 返回这个对象
 }
 ```
-```
+```js
 函数的主要作用是为构造函数新增属性和方法，以增强函数
     var person = {
       name: "Nicholas",
@@ -1057,7 +1053,7 @@ function createAnother(original){
     var anotherPerson = createAnother(person);
     anotherPerson.sayHi(); //"hi"
 ```
-复制代码缺点（同原型式继承）：
+缺点（同原型式继承）：
         ·原型链继承多个实例的引用类型属性指向相同，存在篡改的可能。
         ·无法传递参数
 
@@ -1083,9 +1079,9 @@ function SubType(name, age){
 }
 
  function inheritPrototype(subType, superType){
-  var prototype = Object.create(superType.prototype); // 创建对象，创建父类原型的一个副本
-  prototype.constructor = subType;                    // 增强对象，弥补因重写原型而失去的默认的constructor 属性
-  subType.prototype = prototype;                      // 指定对象，将新创建的对象赋值给子类的原型
+  var ptype = Object.create(superType.prototype); // 创建对象，创建父类原型的一个副本
+  ptype.constructor = subType;                    // 增强对象，弥补因重写原型而失去的默认的constructor 属性
+  subType.prototype = ptype;                      // 指定对象，将新创建的对象赋值给子类的原型
 }
 
 // 调用函数（盗用构造函数方式）将父类原型指向子类
