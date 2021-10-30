@@ -268,20 +268,20 @@ function createPerson(name, age, sex) {
 4.发布者订阅模式
 ```
 let Public = {
-            listen: function (key, fn) {
+            list: [],
+            on: function (key, fn) {
                 if (!this.list[key]) {
                     this.list[key] = []
                 }
                 this.list[key].push(fn)
             },
-            trigger: function (key, ...args) {
+            emit: function (key, ...args) {
                 let lists = this.list[key]
                 for (let fn of lists) {
                     fn.apply(this, ...args)
                 }
-            },
-            list: []
-        }
+            }
+    }  
 ```
 
 ## 7. JS的变量提升（预编译）
