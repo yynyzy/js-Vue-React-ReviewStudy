@@ -1112,7 +1112,40 @@ class SubType extends SuperType {
 
 
 
-## 37.
+## 37.设计和实现一个  LRU (最近最少使用) 缓存机制。
+```
+class LRU {
+        //capacity :  缓存的容量
+        constructor(capacity) {
+            this.capacity = capacity;
+            this.map = new Map()
+        }
+        /*
+        *  get: 你每当获取即使了这个数，就将它从 map中移到最后，即代表最新使用，
+        */
+        get(key) {
+            let val = this.map.get(key);
+            if (val === "undefined") return -1;
+            this.map.delete(key);
+            this.map.set(key, val)
+        }
+        /*
+        *  put: 第一步 如果 map 中已经存在这个数，就将它删除，
+        *       第二步 将这个数储存到map中
+        *       第三步 capacity为你设置的容量，判断 map 中储存的数量是否超过了容量，如果是则通过*       while循环 this.map.keys().next().value删除开头的值        
+        */
+        put(key, val) {
+            if (this.map.has(key)) {
+                this.map.delete(key);
+            }
+            this.map.set(key, val)
+            let keys = this.map.keys()
+            while (this.capacity < this.map.size) {
+                this.map.delete(keys.next().value)
+            }
+        }
+    }
+```
 
 ## 100.generator函数(迭代函数—不常用)
   ### 基本用法
