@@ -104,7 +104,7 @@ fetch('http://localhost:3000/,
 都是改变this指向，不过bind返回的是一个函数，而apply和call 直接返回结果。
 apply的第二个参数接受的是一个数组，而 call 接受的是参数列表
 
-```
+```js
 1. Function.prototype.myCall = function (context) {
             var context = context || window
             context.Fn = this
@@ -118,9 +118,10 @@ Function.prototype.myApply = function (context) {
             var context = context || window
             context.Fn = this
             let result
-            if (arguments[1]) {
-                if ((arguments[1] instanceof Array)) {
-                    result = context.Fn(...arguments[1])
+            let args = arguments[1]
+            if (args) {
+                if ((args instanceof Array)) {
+                    result = context.Fn(...args)
                 } else {
                     throw new TypeError('ERROR')
                 }
