@@ -947,7 +947,7 @@ PWA
 还可以使用缓存(客户端缓存、服务端缓存)优化、服务端开启gzip压缩等。
 ```
 
-# ·····················································
+# ················特殊技巧····································
 
 # 100.Vue2监视数据的原理及一些问题,Vue.set:
 1.vue会监视data中所有层次的数据。
@@ -1053,4 +1053,118 @@ Vue.directive('display-key',{
 //有1,2,3,4的都是有权限的，超过4的没有权限会删除
 <button v-display-key='1'>按钮一</button>
 <button v-display-key='2'>按钮一</button>
+```
+
+# 200 ·················性能优化····································
+
+##  1. v-for 遍历必须为 item 添加 key，且避免同时使用 v-if
+
+##  2. 长列表性能优化
+  Vue 会通过 Object.defineProperty 对数据进行劫持，来实现视图响应数据的变化，然而有些时候我们的组件就是纯粹的数据展示，不会有任何改变，我们就不需要 Vue 来劫持我们的数据，在大量数据展示的情况下，这能够很明显的减少组件初始化的时间，那如何禁止 Vue 劫持我们的数据呢？可以通过 Object.freeze 方法来冻结一个对象，一旦被冻结的对象就再也不能被修改了。
+  ```js
+  export default {
+  data: () => ({
+    users: {}
+  }),
+
+  async created() {
+    const users = await axios.get("/api/users");
+    this.users = Object.freeze(users);
+  }
+};
+  ```
+
+##  3. vue 组件中的 data 是函数而不是对象
+当一个组件被定义，data 必须声明为返回一个初始数据对象的函数，因为组件可能被用来创建多个实例，复用在多个页面。
+
+如果 data 是一个纯碎的对象，则所有的实例将共享引用同一份 data 数据对象，无论在哪个组件实例中修改 data，都会影响到所有的组件实例。如果 data 是函数，每次创建一个新实例后，调用 data 函数，从而返回初始数据的一个全新副本数据对象。这样每复用一次组件，会返回一份新的 data 数据，类似于给每个组件实例创建一个私有的数据空间，让各个组件的实例各自独立，互不影响保持低耦合。
+
+##  4. Vue 钩子函数之钩子事件 hookEvent,监听组件简化代码(仅限，vue3有改变)
+用法：
+通过 $on(eventName, eventHandler) 侦听一个事件；
+通过 $once(eventName,eventHandler) 一次性侦听一个事件；
+通过 $off(eventName, eventHandler) 停止侦听一个事件；
+
+  通常实现一个定时器的调用与销毁我可能会以以下方式实现：
+```js
+export default{
+  data(){
+    timer:null  // 需要创建实例
+  },
+
+  mounted(){
+      this.timer = setInterval(()=>{
+      //具体执行内容
+      console.log('1');
+    },1000);
+  }
+
+  beforeDestory(){
+    clearInterval(this.timer);
+    this.timer = null;
+  }
+}
+```
+这种方法存在的问题是：
+vue 实例中需要有这个定时器的实例，感觉有点多余。创建的定时器代码和销毁定时器的代码没有放在一起，不容易维护，通常很容易忘记去清理这个定时器。
+使用  监听beforeDestory生命周期可以避免该问题，并且因为只需要监听一次，所以使用 $once 进行注册监听。
+```js
+export default{
+  methods:{
+    fn(){
+      const timer = setInterval(()=>{
+        console.log('1');
+      },1000);
+
+      this.$once('hook:beforeDestory',()=>{ // 监听一次即可
+        clearInterval(timer);
+        timer = null;
+      })
+    }
+  }
+}
+```
+
+##  5. 组件懒加载
+在单页应用中，如果没有应用懒加载，运用 webpack 打包后的文件将会异常的大，造成进入首页时，需要加载的内容过多，延时过长，不利于用户体验，而运用懒加载则可以将页面进行划分，需要的时候加载页面，可以有效的分担首页所承担的加载压力，减少首页加载用时。
+
+##  6. 非响应式数据
+初始化时，vue 会对 data 做 getter、setter 改造。在 Vue 的文档中介绍数据绑定和响应时，特意标注了对于经过 Object.freeze() 方法的对象无法进行更新响应
+  使用了 Object.freeze()之后，减少了 observer 的开销。
+  
+##  7. 不要将所有的数据都放到 data 中
+data 中的数据都会增加 getter 和 setter，又会收集 watcher，这样还占内存。不需要响应式的数据我们可以定义在实例上。
+
+##  8. v-for元素绑定事件代理
+事件代理作用主要是 2 个：
+1.将事件处理程序代理到父节点，减少内存占用率
+2.动态生成子节点时能自动绑定事件处理程序到父节点
+
+##  9. 函数式组件
+函数式组件是无状态，它无法实例化，没有任何的生命周期和方法。创建函数式组件也很简单，只需要在模板添加 functional 声明即可。一般适合只依赖于外部数据的变化而变化的组件，因其轻量，渲染性能也会有所提高。
+
+##  10. provide 和 inject 组件通信
+痛点：常用的父子组件通信方式都是父组件绑定要传递给子组件的数据，子组件通过 props 属性接收，一旦组件层级变多时，采用这种方式一级一级传递值非常麻烦，而且代码可读性不高，不便后期维护。
+
+vue 提供了 provide 和 inject 帮助我们解决多层次嵌套嵌套通信问题。在 provide 中指定要传递给子孙组件的数据，子孙组件通过 inject 注入祖父组件传递过来的数据，可以轻松实现跨级访问父组件的数据。
+
+provide：是一个对象，或者是一个返回对象的函数。里面呢就包含要给子孙后代的东西，也就是属性和属性值。注意：子孙层的 provide 会掩盖祖父层 provide 中相同 key 的属性值。
+
+inject：一个字符串数组，或者是一个对象。属性值可以是一个对象，包含 from 和 default 默认值，from 是在可用的注入内容中搜索用的 key (字符串或 Symbol)，意思就是祖父多层 provide 提供了很多数据， from 属性指定取哪一个 key default 指定默认值。
+```js
+-------------------parent.vue----------------------
+provide(){
+    return {
+   // keyName: {name:this.name}, // value 是对象才能实现响应式，也就是引用类型
+      keyName: this.changeValue // 通过函数的方式也可以[注意，这里是把函数作为value，而不是this.changeValue()]
+   // keyName: 'test' value 如果是基本类型，就无法实现响应式
+    }
+  }
+```
+
+```js
+inject:['keyName']
+  create(){
+     console.log(this.keyName) // 改变后的名字-李四
+}
 ```

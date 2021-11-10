@@ -543,7 +543,7 @@ function distinct6(arr = testArr) {
    3.typeof(undefined)  => undefined  
 
 ## 16.如何判断是不是一个数组
-```
+```js
     typeof千万别写
 1.Array.isArray([]);   //true
 
@@ -551,7 +551,7 @@ function distinct6(arr = testArr) {
 
 3. Array.prototype.isPrototypeof([])        //true
 
-4.Array.prototype.toString.call([]);  // [Object Array]
+4.Object.prototype.toString.call([]).slice(8,-1);  // [Object Array]
 ```
 
 ## 17.说一下从url输入到返回请求的过程
