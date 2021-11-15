@@ -340,7 +340,7 @@ let Public = {
  ```
 
 ## 9.前端性能优化
-### .计算性能指标
+### .计算性能指标（详见特殊小知识）
 可以使用Navigation，timing 统计到的时间数据来计算一些页面性能指标，比如DNS查询耗时、白屏时间、domready等等。如下:
 . DNS查询耗时= domainLookupEnd - domainLookupStart
 . TCP链接耗时= connectEnd - connectStart
