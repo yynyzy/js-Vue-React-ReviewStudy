@@ -294,7 +294,7 @@ let Public = {
         4.开始预编译（预编译分为全局预编译和局部预编译，全局预编译发生在页面加载完成时执行，而局部预编译发生在函数执行的前一刻。）
             1.查找变量声明，作为GO属性，值赋予undefined
             2.查找函数声明，作为GO属性，值赋予函数体（函数声明优先）
-
+    
             ```
             GO / window = {
             //页面加载创建GO同时，创建了document、navigator、screen等等属性，此处省略
@@ -466,7 +466,7 @@ function distinct6(arr = testArr) {
     });
     return result
 }
-```
+ ```
 
 
 ## 13.浅拷贝和深拷贝
@@ -493,7 +493,7 @@ function distinct6(arr = testArr) {
    ### 深拷贝实现
     1. JSON.parse( JSON.stringify() ) 序列化和反序列
      缺点:会丢失undefined、function、symbol这三种类型的值。原因是JSON在执行字符串化时，会先进行一个JSON格式化，非安全的JSON值，就会被丢弃掉。
-
+    
     2. 手写
     ```
     const deepClone = function (obj) {
@@ -585,29 +585,29 @@ function distinct6(arr = testArr) {
    · 源端口：源端口和IP地址的作用是标识报文的返回地址。
 
    · 目的端口：端口指明接收方计算机上的应用程序接口。
-  
+
    · TCP报头中的源端口号和目的端口号同IP数据报中的源IP与目的IP唯一确定一条TCP连接。
-  
+
    · 序号：是TCP可靠传输的关键部分。序号是该报文段发送的数据组的第一个字节的序号。在TCP传送的流中，  每一个字节都有一个序号。比如一个报文段的序号为300，报文段数据部分共有100字节，则下一个报文段的序  号为400。所以序号确保了TCP传输的有序性。
-  
+
    · 确认号：即ACK，指明下一个期待收到的字节序号，表明该序号之前的所有数据已经正确无误的收到。确认号  只有当ACK标志为1时才有效。比如建立连接时，SYN报文的ACK标志位为0。
-  
+
    · 首部长度/数据偏移：占4位，它指出TCP报文的数据距离TCP报文段的起始处有多远。由于首部可能含有可选  项内容，因此TCP报头的长度是不确定的，报头不包含任何任选字段则长度为20字节，4位首部长度字段所能表  示的最大值为1111，转化为10进制为15，15*32/8=60，故报头最大长度为60字节。首部长度也叫数据偏移，  是因为首部长度实际上指示了数据区在报文段中的起始偏移值。
-  
+
    · 保留：占6位，保留今后使用，但目前应都位0。
-  
+
    · 控制位：URG ACK PSH RST SYN FIN，共6个，每一个标志位表示一个控制功能。
-  
+
    · 紧急URG：当URG=1，表明紧急指针字段有效。告诉系统此报文段中有紧急数据
-  
+
    · 确认ACK：仅当ACK=1时，确认号字段才有效。TCP规定，在连接建立后所有报文的传输都必须把ACK置1。
-  
+
    · 推送PSH：当两个应用进程进行交互式通信时，有时在一端的应用进程希望在键入一个命令后立即就能收到对  方的响应，这时候就将PSH=1。
-  
+
    · 复位RST：当RST=1，表明TCP连接中出现严重差错，必须释放连接，然后再重新建立连接。
-  
+
    · 同步SYN：在连接建立时用来同步序号。当SYN=1，ACK=0，表明是连接请求报文，若同意连接，则响应报文  中应该使SYN=1，ACK=1。
-  
+
    · 终止FIN：用来释放连接。当FIN=1，表明此报文的发送方的数据已经发送完毕，并且要求释放。
 
 
@@ -645,20 +645,20 @@ function distinct6(arr = testArr) {
         ·强制缓存
         当缓存数据库中有客户端需要的数据，客户端直接将数据从其中拿出来使用（如果数据未失效），当缓存服务器没有需要的数据时，客户端才会向服务端请求。
         对于强制缓存，服务器响应的header中会用两个字段来表明—— Expires 和 Cache-Control（中的max-age属性）。
-
+    
         ·协商缓存
         又称对比缓存。客户端会先从缓存数据库拿到一个缓存的标识，然后向服务端验证标识是否失效，如果没有失效服务端会返回304，这样客户端可以直接去缓存数据库拿出数据，如果失效，服务端会返回新的数据
         对于协商缓存来说，介绍它的两种缓存方案：
             ·Last-Modified（服务器在响应请求时，会告诉浏览器资源的最后修改时间。）
                 属性：if-Modified-Since:浏览器再次请求服务器的时候，请求头会包含此字段，后面跟着在缓存中获得的最后修改时间。服务端收到此请求头发现有if-Modified-Since，则与被请求资源的最后修改时间进行对比，如果一致则返回304和响应报文头，浏览器只需要从缓存中获取信息即可。
-
+    
             ·Etag（服务器响应请求时，通过此字段告诉浏览器当前资源在服务器生成的唯一标识（生成规则由服务器决定））
 
 
 
    ### 4·服务器处理请求并返回HTTP报文
         返回带有html代码
-        
+
    ### 5·浏览器解析渲染页面
    过程：
         ·解析HTML形成DOM树
@@ -668,7 +668,7 @@ function distinct6(arr = testArr) {
     这个过程涉及两个比较重要的概念回流和重绘（重绘不一定回流，回流一定会重绘）
         ·回流：当Render Tree中部分或全部元素的尺寸、结构、或某些属性发生改变时，浏览器重新渲染部分或全部文档的过程。
         ·重绘：当页面中元素样式的改变并不影响它在文档流中的位置时(color、background-color),浏览器会将新样式赋予给元素并重新绘制它。
-   
+
    ### 6·连接结束
 
 
@@ -893,7 +893,7 @@ Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES202
     function func() {
       console.log(this)
     }
-
+    
     func.bind(1).bind(2)()     // 1
     ```
     !!! 箭头函数中 this 不会被修改
@@ -987,7 +987,7 @@ console.log(instance1.color)    //["red","green","blue","black"];
 
 const instance2 = new SubType();
 console.log(instance2.color)    //["red","green","blue"];
-``` 
+```
 
    ### 3.原型式继承 
    缺点：
@@ -1147,6 +1147,23 @@ class LRU {
         }
     }
 ```
+
+## 38.for in和for of的区别
+| 比较   | for in                 | for of               |
+| ------ | ---------------------- | -------------------- |
+|        | 可以遍历普通对象       | 不能遍历普通对象     |
+|        | 遍历出数组的原型对象   | 不会遍历出原型对象   |
+|        | 可以遍历出数组自身属性 | 不会遍历自身属性     |
+| 不同点 | 遍历出来的值是 key     | 遍历出来的值是 value |
+|        | 不可以遍历 map/set     | 可以遍历 map/set     |
+|        | 不可以迭代 generators  | 可以迭代generators   |
+|        | IE 支持                | IE 不支持            |
+|        |                        |                      |
+| 相同点 | 可以遍历数组           | 可以遍历数组         |
+|        | 可以 break 中断遍历    | 可以 break 中断遍历  |
+
+ 
+
 
 ## 100.generator函数(迭代函数—不常用)
   ### 基本用法
@@ -1333,34 +1350,34 @@ obj = {name: 'Wang', age: 25};
     function getArr<T>(arr: T[]) {
       return arr;
     }
-
+    
     getArr<number>([1, 2, 3]) //指定了number，那我的数组必须每一项也是number，如果不是就报错
     getArr<string>(['g', 'q', 'f']) 
-
+    
     ```
-
+    
     ```
     function getVal<T>(obj: T, k: keyof T){
       return obj[k];
     }
-
+    
     interface Person {
       name: string;
       age: number;
     }
-
+    
     getVal<Person>({
       name: 'gqf',
       age: 29
     }, 'age') // 这里的key值只能传name或者age，否则就会报错，这个就是泛型的力量
-
+    
     ```
    ### 使用多个泛型
     ```
     function manyTest<K, V>(a: K, b: V) {
         return `${a} ${b}`
     }
-
+    
     manyTest<number, string>(1, '2') //泛型指定了第一个参数是数字，第二个参数是字符串
     ```
    ### 在类中使用泛型-泛型继承接口了
@@ -1369,11 +1386,11 @@ obj = {name: 'Wang', age: 25};
         name: string;
         age: number;
     }
-
+    
     // 规定了数组每一项的Skill技能，要遵循接口的格式，有name和age字段
     class DesignHero<T extends Skill> { 
       constructor(private skills: T[]){}
-
+    
       getSkillName (index: number) {
         console.log(this.skills[index].name)
         return this.skills[index].name;

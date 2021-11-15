@@ -947,6 +947,32 @@ PWA
 还可以使用缓存(客户端缓存、服务端缓存)优化、服务端开启gzip压缩等。
 ```
 
+# 26.Vue.$nextTick实现原理，是宏任务还是微任务
+1.官方定义：Vue.nextTick([callback,context])
+         在下次DOM更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新之后的DOM
+
+
+2.vue如何检测到DOM更新完毕呢？
+    能监听到DOM改动的API：MutationObserver
+    MutationObserver是HTML5新增的属性，用于监听DOM修改事件，能够监听到节点的属性、文本内
+    容、子节点等的改动，是一个功能强大的利器。
+```js
+//MutationObserver基本用法 
+var observer = new MutationObserver(function(){   //这里是回调函数 
+  console.log('DOM被修改了！'); 
+}); 
+var article = document.querySelector('article'); 
+observer.observer(article); 
+```
+
+3.vue的nextTick方法的实现原理了，总结一下就是：
+    1.vue用异步队列的方式来控制DOM更新和nextTick回调先后执行
+    2.microtask因为其高优先级特性，能确保队列中的微任务在一次事件循环前被执行完毕
+    3.因为兼容性问题，vue不得不做了microtask向macrotask的降级方案
+   *4.Vue在更新DOM时是异步执行的。只要侦听到数据变化，Vue将开启一个队列，并缓冲在同一事件循环中发
+    生的所有数据变更。如果同一个watcher被多次触发，只会被推入到队列中一次。这种在缓冲时去除重复数据对于避免不必要的计算和DOM操作是非常重要的。nextTick方法会在队列中加入一个回调函数，确保该函数在前面的dom操作完成后才调用。
+
+
 # ················特殊技巧····································
 
 # 100.Vue2监视数据的原理及一些问题,Vue.set:
