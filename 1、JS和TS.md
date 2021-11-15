@@ -1148,7 +1148,7 @@ class LRU {
     }
 ```
 
-## 38.for in和for of的区别
+## 38.for in(缺陷是什么)和for of的区别
 | 比较   | for in                 | for of               |
 | ------ | ---------------------- | -------------------- |
 |        | 可以遍历普通对象       | 不能遍历普通对象     |
@@ -1162,7 +1162,34 @@ class LRU {
 | 相同点 | 可以遍历数组           | 可以遍历数组         |
 |        | 可以 break 中断遍历    | 可以 break 中断遍历  |
 
- 
+ for in有什么缺陷？
+    1.会遍历到对象中所有可枚举的属性方法，我们给对象添加的方法默认也是可枚举的；
+    2.不可以遍历 map/set
+    3.不可以迭代 generators 
+
+
+## 39.for of可以遍历对象吗？怎么让它能遍历
+ ### for ... of 只能遍历带有 Symbol.iterator 的数据类型
+    而对于不带有Symbol.iterator的数据类型, 控制台便会给出错误 Uncaught TypeError: xxx is not iterable
+
+ ### 怎么让 for ... of能遍历对象?
+     只要向 Object的原型上写一个 Symbol.iterator 就行了
+```js
+Object.prototype[Symbol.iterator] = function() {
+    const keys = Reflect.ownKeys(this)
+    let pointer = 0
+    // 返回遍历器对象
+    return {
+        next: () => pointer < keys.length ? { value: this[keys[pointer++]] } : { done: true },
+        return: () => ({ done: true })
+    }
+}
+```
+    ·Reflect.ownKeys 获取对象的所有属性(包括 Symbol), Object.keys()不能获取到Symbol
+    ·要通过this获取实例对象，所以用 function 而没有使用箭头函数
+    ·定义了一个 pointer 指针, 每次 for...of 遍历时, next函数都会执行, 返回目标值, 由于我们自定义了遍历器, 所以可以返回任何你想要的值
+    ·遍历器返回的对象 next 函数是必须的, 不断调用该方法，依次指向数据结构中的每个成员，每次调用之后，对指针加一，向后移动一位，直至完成便遍历操作
+    ·return函数在遍历结束会触发 ，return()方法的使用场合是，如果for...of循环提前退出（通常是因为出错，或者有break语句）,就会调用return()方法。如果一个对象在完成遍历前，需要清理或释放资源，就可以部署return()方法。
 
 
 ## 100.generator函数(迭代函数—不常用)
