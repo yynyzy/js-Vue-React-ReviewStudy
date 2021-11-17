@@ -28,3 +28,5 @@ node 的事件循环的阶段顺序为：
 ·轮询阶段(poll)：检索新的 I/O 事件;执行与 I/O 相关的回调（几乎所有情况下，除了关闭的回调函数，那些由计时器和 setImmediate() 调度的之外），其余情况 node 将在适当的时候在此阻塞。
 ·检查阶段(check)：setImmediate() 回调函数在这里执行
 ·关闭事件回调阶段(close callback)：一些关闭的回调函数，如：socket.on('close', ...)。
+
+
