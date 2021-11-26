@@ -286,16 +286,17 @@ let Public = {
 ```
 
 ## 7. JS的变量提升（预编译）
-    Add JS引擎会在正式执行代码, 加载脚本文件，进行语法分析后，会进行一次"预编译"（简单理解就是在内存中开辟一些空间，存放一些变量和函数）
-        具体步骤如下（browser）：
-        1.加载第一个脚本文件
-        2.页面创建GO全局对象（Global Object）对象（window对象）。
-        3.进行词法分析(编译器会先将一连串字符打断成（对于语言来说）有意义的片段)、语法分析(编译器将一个 token 的流（数组）转换为一个“抽象语法树”)。
-        4.开始预编译（预编译分为全局预编译和局部预编译，全局预编译发生在页面加载完成时执行，而局部预编译发生在函数执行的前一刻。）
-            1.查找变量声明，作为GO属性，值赋予undefined
-            2.查找函数声明，作为GO属性，值赋予函数体（函数声明优先）
-    
-            ```
+加载脚本文件后
+### 1.语法分析
+    如果存在逻辑错误或语法错误，直接报错程序停止。没有错误的话，开始从上到下解释一行执行一行。
+### 2.预编译
+   #### 全局预编译的3个步骤：
+    1.创建GO对象（Global Object）全局对象。
+    2.进行词法分析(编译器会先将一连串字符打断成（对于语言来说）有意义的片段)、语法分析(编译器将一个 token 的流（数组）转换为一个“抽象语法树”)。
+    3.开始预编译（预编译分为全局预编译和局部预编译，全局预编译发生在页面加载完成时执行，而局部预编译发生在函数执行的前一刻。）
+        1.查找变量声明，作为GO属性，值赋予undefined
+        2.查找函数声明，作为GO属性，值赋予函数体（函数声明优先）
+```js
             GO / window = {
             //页面加载创建GO同时，创建了document、navigator、screen等等属性，此处省略
             a: undefined,
@@ -305,14 +306,18 @@ let Public = {
                 console.log('so easy');
                 }
             }
-            ```
-        5.解释执行代码（直到执行函数b，该部分也被叫做词法分析）
-###      局部预编译的4个步骤：
-        6.创建AO活动对象（Active Object）
-        7.在AO活动对象中进行查找形参和变量声明, 并值赋予undefined
-        8.实参值赋给形参
-        9.查找函数声明，值赋给函数体
-        10.解释执行函数中的代码
+```
+
+   #### 局部预编译的4个步骤：
+    1.创建AO对象（Activation Object）执行期上下文。
+    2.找形参和变量声明，将变量和形参名作为AO属性名，值为undefined
+    3.将实参值和形参统一。
+    4.在函数体里面找函数声明，值赋予函数体。
+
+### 3.解释执行
+(直到代码执行，都叫做词法分析)
+
+
 
 ## 8.Undefined与Null的区别
  Undefined ：
@@ -366,9 +371,9 @@ let Public = {
     2.将空对象的原型(__proto__) 指向 构造函数(new的那个函数)的原型对象(prototype)
     3.将构造函数中的this指向新对象
     4.构造函数中若有返回值，就直接返回；否则返回新对象
-```
+```js
     function myNew(fn){
-        let obj = Object.create({})
+        let obj = Object.create(null)
         obj.__proto__ = fn.prototype
         let args =[...Arguments].slice(1)
         const res = fn.apply(obj,args)
@@ -377,6 +382,25 @@ let Public = {
         }
         return obj
     }
+
+//为什么要判断返回值
+    function Otaku (name, age) {
+    this.strength = 60;
+    this.age = age;
+
+    return {
+        name: name,
+        habit: 'Games'
+    }
+}
+
+var person = new Otaku('Kevin', '18');
+
+console.log(person.name) // Kevin
+console.log(person.habit) // Games
+console.log(person.strength) // undefined
+console.log(person.age) // undefined
+
 ```
 
 ## 11.闭包(普通函数闭包中的this)
