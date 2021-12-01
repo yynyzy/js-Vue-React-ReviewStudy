@@ -302,9 +302,27 @@ componentDidCatch(error, info) {
             兄弟组件:消息订阅-发布、集中式管理
             祖孙组件(跨级组件):消息订阅-发布、集中式管理、conText(开发用的少，封装插件用的多)
 
-# 100.React面试题
+# 3、React组件之间通信方式？
+    ·父子组件,父->子直接用Props,子->父用callback回调
+    ·非父子组件,用发布订阅模式的Event模块
+    ·项目复杂的话用Redux、Mobx等全局状态管理管库
+    ·Context Api context 会使组件复用性变差
 
-```
+·Context 提供了一个无需为每层组件手动添加 props，就能在组件树间进行数据传递的方法.如果你只是想避免层层传递一些属性，组件组合（component composition）有时候是一个比 context 更好的解决方案。
+·组件组合缺点：会使高层组件变得复杂
+
+# 4、setState是同步还是异步
+1、setState只在合成事件和钩子函数中是“异步”的，在原生事件和 setTimeout 中都是同步的。
+
+2、setState的“异步”并不是说内部由异步代码实现，其实本身执行的过程和代码都是同步的，只是合成事件和钩子函数的调用顺序在更新之前，导致在合成事件和钩子函数中没法立马拿到更新后的值，形式了所谓的“异步”，当然可以通过第二个参数 setState(partialState, callback) 中的callback拿到更新后的结果。
+
+3、setState 的批量更新优化也是建立在“异步”（合成事件、钩子函数）之上的，在原生事件和setTimeout 中不会批量更新，在“异步”中如果对同一个值进行多次 setState ， setState 的批量更新策略会对其进行覆盖，取最后一次的执行，如果是同时 setState 多个不同的值，在更新时会对其进行合并批量更新。
+
+#
+
+
+# 100.React面试题（setState修改数据）
+```js
 class Example extends React.Component {
   constructor() {
     super();
@@ -341,22 +359,5 @@ class Example extends React.Component {
 输出： 0 0 2 3
 ```
 
-# --------------------复习----------------------
 
-# 1、React组件之间通信方式？
-    ·父子组件,父->子直接用Props,子->父用callback回调
-    ·非父子组件,用发布订阅模式的Event模块
-    ·项目复杂的话用Redux、Mobx等全局状态管理管库
-    ·Context Api context 会使组件复用性变差
 
-·Context 提供了一个无需为每层组件手动添加 props，就能在组件树间进行数据传递的方法.如果你只是想避免层层传递一些属性，组件组合（component composition）有时候是一个比 context 更好的解决方案。
-·组件组合缺点：会使高层组件变得复杂
-
-# 2、setState是同步还是异步
-1、setState只在合成事件和钩子函数中是“异步”的，在原生事件和 setTimeout 中都是同步的。
-
-2、setState的“异步”并不是说内部由异步代码实现，其实本身执行的过程和代码都是同步的，只是合成事件和钩子函数的调用顺序在更新之前，导致在合成事件和钩子函数中没法立马拿到更新后的值，形式了所谓的“异步”，当然可以通过第二个参数 setState(partialState, callback) 中的callback拿到更新后的结果。
-
-3、setState 的批量更新优化也是建立在“异步”（合成事件、钩子函数）之上的，在原生事件和setTimeout 中不会批量更新，在“异步”中如果对同一个值进行多次 setState ， setState 的批量更新策略会对其进行覆盖，取最后一次的执行，如果是同时 setState 多个不同的值，在更新时会对其进行合并批量更新。
-
-#
