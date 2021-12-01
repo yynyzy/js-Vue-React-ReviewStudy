@@ -334,11 +334,12 @@ componentDidCatch(error, info) {
     最后关系为 switch>自定义组件>Route>目标组件
 
 ```js
+类组件式
 <Auth path="/user" component={user}>
 
 export default class Auth extends react.component{
     state={
-        hassendAuth:false, //是否发送过介权请求  (是否请求过权限)
+        hassendAuth:false, //是否发送过介权请求，没有请求过权限直接返回，不进行下一步判断不进入目标组件
         auth:false,        //介权是否通过           (请求权限是否成功)
         data:{}            // 预载数据（在调到目标路由前预先加载数据）
     };
@@ -354,17 +355,52 @@ export default class Auth extends react.component{
     }
 
     render(){
-        let {component:Component}  = this.props //解构出 <Auth path="/user" component={user}>传递的目标组件
-        if(！this.state.hassendAuth) return null;   //没有请求过权限直接返回，不进行下一步判断不进入目标组件
+        let {component:Component} = this.props //解构出路由传递的组件，并且重命名（这里的Component 就是user）
+        if(！this.state.hassendAuth) return null;  
         
-        return <Route render={props=>(              //...props 目标组件需要的路由信息
-        this.state.auth?                            //是否有权限，有进入目标组件，没有重定向到 login
-        <Component {...props} data={this.state.data}>:  //数据预载
+        // 为什么要用 render 而不是直接 components={this.props.component} ?
+        //因为在 Auth权限验证组件中请求的参数不能直接传递到 目标 component 上 
+        // (components={this.props.component}) 这种方式只是引用这个组件，所以传不了数据）
+        // 所以用 render(   ()=>{ <目标组件 data={需要传递的数据}  />}  )
+        return <Route render={props=>(             //...props 目标组件需要的剩余路由信息传给他，（exact...）
+        this.state.auth?                           
+        <Component {...props} data={this.state.data}> //数据预载，将前置路由提前请求的数据传过去
+        :
         <Redirect to="/login">
         )} > 
     }
 
 }
+
+//  render() {
+//  // 获取token
+//  const token=localStorage.getItem('token');
+//  // 进行判断如果有token则进入当前主页否则跳转至登录页面
+//  if(token){
+//      return(
+//          // <Route component={Home}></Route>
+//          <Route component={this.props.component}></Route>
+//          // 接受父组件传过来的component组件值
+//          )
+//  }else{  
+//      return(
+//          <Redirect to='/login' />
+//          // 使用Redirect做重定向，跳转到我们定义的组件当中     
+//  }
+```
+
+```js
+函数组件式
+<Auth path="/user" component={user}>
+
+export default  Auth =({component:Component,...rest})=>(
+ <Route  {...rest} component={ props=>(
+
+     Math.random()<0.5? <Component data={...}  {...props}/> : <Redirect to="/ login">
+ )
+ }/> 
+)
+
 ```
 
 
