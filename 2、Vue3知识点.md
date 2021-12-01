@@ -1012,7 +1012,7 @@ Presenter作为View和Model之间的“中间人”，除了基本的业务逻�
 
 ## MVVM
 MVVM把View和Model的同步逻辑自动化了。以前Presenter负责的View和Model同步不再手动地进行操作，而是交给框架所提供的数据绑定功能进行负责，只需要告诉它View显示的数据对应的是Model哪一部分即可。
-
+![MVVM](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\MVVM.png)
 
 
 
