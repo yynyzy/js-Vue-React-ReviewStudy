@@ -360,8 +360,8 @@ export default class Auth extends react.component{
         
         // 为什么要用 render 而不是直接 components={this.props.component} ?
         //因为在 Auth权限验证组件中请求的参数不能直接传递到 目标 component 上 
-        // (components={this.props.component}) 这种方式只是引用这个组件，所以传不了数据）
-        // 所以用 render(   ()=>{ <目标组件 data={需要传递的数据}  />}  )
+        // (components={this.props.component}) 传的是组件的本体，传不了数据）
+        // 所以用 render(   ()=>{ <目标组件 data={需要传递的数据}  />}  )  传的是组件的调用
         return <Route render={props=>(             //...props 目标组件需要的剩余路由信息传给他，（exact...）
         this.state.auth?                           
         <Component {...props} data={this.state.data}> //数据预载，将前置路由提前请求的数据传过去
@@ -394,8 +394,7 @@ export default class Auth extends react.component{
 <Auth path="/user" component={user}>
 
 export default  Auth =({component:Component,...rest})=>(
- <Route  {...rest} component={ props=>(
-
+ <Route  {...rest} render={ props=>(
      Math.random()<0.5? <Component data={...}  {...props}/> : <Redirect to="/ login">
  )
  }/> 
