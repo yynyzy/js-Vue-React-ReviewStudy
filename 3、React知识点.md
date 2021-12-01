@@ -80,13 +80,13 @@
     1.注册子路由时要写上父路由的path值
     2.路由的匹配是按照注册路由的顺序进行的
 
-## 10.向路由组件传递参数
+## 10.向路由组件传递 params 参数
     1.params参数
     路由链接(携带参数): <Link to='/demo/test/tom/18'}>详情</Link>
     注册路由(声明接收): <Route path="/demo/test/:name/:age" component={Test}/>
     接收参数:          const {id,title} = this.props.match.params
 
-## 11.search参数
+## 11.向路由组件传递 search 参数
     路由链接(携带参数):  <Link to='/demo/test?name=tom&age=18'}>详情</Link>
     注册路由(无需声明，正常注册即可):<Route path="/demo/test" component={Test}/>
     接收参数:         this.props.location.search 
@@ -108,7 +108,17 @@
     -this.prosp.history.goForward()
     -this.prosp.history.go()
 
-## 14.
+## 14.非路由跳转组件
+不是所有组件都通过路由跳转，但也需要抓去路由上下文，解决方案：
+1.通过路由跳转 <Route component={丢失上下文的组件}>
+2.通过属性传递 <丢失上下文的组件 {this.props}>  (this是父组件，在丢失上下文的组件中解构出父组件传递的的history，loaction)
+3.通过 withRouter 包装
+```js
+import {withRouter} from'react-router-dom'
+class demo extends React.component{}
+
+export default withRouter(demo)
+```
 
 
 # 2.深入了解react组件及通信
@@ -318,8 +328,76 @@ componentDidCatch(error, info) {
 
 3、setState 的批量更新优化也是建立在“异步”（合成事件、钩子函数）之上的，在原生事件和setTimeout 中不会批量更新，在“异步”中如果对同一个值进行多次 setState ， setState 的批量更新策略会对其进行覆盖，取最后一次的执行，如果是同时 setState 多个不同的值，在更新时会对其进行合并批量更新。
 
-#
 
+# 5、React前置授权路由（官方没提供需要自己写）
+    需要自定义路由。自定义一个组件代替路由，在组件中根据条件返回一个 Route 组件指向目标组件
+    最后关系为 switch>自定义组件>Route>目标组件
+
+```js
+<Auth path="/user" component={user}>
+
+export default class Auth extends react.component{
+    state={
+        hassendAuth:false, //是否发送过介权请求  (是否请求过权限)
+        auth:false,        //介权是否通过           (请求权限是否成功)
+        data:{}            // 预载数据（在调到目标路由前预先加载数据）
+    };
+
+    async componentDidMount(){
+        let res = await axios(......)
+        //数据请求回来
+        this.setState({
+            auth:res.data.auth,
+            hassendAuth:true,
+            data:res.data.data
+        })
+    }
+
+    render(){
+        let {component:Component}  = this.props //解构出 <Auth path="/user" component={user}>传递的目标组件
+        if(！this.state.hassendAuth) return null;   //没有请求过权限直接返回，不进行下一步判断不进入目标组件
+        
+        return <Route render={props=>(              //...props 目标组件需要的路由信息
+        this.state.auth?                            //是否有权限，有进入目标组件，没有重定向到 login
+        <Component {...props} data={this.state.data}>:  //数据预载
+        <Redirect to="/login">
+        )} > 
+    }
+
+}
+```
+
+
+# 6、React后置路由（Prompt）
+```js
+import {Prompt} from 'react-router-dom';
+
+export default class Reg extends React.component{
+    state = {
+        isBlocking:true //判断是否离开页面的布尔值
+    }
+
+    render(){
+        return (
+            <div>123<div>
+            .....
+
+
+// Prompt 组件不会被渲染，只会进行路由跳转判断，是否离开
+        <Prompt
+            when={this.state.isBlocking}        // when 判断是否为 true，为 true 进入下一个组件
+            message={location => {
+                //可以接收要传入的参数如（当前组件的location或其他或空）,自定义一些操作 
+                //可以在message 里动态改变 isBlocking 的值来决定离不离开页面
+                if(...条件...){this.setState({isBlocking:false})}
+                console.log(location)
+            }} 
+        />
+        )
+    }
+}
+
+```
 
 # 100.React面试题（setState修改数据）
 ```js
