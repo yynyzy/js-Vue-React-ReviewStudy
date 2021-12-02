@@ -221,13 +221,12 @@ test('an async feature', async () => {
 
 
   ## 核心实现
-```
+```js
 /**
  * @name Vue数据双向绑定（响应式系统）的实现原理
  */
 
   <script>
-
         function observer(target) {
             if (!target && typeof target !== 'object') {
                 return
