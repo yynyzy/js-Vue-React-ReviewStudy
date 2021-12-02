@@ -1015,6 +1015,41 @@ MVVM把View和Model的同步逻辑自动化了。以前Presenter负责的View和
 
 
 
+# 29.Vue的 Mixins 混合
+当多个组件的逻辑代码有许多相似时，将相同的逻辑代码抽离放入一个单独的文件。在需要用到的组件中通过 Mixins Api引入
+1.在发生冲突时以组件数据优先。
+2.同名钩子函数将合并为一个数组，因此都将被调用。另外，混入对象的钩子将在组件自身钩子之前调用。
+3.值为对象的选项，例如 methods、components 和 directives，将被合并为同一个对象。两个对象键名冲突时，取组件对象的键值对。
+```js
+// Mixmindemo.js
+var mixin = {
+  data: function () {
+    return {
+      message: 'hello',
+      foo: 'abc'
+    }
+  },
+   created: function () {
+    console.log('混入对象的钩子先被调用')
+  }
+}
+
+// demo.vue
+export default component({
+  mixins: [mixin],
+  data: function () {
+    return {
+      message: 'goodbye',
+      bar: 'def'
+    }
+  },
+  created: function () {
+    console.log(this.$data)
+    // => { message: "goodbye", foo: "abc", bar: "def" }
+  }
+})
+```
+
 # ················特殊技巧····································
 
 # 100.Vue2监视数据的原理及一些问题,Vue.set:
