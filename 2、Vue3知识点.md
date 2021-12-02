@@ -1022,7 +1022,7 @@ MVVM把View和Model的同步逻辑自动化了。以前Presenter负责的View和
 3.值为对象的选项，例如 methods、components 和 directives，将被合并为同一个对象。两个对象键名冲突时，取组件对象的键值对。
 ```js
 // Mixmindemo.js
-var mixin = {
+export const  demoMixins = {
   data: function () {
     return {
       message: 'hello',
@@ -1031,12 +1031,16 @@ var mixin = {
   },
    created: function () {
     console.log('混入对象的钩子先被调用')
+  },
+  methods:{
+    ...
   }
 }
 
-// demo.vue
-export default component({
-  mixins: [mixin],
+// demoComponent.vue
+import {demoMixins} from '../Mixmindemo.js'
+export default {
+  mixins: [demoMixins],
   data: function () {
     return {
       message: 'goodbye',
@@ -1047,7 +1051,7 @@ export default component({
     console.log(this.$data)
     // => { message: "goodbye", foo: "abc", bar: "def" }
   }
-})
+}
 ```
 
 # ················特殊技巧····································
