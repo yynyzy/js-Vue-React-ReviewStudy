@@ -89,11 +89,11 @@ Vue Router 有内置的基于动态导入的[组件懒加载](https://next.route
 
 # 2.插槽(具名插槽，作用域插槽)
 
-## 2.具名插槽
+  ## 2.具名插槽
 在向具名插槽提供内容的时候，我们可以在一个 <template> 元素上使用 v-slot 指令，并以 v-slot 的参数的形式提供其名称：
 
 父组件<parent>中:
-```
+```js
 <child>
   <template v-slot:header>
     <h1>Here might be a page title</h1>
@@ -111,7 +111,7 @@ Vue Router 有内置的基于动态导入的[组件懒加载](https://next.route
 ```
 
 子组件<child>中:
-```
+```js
 <div class="container">
   <header>
     <slot name="header"></slot>
@@ -125,9 +125,24 @@ Vue Router 有内置的基于动态导入的[组件懒加载](https://next.route
 </div>
 ```
 
-## 3.作用域插槽
-
+  ## 3.作用域插槽
+子组件在作用域上绑定的属性来将组件的信息传给父组件，这些属性会被挂载到父组件接受对象上
 ![vue插槽](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\vue插槽.png)
+```js
+//子组件
+<template>
+  <slot name="footer" childProps="子组件">
+  作用域插槽内容
+  </slot>
+</template>
+
+//父组件
+<template>
+  <child v-slot:footer="slotProps">
+      {{slotProps.childProps}}
+  </child>
+</template>
+```
 
 # 3.nextTick
     1.语法: this.$nextTick(回调函数)
@@ -1058,7 +1073,7 @@ export default {
 
 # 100.Vue2监视数据的原理及一些问题,Vue.set:
 1.vue会监视data中所有层次的数据。
-## 1.如何监测对象中的数据?
+## 1.如何监测对象中的数据( $set 解决vue2对象新增属性不能响应的问题)?
 通过setter实现监视,且要在new Vue时就传入要监测的数据。
     (1).对象中后追加的属性，Vue默认不做响应式处理
     (2).如需给后添加的属性做响应式,请使用如下API:
