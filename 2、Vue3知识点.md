@@ -1069,6 +1069,24 @@ export default {
 }
 ```
 
+# 30.Vue3的 globalProperties (代替Vue2的 Vue.prototype 的挂载)
+在Vue2中，可以通过 Vue.prototype.$axios 在全局 Vue 上挂载 axios，在组件中使用 this.$axios() 使用
+在 Vue3 中，由于 setUp没有this，所以 globalProperties代替方法
+```js
+//在 vue3 的 main.js 中
+const App = createApp(app);
+App.config.globalProperties = $axios
+
+//在组件中使用
+import {getCurrentInstance} from 'vue'
+
+// const {ctx} = getCurrentInstance() //ctx 和 proxy 效果一样，不过只能在开发阶段使用，打包就会失效
+const {proxy} = getCurrentInstance()//获取上下文实例
+//使用
+proxy.$axios()
+```
+
+
 # ················特殊技巧····································
 
 # 100.Vue2监视数据的原理及一些问题,Vue.set:
