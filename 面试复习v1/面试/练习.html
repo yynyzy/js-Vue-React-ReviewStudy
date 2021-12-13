@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <button id="a">+</button>
+    <script>
+        let obj = {
+            a: 1,
+            b: [2, 3, 4],
+            c: {
+                d: 5,
+                f: 6
+            }
+        }
+
+        // let deepobj = JSON.parse(JSON.stringify(obj))
+
+        function deepClone(obj) {          
+            if (typeof obj !== "object")  return obj
+            if (obj === null)             return null
+            if(obj instanceof RegExp)     return new RegExp(obj)
+            if (obj instanceof Date)      return new Date(obj)
+            
+            let deepobj = new obj.constructor;
+            for (let key in obj) {
+                if(obj.hasOwnProperty(key))
+                deepobj[key] = deepClone(obj[key])
+            }
+            return deepobj
+        }
+
+let deepobj = deepClone(obj)
+console.log(deepobj);
+        deepobj.a = 8
+        deepobj.b[0] = 9
+        console.log(deepobj);
+        console.log(obj);
+
+    </script>
+</body>
+
+</html>

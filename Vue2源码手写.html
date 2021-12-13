@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<div id='app'>
+    {{msg}}
+    <button>{{msg}}</button>
+    <input type="text" v-model='msg'>
+</div>
+
+<body>
+
+    <!-- <script>
+        class Vue {
+            constructor(options) {
+                options.beforeCreate.bind(this)();
+                this.$data = options.data()
+                //把 this.$data 的属性，给 Vue 的对象也赋值成这样，就可以使用 this.msg 进行获取值
+                this.observer()
+                options.created.bind(this)()
+                options.beforeMount.bind(this)()
+                this.$el = document.querySelector(options.el)
+                options.mounted.bind(this)()
+
+                // 执行编译初始化代码
+                this.compile(this.$el)
+
+
+            }
+            //负责模板解析，初始化 view 视图。
+            compile(parent) {
+                let nodes = parent.childNodes
+                let len = nodes.length
+                let that = this
+                that.dep = new Dep()
+                for (let i = 0; i < len; i++) {
+                    //元素节点
+                    if (nodes[i].nodeType == 1) {
+                        let node = nodes[i]
+                        //是双向绑定
+                        if (nodes[i].hasAttribute('v-model')) {
+                            //v-model= 的值
+                            let key = nodes[i].getAttribute('v-model').trim()
+                            nodes[i].value = this[key]
+                            nodes[i].addEventListener('input', () => {
+                                this[key] = node.value
+                            })
+                        }
+                        this.compile(node)
+                    }
+
+                    //文本节点
+                    if (nodes[i].nodeType == 3) {
+                        let node = nodes[i]
+                        let reg = /{{(.*)}}/g;
+                        nodes[i].textContent.replace(reg, (a, b) => {
+                            let key = b.trim()
+                            let watcher = new Watcher(that, b, node, 'textContent')
+                            that.dep.addSub(key, watcher)
+                            nodes[i].textContent = this.$data[b.trim()]
+                        })
+                        console.log(that.dep);
+                    }
+                }
+            }
+
+            observer() {
+                for (let key in this.$data) {
+                    let value = this.$data[key]
+                    let that = this
+                    //将 this.$data中的每个数据通过 defineProperty 绑定到 this（即 Vue上，这样直接 this.msg 拿数据）
+                    Object.defineProperty(this, key, {
+                        get() {
+                            return value;
+                        },
+                        set(newval) {
+                            console.log('##', newval);
+                            value = newval
+                            console.log(that.dep);
+                            that.dep.subs[key].forEach(v => {
+                                v.update()
+                            })
+                        }
+                    })
+                }
+            }
+        }
+
+        class Dep {
+            constructor() {
+                this.subs = {};
+            }
+            addSub(k, watcher) {
+                if (this.subs[k]) {
+                    this.subs[k].push(watcher)
+                } else {
+                    this.subs[k] = []
+                    this.subs[k].push(watcher)
+                }
+            }
+        }
+
+        class Watcher {
+            constructor(vm, key, node, attr) {
+                this.vm = vm
+                this.key = key
+                this.node = node
+                this.attr = attr
+            }
+            update() {
+                this.node[this.attr] = this.vm[this.key]
+            }
+        }
+
+
+        const vm = new Vue({
+            el: '#app',
+            data() {
+                return {
+                    msg: 'yzy'
+                }
+            },
+            beforeCreate() {
+                // console.log('beforeCreate');
+            },
+            created() {
+                // console.log('created');
+            },
+            beforeMount() {
+                // console.log('beforeMount');
+            },
+            mounted() {
+                // console.log('mounted');
+                // console.log(this.msg);
+                // console.log(this.$data.msg);
+            }
+
+        });
+
+
+    </script> -->
+    <script>
+
+
+
+
+
+
+
+        console.log(["b", "a", "b"].indexOf('a'));
+        console.log(["b", "a", "b"].findIndex(e => e == "a"));
+    </script>
+</body>
+
+</html>

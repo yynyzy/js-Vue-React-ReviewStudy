@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <span id="spanname"></span>
+    <input id="inpname"> </input>
+
+</body>
+
+<script>
+
+    let object = {
+        name: "yyn"
+    }
+    // 深拷贝的object，避免无限触发get造成死循环
+    let newObject = JSON.parse(JSON.stringify(object))
+    Object.defineProperty(object, "name", {
+        // 获取object的深拷贝的name的值，避免无限触发get造成死循环
+        get: function () {
+            return newObject.name
+        },
+        set: function (val) {
+            if (val == newObject.name) return
+            //对obj中的值改变后，将这个改变的值赋值给 newobject 的name ，因为当渲染时需要请求原来的  obj 时，又会触发defineProperty的get方法，从newobject 中拿改过后的name
+            newObject.name = val
+            observer()
+        }
+    })
+    function observer() {
+        spanname.innerHTML = object.name
+        inpname.value = object.name
+    }
+
+    
+
+    setTimeout(() => {
+        object.name = "haha"
+    }, 1000);
+
+    inpname.oninput = function(){
+        spanname.innerHTML= this.value
+    }
+</script>
+
+</html>

@@ -1108,14 +1108,14 @@ proxy.$axios()
 
 
 # 101.Vue路由组件化(运用require.context)
-```
+```js
 require.context(directory, useSubdirectories = false, regExp = /^.//)
 第一个参数目标文件夹
 是否查找子集 true | false
 正则匹配
 ```
   ## 主路由文件中代码
-```
+```js
 import Vue from "vue";
 import VueRouter from "vue-router";
 Vue.use(VueRouter);
@@ -1145,7 +1145,7 @@ const router = new VueRouter({
 export default router;
 ```
   ## 各个模块路由文件
-```
+```js
 export default {
   path:'./login',
   name:'./login',
@@ -1158,7 +1158,7 @@ export default {
 
 # 102.Vue 权限控制技巧
 1.单独一个文件保存权限判断函数
-```
+```js
 export function checkArray (key){
   //权限数组
   let arr = [1, 2, 3 ,4]
@@ -1171,7 +1171,7 @@ export function checkArray (key){
 }
 ```
 2.可以在 main.js 中定义一个自定义指令
-```
+```js
 import {checkArray} from '../..'
 Vue.directive('display-key',{
   inserted(el, binding){
@@ -1189,7 +1189,7 @@ Vue.directive('display-key',{
 })
 ```
 3. 在各个组件中可以在组件标签上使用指令
-```
+```js
 //有1,2,3,4的都是有权限的，超过4的没有权限会删除
 <button v-display-key='1'>按钮一</button>
 <button v-display-key='2'>按钮一</button>

@@ -6,9 +6,70 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        .wrap {
+            width: 700px;
+            margin: 0 auto;
+
+        }
+
+        .topic {
+            height: 50px;
+            background-color: blue;
+        }
+
+        .footer {
+            height: 50px;
+            background-color: red;
+        }
+
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        .container {
+            overflow: hidden;
+            padding: 0 100px;
+        }
+
+        .left,
+        .right,
+        .middle {
+            float: left;
+            width: 100px;
+            position: relative;
+            margin-bottom: -4000px;
+            padding-bottom: 4000px;
+        }
+
+        .middle {
+            background-color: green;
+            width: 100%;
+            margin-left: -100px;
+
+        }
+
+        .left {
+            background-color: yellow;
+            left: -100px;
+
+        }
+
+        .right {
+            background-color: yellow;
+            left: 100px;
+            margin-left: -100px;
+        }
+    </style>
 </head>
 
 <body>
+    <details>
+        <summary>显示</summary>
+        显示的内容
+    </details>
     <!-- <script>
 
         function observer(target) {
@@ -84,69 +145,27 @@
     </script> -->
 </body>
 <script>
-    function race(arr) {
-        return new Promise((resolve, reject) => {
-            if (!Array.isArray(arr)) { return reject(new Error('请输入数组')) }
-            for (let i = 0; i < arr.length; i++) {
-                Promise.resolve(arr[i]).then((val) => {
-                    resolve(val)
-                }).catch(err => {
-                    reject(err)
-                })
+    let a = 2;
+    function func() {
+        // var a = 1;
+        return (b) => {
+            return (c) => {
+                const ret = a + b + c;
+                a *= 2;
+                return ret;
             }
-        })
+        }
     }
 
+    let f1 = func();
+    let f2 = func();
 
+    console.log(func()(1)(2), func()(1)(2)); // 4 4
 
-    //p1:0.5s后转化为fullfilled状态
-    let p1 = new Promise((res, rej) => {
-        setTimeout(() => {
-            res("p1调用成功")
-        }, 500)
-    })
-
-    //p2: 直接转化为res状态
-    let p2 = new Promise((res, rej) => {
-        res("p2调用成功")
-    })
-
-    //p3: 1s后转化为rejected状态
-    let p3 = new Promise((res, rej) => {
-        setTimeout(() => {
-            rej("p3失败了...")
-        }, 1000)
-    })
-
-    //p4: 2s后转化为rejected状态
-    let p4 = new Promise((res, rej) => {
-        setTimeout(() => {
-            rej("p4失败了...")
-        }, 2000)
-    })
-
-    //传入p1,p2
-    Promise.race([p1, p2]).then(res => {
-        console.log(res)  //p2调用成功
-    })
-
-    //传入p1,p3
-    Promise.race([p1, p3]).then(res => {
-        console.log(res)  //p1调用成功
-    }).catch(rej => {
-        console.log(rej)
-    })
-
-    //传入p3,p4
-    Promise.race([p3, p4]).then(res => {
-        console.log(res)
-    }).catch(rej => {
-        console.log(rej)  //p3失败了...
-    })
-
-
-
+    console.log(f1(1)(2), f2(1)(2)); // 4 4
 
 </script>
+
+
 
 </html>
