@@ -1,12 +1,9 @@
-进程间通信domain socket具体实现流程
-手写Reac Hookst计数器（自增），闭包陷阱
-无限滚动场景，虚拟列表设计
-单点登录
+
+
 VueRouter的原理是什么？
 
 
-前端性能优化，聊了静态资源上cdn，HTTP缓存，接口聚合，骨架屏/loading，DNS预解析，preload，prefetch，webpack优化：Compress、Tenser、HMR、多线程打包、开启缓存、DLL
-
+前端性能优化，聊了静态资源上cdn，HTTP缓存，接口聚合，骨架屏/loading，DNS预解析，preload，prefetch，
 
 
 
@@ -23,8 +20,8 @@ Chrome采用了多进程架构，创建少量tab时会启动独立的工作进�
 任何一个非null对象都有「「proto」」属性，等同于prototype
 原型链属性查找优先级为：实例****proto___ > 实例本身
 
-Node进程间通信方式是怎么实现的?
-Node多进程架构是怎么样的？怎么监听同一个端口
+
+
 进程和线程的区别？
 进程间通信方式有哪些？
 有用过Mysql？讲解一下什么是事务？
