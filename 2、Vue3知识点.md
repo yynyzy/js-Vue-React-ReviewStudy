@@ -1321,3 +1321,125 @@ Vue.js 3.0 优化了 slot 的生成，使得非动态 slot 中属性的更新只
 动态 slot 指的是在 slot 上面使用 v-if，v-for，动态 slot 名字等会导致 slot 产生运行时动
 态变化但是又无法被子组件 track 的操作。
 c. diff 算法优化
+
+## 12.Vue项目优化打包
+### 一、路由懒加载
+
+### 二、分析包大小
+终端中运行 npm run preview -- --report, 这个命令会从我们的入口main.js进行依赖分析，分析出各个包的大小。最终会在生成的dist文件夹下生成一个report.html的文件，打开后就可以看到我们在项目使用文件占据的空间大小
+
+### 三、webpack配置排除打包
+找到 vue.config.js， 添加 externals 项，具体如下：
+```js
+configureWebpack: {
+  // 配置单页应用程序的页面的标题
+  name: name,
+  externals: {
+     /**
+      * externals 对象属性解析。
+      *  基本格式：
+      *     '包名' : '在项目中引入的名字'
+      *  
+    */
+    'vue': 'Vue',
+    'element-ui': 'ElementUI',
+    'xlsx': 'XLSX'
+  },
+  resolve: {
+    alias: {
+      '@': resolve('src')
+    }
+  }
+}
+```
+
+### 四、 引用网络资源(CDN)
+好处：
+减少应用打包出来的包体积
+加快静态资源的访问
+利用浏览器缓存，不会变动的文件长期缓存
+
+实现步骤:
+注意:在开发环境时，文件资源还是可以从本地node_modules中取出，而只有项目上线了，才需要去使用外部资源。此时我们可以使用环境变量来进行区分。
+```js
+在vue.config.js文件中:
+let externals = {}
+let cdn = { css: [], js: [] }
+const isProduction = process.env.NODE_ENV === 'production' // 判断是否是生产环境
+if (isProduction) {
+  externals = {
+      /**
+      * externals 对象属性解析：
+      * '包名' : '在项目中引入的名字'
+    */
+      'vue': 'Vue',
+      'element-ui': 'ELEMENT',
+      'xlsx': 'XLSX'
+  }
+  cdn = {
+    css: [
+      'https://unpkg.com/element-ui/lib/theme-chalk/index.css' // element-ui css 样式表
+    ],
+    js: [
+      // vue must at first!
+      'https://unpkg.com/vue@2.6.12/dist/vue.js', // vuejs
+      'https://unpkg.com/element-ui/lib/index.js', // element-ui js
+      'https://cdn.jsdelivr.net/npm/xlsx@0.16.6/dist/xlsx.full.min.js', // xlsx
+    ]
+  }
+}
+
+webpack配置externals配置项
+configureWebpack: {
+  // 配置单页应用程序的页面的标题
+  name: name,
+  externals: externals,
+  resolve: {
+    alias: {
+      '@': resolve('src')
+    }
+  }
+}
+
+通过 html-webpack-plugin注入到 index.html之中:
+在vue.config.js文件中配置:
+chainWebpack(config) {
+  config.plugin('preload').tap(() => [
+    {
+      rel: 'preload',
+      fileBlacklist: [/\.map$/, /hot-update\.js$/, /runtime\..*\.js$/],
+      include: 'initial'
+    }
+  ])
+  // 注入cdn变量 (打包时会执行)
+  config.plugin('html').tap(args => {
+    args[0].cdn = cdn // 配置cdn给插件
+    return args
+  })
+  // 省略其他...
+}
+
+找到 public/index.html   通过配置CDN Config 依次注入 css 和 js。
+修改head的内容如下:
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <title><%= webpackConfig.name %></title>
+
+      <!-- 引入样式 -->
+      <% for(var css of htmlWebpackPlugin.options.cdn.css) { %>
+        <link rel="stylesheet" href="<%=css%>">
+        <% } %>
+
+
+    <!-- 引入JS -->
+    <% for(var js of htmlWebpackPlugin.options.cdn.js) { %>
+      <script src="<%=js%>"></script>
+    <% } %>
+  </head>
+
+```
+
+## 五、 打包去除console.log

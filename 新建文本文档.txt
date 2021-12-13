@@ -1,11 +1,7 @@
-
-
 VueRouter的原理是什么？
 
 
 前端性能优化，聊了静态资源上cdn，HTTP缓存，接口聚合，骨架屏/loading，DNS预解析，preload，prefetch，
-
-
 
 
 Chrome采用了多进程架构，创建少量tab时会启动独立的工作进程，以下关于线程、进程对比描述正确的是
