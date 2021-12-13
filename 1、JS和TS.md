@@ -152,13 +152,12 @@ Function.prototype.myBind = function (context, ...args) {
 
 ## 4.防抖节流
 防抖：在delay时间后执行，如果在 delay 内再次触发，则重新计时。（取消定时器）
-```
+```js
 function debounce(fn, delay) {
             const timer = null
             return function () {
                 if(timer) clearTimeout(timer)
                 let context = this
-          
                 timer = setTimeout(() => {
                     fn.apply(context,  [...arguments])
                 }
@@ -170,18 +169,21 @@ function debounce(fn, delay) {
 //立即执行版
 const debounce = (fn, wait, immediate) => {
       let timer = null;
-      return function () {
-        const context = this;
-        const args = [...arguments];
-        if (timer) clearTimeout(timer);
-        if (immediate && !timer) {
-          fn.apply(context, args);
-        }
-        timer = setTimeout(() => {
-           fn.apply(context, args)
-        }, wait);
-      };
-    };
+      return function (...args) {
+    if (timer) clearTimeout(timer)
+     let context = this
+    if (immediate) {
+      (!timer) && fn.call(context, ...args)  
+      timer = setTimeout(() => {
+        timer = null
+      }, wait)
+    } else {// 后执行
+      timer = setTimeout(() => {
+        fn.call(context, ...args)
+      }, wait)
+    }
+  }
+};
 
 ```
 
