@@ -1217,6 +1217,21 @@ Object.prototype[Symbol.iterator] = function() {
     ·遍历器返回的对象 next 函数是必须的, 不断调用该方法，依次指向数据结构中的每个成员，每次调用之后，对指针加一，向后移动一位，直至完成便遍历操作
     ·return函数在遍历结束会触发 ，return()方法的使用场合是，如果for...of循环提前退出（通常是因为出错，或者有break语句）,就会调用return()方法。如果一个对象在完成遍历前，需要清理或释放资源，就可以部署return()方法。
 
+## 40.Object.prototype.toString.call()
+```js
+console.log(Object.prototype.toString.call("this"));             //[object String]
+console.log(Object.prototype.toString.call(12));                 //[object Number]
+console.log(Object.prototype.toString.call(true));               //[object Boolean]
+console.log(Object.prototype.toString.call(undefined));          //[object Undefined]
+console.log(Object.prototype.toString.call(null));               //[object Null]
+console.log(Object.prototype.toString.call({name: "this"}));     //[object Object]
+console.log(Object.prototype.toString.call(function(){}));      //[object Function]
+console.log(Object.prototype.toString.call([]));                //[object Array]
+console.log(Object.prototype.toString.call(new Date));          //[object Date]
+console.log(Object.prototype.toString.call(/\d/));              //[object RegExp]
+function Person(){};
+console.log(Object.prototype.toString.call(new Person));        //[object Object]
+```
 
 ## 100.generator函数(迭代函数—不常用)
   ### 基本用法
