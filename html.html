@@ -145,16 +145,10 @@
     </script> -->
 </body>
 <script>
-    function http(url) {
-        let xhr = new XmlHttpRequest();
-        xhr.open('GET', url)
-        xhr.send();
-        xhr.onreadystatechange = function () {
-            if (obj.readyState == 4 && (obj.state == 200 || obj.state == 304)) {
-
-            }
-        }
-    }
+    let a = function () { }
+    a.prototype.c = '123'
+    let b = new a()
+    console.log(b.__proto__);
 
 </script>
 
