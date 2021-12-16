@@ -132,20 +132,20 @@ Function.prototype.myApply = function (context) {
             return result
 }
 
-Function.prototype.myBind = function (context, ...args) {
-            var self = this;
-    var args = Array.prototype.slice.call(arguments, 1);
-
-    var fNOP = function () {};
-
-    var fBound = function () {
-        var bindArgs = Array.prototype.slice.call(arguments);
-        return self.apply(this instanceof fNOP ? this : context, args.concat(bindArgs));
+Function.prototype.myBind = function (context = window) {
+    if (typeof this !== 'function') throw new Error('Error');
+    let fn = this;
+    let args = [...arguments].slice(1);
+    
+    return function F () {
+        // 因为返回了一个函数，可以 new F()，所以需要判断
+        if (this instanceof F) {
+            return new fn(...args, arguments);
+        } else  {
+            // bind 可以实现类似这样的代码 f.bind(obj, 1)(2)，所以需要将两边的参数拼接起来
+            return fn.apply(context, args.concat(arguments));
+        }
     }
-
-    fNOP.prototype = this.prototype;
-    fBound.prototype = new fNOP();
-    return fBound;
 }
 ```
 
@@ -1228,6 +1228,110 @@ console.log(Object.prototype.toString.call(/\d/));              //[object RegExp
 function Person(){};
 console.log(Object.prototype.toString.call(new Person));        //[object Object]
 ```
+
+## 41.闭包的应用场景
+*单例模式*
+单例模式是一种常见的涉及模式，它保证了一个类只有一个实例。实现方法一般是先判断实例是否存在，如果存在就直接返回，否则就创建了再返回。单例模式的好处就是避免了重复实例化带来的内存开销：
+```js
+// 单例模式
+function Singleton(){
+  this.data = 'singleton';
+}
+
+Singleton.getInstance = (function () {
+  var instance;
+    
+  return function(){
+    if (instance) {
+      return instance;
+    } else {
+      instance = new Singleton();
+      return instance;
+    }
+  }
+})();
+
+var sa = Singleton.getInstance();
+var sb = Singleton.getInstance();
+console.log(sa === sb); // true
+console.log(sa.data); // 'singleton'
+```
+
+*模拟私有属性*
+javascript 没有 java 中那种 public private 的访问权限控制，对象中的所用方法和属性均可以访问，这就造成了安全隐患，内部的属性任何开发者都可以随意修改。虽然语言层面不支持私有属性的创建，但是我们可以用闭包的手段来模拟出私有属性：
+```js
+// 模拟私有属性
+function getGeneratorFunc () {
+  var _name = 'John';
+  var _age = 22;
+    
+  return function () {
+    return {
+      getName: function () {return _name;},
+      getAge: function() {return _age;}
+    };
+  };
+}
+
+var obj = getGeneratorFunc()();
+obj.getName(); // John
+obj.getAge(); // 22
+obj._age; // undefined
+```
+
+*柯里化*
+柯里化（currying），是把接受多个参数的函数变换成接受一个单一参数（最初函数的第一个参数）的函数，并且返回接受余下的参数而且返回结果的新函数的技术。
+这个概念有点抽象，实际上柯里化是高阶函数的一个用法，javascript 中常见的 bind 方法就可以用柯里化的方法来实现：
+```js
+Function.prototype.myBind = function (context = window) {
+    if (typeof this !== 'function') throw new Error('Error');
+    let fn = this;
+    let args = [...arguments].slice(1);
+    
+    return function F () {
+        // 因为返回了一个函数，可以 new F()，所以需要判断
+        if (this instanceof F) {
+            return new fn(...args, arguments);
+        } else  {
+            // bind 可以实现类似这样的代码 f.bind(obj, 1)(2)，所以需要将两边的参数拼接起来
+            return fn.apply(context, args.concat(arguments));
+        }
+    }
+}
+```
+柯里化的优势之一就是 参数的复用，它可以在传入参数的基础上生成另一个全新的函数，来看下面这个类型判断函数：
+```js
+function typeOf (value) {
+    return function (obj) {
+        const toString = Object.prototype.toString;
+        const map = {
+            '[object Boolean]'	 : 'boolean',
+            '[object Number]' 	 : 'number',
+            '[object String]' 	 : 'string',
+            '[object Function]'  : 'function',
+            '[object Array]'     : 'array',
+            '[object Date]'      : 'date',
+            '[object RegExp]'    : 'regExp',
+            '[object Undefined]' : 'undefined',
+            '[object Null]'      : 'null',
+            '[object Object]' 	 : 'object'
+        };
+        return map[toString.call(obj)] === value;
+    }
+}
+
+var isNumber = typeOf('number');
+var isFunction = typeOf('function');
+var isRegExp = typeOf('regExp');
+
+isNumber(0); // => true
+isFunction(function () {}); // true
+isRegExp({}); // => false
+```
+通过向 typeOf 里传入不同的类型字符串参数，就可以生成对应的类型判断函数，作为语法糖在业务代码里重复使用。
+
+
+
 
 ## 100.generator函数(迭代函数—不常用)
   ### 基本用法

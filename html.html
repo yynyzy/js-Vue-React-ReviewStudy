@@ -145,11 +145,23 @@
     </script> -->
 </body>
 <script>
-    let a = function () { }
-    a.prototype.c = '123'
-    let b = new a()
-    console.log(b.__proto__);
+    Function.prototype.mybind = function (context = window) {
+        if (typeof this !== 'function') throw new Error('error')
+        let fn = this
+        let args = [...arguments].slice(1)
+        return function F() {
+            if (this instanceof F) {
+                return new fn(...args, arguments)
+            } else {
+                return fn.apply(context, args.concat(arguments))
+            }
+        }
+    }
 
+    function a() {
+        console.log([11].concat(arguments));
+    }
+    a(1, 2, 3)
 </script>
 
 
