@@ -494,10 +494,10 @@ function distinct6(arr = testArr) {
 ## 13.浅拷贝和深拷贝
    ### 浅拷贝实现
     1.手写
-```
+```js
      function shallowClone(obj) {
          let target = {}
-         for (k in obj) {
+         for (let k in obj) {
              if (obj.hasOwnProperty(k)) {
              target[k] = obj[k]
              }

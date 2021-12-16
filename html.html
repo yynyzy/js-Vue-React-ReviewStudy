@@ -145,23 +145,30 @@
     </script> -->
 </body>
 <script>
-    Function.prototype.mybind = function (context = window) {
-        if (typeof this !== 'function') throw new Error('error')
-        let fn = this
-        let args = [...arguments].slice(1)
-        return function F() {
-            if (this instanceof F) {
-                return new fn(...args, arguments)
-            } else {
-                return fn.apply(context, args.concat(arguments))
-            }
+    let arr = {
+        a: 1,
+        b: {
+            c: 2
         }
     }
-
-    function a() {
-        console.log([11].concat(arguments));
+    function deepClone(obj) {
+        if (typeof obj !== "object") return obj
+        if (obj instanceof RegExp) {
+            return new RegExp(obj);
+        }
+        if (obj instanceof Date) {
+            return new Date(obj)
+        }
+        let newObj = new obj.constructor;
+        for (let k in obj) {
+            if (obj.hasOwnProperty(k)) {
+                newObj[k] = deepClone(obj[k])
+            }
+        }
+        return newObj
     }
-    a(1, 2, 3)
+
+    console.log(deepClone(arr));
 </script>
 
 
