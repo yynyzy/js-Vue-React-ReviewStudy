@@ -137,13 +137,13 @@ Function.prototype.myBind = function (context = window) {
     let fn = this;
     let args = [...arguments].slice(1);
     
-    return function F () {
+    return function F (...newArgs) {
         // 因为返回了一个函数，可以 new F()，所以需要判断
         if (this instanceof F) {
-            return new fn(...args, arguments);
+            return new fn(...args, ...newArgs);
         } else  {
             // bind 可以实现类似这样的代码 f.bind(obj, 1)(2)，所以需要将两边的参数拼接起来
-            return fn.apply(context, args.concat(arguments));
+            return fn.apply(context, [...args,...newArgs]);
         }
     }
 }
