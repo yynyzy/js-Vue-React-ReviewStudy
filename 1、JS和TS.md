@@ -783,7 +783,7 @@ Array.prototype.myFilter = function (fn) {
             // 初始参数 ？ index 设置为0，从数组第一项开始遍历操作  ：一开始就将数组第一项作为起始
             let index = initVal ? 0 : 1
             for (let i = index; i < this.length; i++) {
-                fn(res, this[i], i, this)
+                res = fn(res, this[i], i, this)
             }
             return res
         }
