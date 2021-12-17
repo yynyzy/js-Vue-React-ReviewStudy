@@ -145,30 +145,17 @@
     </script> -->
 </body>
 <script>
-    let arr = {
-        a: 1,
-        b: {
-            c: 2
+    function mynew(fn) {
+        let obj = Object.create({})
+        obj.prototype = fn.prototype
+        let args = [...arguments].slice(1)
+        const res = fn.apply(obj, args)
+        if (Object.prototype.toString.call(res) === '[object Object]') {
+            return res
+        } else {
+            return obj
         }
     }
-    function deepClone(obj) {
-        if (typeof obj !== "object") return obj
-        if (obj instanceof RegExp) {
-            return new RegExp(obj);
-        }
-        if (obj instanceof Date) {
-            return new Date(obj)
-        }
-        let newObj = new obj.constructor;
-        for (let k in obj) {
-            if (obj.hasOwnProperty(k)) {
-                newObj[k] = deepClone(obj[k])
-            }
-        }
-        return newObj
-    }
-
-    console.log(deepClone(arr));
 </script>
 
 

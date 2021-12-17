@@ -5,7 +5,7 @@ ES6 箭头函数时的this在定义时就绑定了
 ·新增symbol类型 表示独一无二的值，用来定义独一无二的对象属性名;
 ·const/let  都是用来声明变量,不可重复声明，具有块级作用域。存在暂时性死区，也就是不存在变量提升。(const一般用于声明常量)
 ·变量的解构赋值(包含数组、对象、字符串、数字及布尔值,函数参数),剩余运算符(...rest);
-·模板字符串(${data});
+·模板字符串(`${data}`);
 ·扩展运算符(数组、对象);;
 ·箭头函数;
 ·Set和Map数据结构;
@@ -17,7 +17,7 @@ ES6 箭头函数时的this在定义时就绑定了
 
 
 ## 1.REM适配方案
-```
+```js
 <div id="demo"></div>
 //---------------------------方案一-----------------------------
 <script type="text/javascript">
@@ -31,7 +31,7 @@ function adapter (){
 	}
 adapter()
 
-window.onresize = adapter
+window.onresize = adapter()
 </script>
 
 //CSS样式 ，用less可以方便计算
@@ -51,7 +51,7 @@ function adapter (){
 	document.documentElement.style.fontsize = rootFontSize + 'px"
 	}
 adapter()
-window.onresize = adapter
+window.onresize = adapter()
 </script>
 
 //CSS样式 ，用less可以方便计算
@@ -64,8 +64,7 @@ width:345/@font
 ## 2.Fetch API 基本用法
 
 (注意第一个then返回promise对象)
-
-```
+```js
 fetch('http://localhost:3000/,
 //第二个参数是配置对象，可不写，默认GET请求
 {
@@ -153,7 +152,7 @@ Function.prototype.myBind = function (context = window) {
 ## 4.防抖节流
 防抖：在delay时间后执行，如果在 delay 内再次触发，则重新计时。（取消定时器）
 ```js
-function debounce(fn, delay) {
+function debounce (fn, delay) {
             const timer = null
             return function () {
                 if(timer) clearTimeout(timer)
@@ -188,7 +187,7 @@ const debounce = (fn, wait, immediate) => {
 ```
 
 节流：在delay时间后执行，如果在 delay 内再次点击不会触发函数。（判断有定时器时，不会触发函数）
-```
+```js
 function throttle(fn, delay) {
             const timer = null
             return function () {
@@ -221,7 +220,7 @@ https协议由 http + ssl 协议构成，具体的链接过程可参考SSL或TLS
 
 ## 6.JS的四种设计模式
 1.工厂模式
-```
+```js
 function createPerson(name, age, sex) {
             const obj = new Object()
             obj.name = name;
@@ -235,7 +234,7 @@ function createPerson(name, age, sex) {
 ```
 
 2.单例模式
-```
+```js
     let OnlyPerson = function (name, age) {
             this.name = name;
             this.age = age;
@@ -257,7 +256,7 @@ function createPerson(name, age, sex) {
 ```
 
 3.沙箱模式
-```
+```js
   let sandbox = (function () {
             function sayName() { }
             function sayAge() { }
@@ -269,7 +268,7 @@ function createPerson(name, age, sex) {
 ```
 
 4.发布者订阅模式
-```
+```js
 let Public = {
             list: [],
             on: function (key, fn) {
@@ -318,6 +317,19 @@ let Public = {
 
 
 ## 8.Undefined与Null的区别
+区别：
+ ```js
+    typeof null; // "object"
+    typeof undefined; // "undefined"
+    !!(null); // false
+    !!(undefined); // false
+    Number(null); // 0
+    Number(undefined); // NaN
+    null == undefined; //true
+    null === undefined; //false
+    Object.prototype.toString(undefined) => '[object Undefined]'
+    Object.prototype.toString(null) => '[object Undefined]' 
+ ```
  Undefined ：
  1.定义变量但没有赋值
  2.访问对象上不存在的属性或者未定义的变量
@@ -328,19 +340,7 @@ let Public = {
  1.如果定义的变量在将来用于保存对象，那么最好将该变量初始化为null，而不是其他值。
  2.当一个数据不再需要使用时，通过将其值设置为null来释放其引用（解除引用，让值脱离执行环境，以便垃圾收集器在下次运行时将其回收）
 
- 区别：
- ```
-    typeof null; // "object"
-    typeof undefined; // "undefined"
- ```
- ```
-    !!(null); // false
-    !!(undefined); // false
-    Number(null); // 0
-    Number(undefined); // NaN
-    null == undefined; //true
-    null === undefined; //false
- ```
+ 
 
 ## 9.前端性能优化
 ### .计算性能指标（详见特殊小知识）
@@ -371,9 +371,9 @@ let Public = {
     4.构造函数中若有返回值，就直接返回；否则返回新对象
 ```js
     function myNew(fn){
-        let obj = Object.create(null)
+        let obj = Object.create({})
         obj.__proto__ = fn.prototype
-        let args =[...Arguments].slice(1)
+        let args =[...arguments].slice(1)
         const res = fn.apply(obj,args)
         if(Object.prototype.toString.call(res) === '[object Object]'){
             return res
@@ -403,7 +403,7 @@ console.log(person.age) // undefined
 
 ## 11.闭包(普通函数闭包中的this)
 闭包是指有权访问另外一个函数作用域中的变量的函数。保持对它的引用。
-```
+```js
 var name = "Window";
 var obj = {
   name : "Obj",
@@ -462,26 +462,27 @@ function flatten(arr) {
 
 ### 数组去重
    #### 1.filter实现
-   ```
+   ```js
    function distinct4(arr = testArr) {
     return arr.filter((v, i, array) => array.indexOf(v, i+1) < 0)
 }
    ```
-   ```
+   ```js
    function distinct5(arr = testArr) {
     return arr.filter((v, i, array) => array.indexOf(v) === i)
 }
    ```
+ 
   #### 2.es6的set方法
-```
+```js
 function distinct6(arr = testArr) {
     return [...new Set(arr)]
 }
 ```
 
  #### 3.利用indexOf和forEach/for循环去重
- ```
- function distinct2(arr = testArr) {
+ ```js
+ function distinct2(arr) {
     let result = [];
     arr.forEach((v, i, array) => {
         array.indexOf(v, i+1) === -1 && result.push(v)
@@ -507,7 +508,7 @@ function distinct6(arr = testArr) {
 ```
     2.Object.assign
        Object.assign()方法复制的是源对象的属性值，如果源对象的属性是指向另一个对象的引用，那么它只会复制这个引用值（浅复制），不会深复制这个引用值所引用的对象。
-```
+```js
      let newObj = Object.assign({}, obj)
 ```
 
@@ -517,24 +518,23 @@ function distinct6(arr = testArr) {
      缺点:会丢失undefined、function、symbol这三种类型的值。原因是JSON在执行字符串化时，会先进行一个JSON格式化，非安全的JSON值，就会被丢弃掉。
     
     2. 手写
-    ```
+```js
     const deepClone = function (obj) {
-        if (!obj || typeof obj !== "object") return;
+        if (!obj || typeof obj !== "object") return obj;
         if (obj instanceof RegExp) return new RegExp(obj);
         if (obj instanceof Date) return new Date(obj);
     
-        <!-- //=>不直接创建空对象目的:克隆的结果和之前保持相同的所属类
-        let newObj = new obj.constructor -->
+        <!-- //=>不直接创建空对象目的:克隆的结果和之前保持相同的所属类 let newObj = new obj.constructor -->
         let newObj = Array.isArray(obj) ? [] : {};
         for (var key in obj) {
             if (obj.hasOwnProperty(key)) {
                 //Object的hasOwnProperty()方法返回一个布尔值，判断对象是否包含特定的自身（非继承）属性。
-                newObj[key] = typeof obj[key] === 'object' ? deepClone(obj[key]) : obj[key];
+                newObj[key] = deepClone(obj[key]);
             }
         }
         return newObj;
     }
-    ```
+```
 
 
 
@@ -556,17 +556,11 @@ function distinct6(arr = testArr) {
    ```
 
 
-## 15.null 和 undefined
-   1. null == undefined   //true
-    // == 会进行转换 : toString(undefined) => '[object Undefined]'
-                      toString(null) => '[object Undefined]' 
-   2.null === undefined   //false       
-   3.typeof(null)  => Object   //设计师先设计的 null ，认为表示空值的类型不应该是对象，所以又创造了undefined
-   3.typeof(undefined)  => undefined  
+
 
 ## 16.如何判断是不是一个数组
+*typeof千万别写*
 ```js
-    typeof千万别写
 1.Array.isArray([]);   //true
 
 2. [].constructor.toString().indexOf("Array")  //9
@@ -706,8 +700,9 @@ function distinct6(arr = testArr) {
 ## 19.手写 Promise
 
 ## 20.手写 Promise.all
-  ### Promise.all: 传入的所有Promise最终都转化为fulfilled态时，则会执行resolve回调，并将返回值是的所有的Promise的resolve的回调的value的数组。其中一个任何Promise为reject状态时，则返回的Promise的状态更改为rejected。
-  ```
+  ### Promise.all: 
+  传入的所有Promise最终都转化为fulfilled态时，则会执行resolve回调，并将返回值是的所有的 Promise 的resolve的回调的value的数组。其中一个任何Promise为reject状态时，则返回的Promise的状态更改为rejected。
+  ```js
   function myAll(arr) {
         return new Promise((resolve, reject) => {
             if (!Array.isArray(arr)) { return reject(new Error('请输入数组')) }
@@ -726,7 +721,7 @@ function distinct6(arr = testArr) {
         })
   ```
 ### Promise.race: 传入的所有Promise其中任何一个有状态转化为fulfilled或者rejected，则将执行对应的回调。
-```
+```js
  function race(arr) {
         return new Promise((resolve, reject) => {
             if (!Array.isArray(arr)) { return reject(new Error('请输入数组')) }
@@ -744,7 +739,7 @@ function distinct6(arr = testArr) {
 
 ## 21.手写 filter,Map,Reduce 方法
    ### filter
-```
+```js
 Array.prototype.myFilter = function (fn) {
         if (!Array.isArray(this) || !this.length || typeof fn !== 'function') {
             return []
@@ -761,7 +756,7 @@ Array.prototype.myFilter = function (fn) {
 ```
 
    ### map 
-```
+```js
    Array.prototype.myMap = function (fn) {
 
         if (!Array.isArray(this) || !this.length || typeof fn !== 'function') {
@@ -778,7 +773,7 @@ Array.prototype.myFilter = function (fn) {
 
 
    ### reduce
-```
+```js
     Array.prototype.myReduce = function (fn, initVal) {
         if (!Array.isArray(this) || !this.length || typeof fn !== 'function') {
             return []

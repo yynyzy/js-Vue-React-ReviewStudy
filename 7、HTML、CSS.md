@@ -29,7 +29,7 @@ BFC 是 Block Formatting Context 的缩写，即块格式化上下文。可以�
  //开启3D
  transform-style:preserve-3d
  //写3D代码
- 　transform:rotateX(45deg)rotateY(45deg);
+ transform:rotateX(45deg)rotateY(45deg);
 
 # 6.details和summary标签
 ```js
