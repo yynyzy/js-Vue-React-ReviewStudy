@@ -796,8 +796,8 @@ find 返回的是匹配到的第一个值
 filter 返回的是符合要求的所有值的一个数组
 
 ## 23.手写 typeof 与 instanceof
-   ### typeof
-```
+   ### typeof(不要用来测 null与Array，null 是 Object，然后数组也是Object)
+```js
 function Mytypeof(obj) {
         const type = Object.prototype.toString.call(obj).slice(8, -1).toLowerCase();
         const map = new Map()
@@ -811,19 +811,19 @@ function Mytypeof(obj) {
     }
 ```
    ### instanceof
-```
-function myInstanceof(obj, fn) {
-        if (typeof obj !== "object") return false
-        const $proto = obj.__proto__
-        if ($proto == null) return false
-        if ($proto !== fn.prototype) {
-            return myInstanceof($proto, fn)
-        } else {
-            console.log(true);
-            return true
-        }
-
+```js
+function _instanceof(A, B) {
+    var O = B.prototype;// 取B的显示原型
+    A = A.__proto__;// 取A的隐式原型
+    while (true) {
+        //Object.prototype.__proto__ === null
+        if (A === null)
+            return false;
+        if (O === A)// 这里重点：当 O 严格等于 A 时，返回 true
+            return true;
+        A = A.__proto__;
     }
+}
 ```
 
 ## 23.JS 数据类型
@@ -880,7 +880,7 @@ Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES202
 
 
 ## 29.JS继承的圣杯模式
-    ```
+    ```js
     const inherit =(function(){
         const F = function(){}
         return function(target,origin){
@@ -909,24 +909,23 @@ Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES202
     （箭头函数不能当做构造函数，所以不能与 new 一起执行。）
    ### 3.多次 bind 时只认第一次 bind 的值
     !!! 易错点
-    ```js
+```js
     function func() {
       console.log(this)
     }
     
     func.bind(1).bind(2)()     // 1
-    ```
+```
     !!! 箭头函数中 this 不会被修改
-    ```
+```js
         func = () => {
           // 这里 this 指向取决于外层 this
           console.log(this)
         }
         func.bind(1)()          // Window
-    ```
+```
    ### 4. apply 和 call
     apply() 和 call() 的第一个参数都是 this，区别在于通过 apply 调用时实参是放到数组中的，而通过 call 调用时实参是逗号分隔的。
-
    ### 5. 直接调用
     在函数不满足前面的场景，被直接调用时，this 将指向全局对象。在浏览器环境中全局对象是 Window，在 Node.js 环境中是 Global。
 
@@ -935,7 +934,7 @@ Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES202
 
 
 ## 32.原型、原型链(高频)
-·原型: 对象中固有的__proto__属性，该属性指向对象的prototype原型属性。
+·原型: 对象中固有的__proto__属性，该属性指向构造函数的prototype原型属性。
 ·原型链: 当我们访问一个对象的属性时，如果这个对象内部不存在这个属性，那么它就会去它的原型对象里找这个属性，这个原型对象又会有自己的原型，于是就这样一直找下去，也就是原型链的概念。原型链的尽头一般来说都是Object.prototype所以这就是我们新建的对象为什么能够使用toString()等方法的原因。
 
 
