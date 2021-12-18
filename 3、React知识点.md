@@ -434,6 +434,197 @@ export default class Reg extends React.component{
 
 ```
 
+
+# 7.React Context(上下文) 作用和使用
+## 1.Context
+Context 通过组件树提供了一个传递数据的方法，从而避免了在每一个层级手动的传递 props 属性。
+
+*React.createContext*：创建一个上下文的容器(组件), defaultValue可以设置共享的默认数据
+调用react的createContext()方法, 产生生产者和消费者组件.
+```js
+// context.js
+import React from 'react'
+let { Consumer, Provider } = React.createContext();
+export {
+    Consumer,
+    Provider
+}
+```
+
+```js
+import React from 'react'
+import List from './List'
+
+import {Provider} from './context'
+
+export default class Demo extends React.Component {
+    state:{
+        value:xxx
+    }
+    render() {
+        return (
+            <Provider value={/*共享的数据*/}>
+                 /*里面可以渲染对应的内容*/
+            </Provider>
+        );
+    }
+}
+```
+
+consumer(消费者):这个可以理解为消费者。 他是专门消费供应商(Provider 上面提到的)产生数据。Consumer需要嵌套在生产者下面。才能通过回调的方式拿到共享的数据源。当然也可以单独使用，那就只能消费到上文提到的defaultValue
+```js
+<Consumer>
+  {value => /*根据上下文  进行渲染相应内容*/}
+</Consumer>
+
+```
+## 例子
+```js
+    import React, { createContext } from 'react';
+    // 创建Context的唯一方法
+    const ThemeContext = createContext()
+    
+    class App extends React.Component {
+      render () {
+        return (
+          // 使用 Context.Provider 包裹后续组件，value 指定值 
+          <ThemeContext.Provider value={'red'}>
+            <Middle></Middle>
+          </ThemeContext.Provider>
+        )
+      }
+    }
+    
+    class Bottom extends React.Component {
+      render () {
+        return (
+          // Context.Consumer Consumer消费者使用Context得值
+          // 但子组件不能是其他组件，必须渲染一个函数，函数的参数就是Context得值
+          <ThemeContext.Consumer>
+            {
+              theme => <h1>ThemeContext 的 值为 {theme}</h1>
+            }
+          </ThemeContext.Consumer>
+        )
+      }
+    }
+      
+    class Middle extends React.Component {
+      render () {
+        return <Bottom></Bottom>
+      }
+    }
+    
+    export default App;
+```
+
+当 Provider 提供的值更改时，Consumer 必须重新渲染
+```js
+import React, { createContext } from 'react';
+    // 创建Context的唯一方法
+    const ThemeContext = createContext()
+
+    class App extends React.Component {
+      state = {
+        theme: 'red'
+      }
+      render () {
+        const { theme } = this.state
+        return (
+          // 使用 Context.Provider 包裹后续组件，value 指定值 
+          <ThemeContext.Provider value={theme}>
+            {/* 当Context的Provider值更改时，Consumer 的值必须重新渲染 */}
+            <button onClick={() => {this.setState({ theme: 'yellow'})}}>按钮</button>
+            <Middle></Middle>
+          </ThemeContext.Provider>
+        )
+      }
+    }
+    
+    class Bottom extends React.Component {
+      render () {
+        return (
+          // Context.Consumer Consumer消费者使用Context得值
+          // 但子组件不能是其他组件，必须渲染一个函数，函数的参数就是Context得值
+          <ThemeContext.Consumer>
+            {
+              theme => <h1>ThemeContext 的 值为 {theme}</h1>
+            }
+          </ThemeContext.Consumer>
+        )
+      }
+    }
+      
+    class Middle extends React.Component {
+      render () {
+        return <Bottom></Bottom>
+      }
+    }
+    
+    export default App;
+```
+
+当出现多个Context的时候，应该如何使用呢
+```js
+   import React, { createContext } from 'react';
+
+    // 创建Context的唯一方法
+    const ThemeContext = createContext()
+    const SizeContext = createContext()
+    
+    class App extends React.Component {
+      state = {
+        theme: 'red',
+        size: 'small'
+      }
+      render () {
+        const { theme, size } = this.state
+        return (
+          // 使用 Context.Provider 包裹后续组件，value 指定值 
+          <ThemeContext.Provider value={theme}>
+            {/* 当出现多个Context的时候，只需要将Context.Provider 嵌套即可 */}
+            <SizeContext.Provider value={size}>
+              {/* 当Context的Provider值更改时，Consumer 的值必须重新渲染 */}
+              <button onClick={() => {this.setState({ theme: 'yellow', size: 'big'})}}>按钮</button>
+              <Middle></Middle>
+            </SizeContext.Provider>
+          </ThemeContext.Provider>
+        )
+      }
+    }
+    
+    class Bottom extends React.Component {
+      render () {
+        return (
+          // Context.Consumer Consumer消费者使用Context得值
+          // 但子组件不能是其他组件，必须渲染一个函数，函数的参数就是Context得值
+          // 当出现 多个Consumer的时候，进行嵌套，每个Consumer 的子组件必须是一个函数，即可
+          <ThemeContext.Consumer>
+            {
+              theme => (
+                <SizeContext.Consumer>
+                  {
+                    size => (<h1>ThemeContext 的 值为 {theme}; SizeContext 的值为 {size}</h1>)
+                  }
+                </SizeContext.Consumer>
+              )
+            }
+          </ThemeContext.Consumer>
+        )
+      }
+    }
+    
+    class Middle extends React.Component {
+      render () {
+        return <Bottom></Bottom>
+      }
+    }
+    export default App;
+```
+
+
+
+
 # 100.React面试题（setState修改数据）
 ```js
 class Example extends React.Component {
