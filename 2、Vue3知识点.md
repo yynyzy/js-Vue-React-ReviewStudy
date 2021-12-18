@@ -171,7 +171,7 @@ test('an async feature', async () => {
 ```
 
 # 4.Vue3.0中的响应式原理
-  ## vue2.x的响应式
+  ## 1.vue2.x的响应式
 ·实现原理:
 ·对象类型:通过 object.defineProperty()对属性的读取、修改进行拦截(数据劫持)。
 ·数组类型:通过重写更新数组的一系列方法来实现拦截。(对数组的变更方法进行了包裹)。
@@ -201,7 +201,7 @@ test('an async feature', async () => {
 ·新增属性、删除属性,界面不会更新。
 ·直接通过下标修改数组,界面不会自动更新。
 
-  ## vue3.0的响应式
+  ## 2.vue3.0的响应式
 ·实现原理:
 ·通过Proxy (代理)︰拦截对象中任意属性的变化,包括:属性值的读写、属性的添加、属性的删除等。
 ·通过Reflect(反射)︰对被代理对象的属性进行操作。
@@ -219,7 +219,7 @@ test('an async feature', async () => {
    })
 ```
 
-  ## 面试回答 Vue2完整响应式原理
+  ## 3.面试回答 Vue2完整响应式原理
 1.有这样三个关键角色：(Observer,Watcher,Dep)
   *·Observer*: 
     1.在数据初始化时，vue会将 data选项转换成 Observer 对象。
@@ -236,7 +236,7 @@ test('an async feature', async () => {
 ![vue2响应式](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\vue2响应式.png)
 
 
-  ## 核心实现
+  ## 4.核心实现
   /**
  * @name Vue数据双向绑定（响应式系统）的实现原理
  */
@@ -712,7 +712,7 @@ return {
 
 # 17.跨域解决（代理转发，cors，JSONP）
 ## 代理转发
-```
+```js
 在 vue.config.js 文件中配置
 module.exports = {
   devServer: {
@@ -729,7 +729,7 @@ module.exports = {
 
 ## cors 跨域资源共享
 ### 后端设置
-```
+```js
 var express = require('express');
 var app = express();
 var Head = function (req, res, next) {
@@ -741,7 +741,7 @@ var Head = function (req, res, next) {
 app.use(Head);
 ```
 ### 前端 配合(withCredentials: true)
-```
+```js
 Axios 配置
 
 const axiosInstance = axios.create({
@@ -770,14 +770,17 @@ axiosInstance.interceptors.response.use(response => {
   ## Vue2
 1.一种组件间通信的方式，适用于任意组件间通信。
 2.安装全局事件总线:
+```js
 new vue({
       ·····
       beforeCreate(){
       Vue.prototype.$bus = this //安装全局事件总线，$bus就是当前应用的vm
       },
 })
+```
 3.使用事件总线:
-1.接收数据:A组件想接收数据，则在A组件中给$bus绑定自定义事件，事件的回调留在A组件自身。
+·接收数据:A组件想接收数据，则在A组件中给$bus绑定自定义事件，事件的回调留在A组件自身。
+```js
 methods(){
   demo(data){
     ......
@@ -786,14 +789,15 @@ methods(){
   mounted() {
   this.$bus.$on( 'xxxx' ,this.demo)
   }
+```
 
-2.提供数据:this.$bus.$emit( 'xxxx',数据)
-4.最好在beforeDestroy钩子中，用$off去解绑当前组件所用到的事件。
+·提供数据:*this.$bus.$emit( 'xxxx',数据)*
+·最好在beforeDestroy钩子中，用$off去解绑当前组件所用到的事件。
 
   ## Vue3
 Vue3.x以后从实例中移除了 $on ,$off 和 $once 方法,$emit 仍然是现有 API 的一部分，只能实现子组件触发父组件的方法。
 使用mitt之前先安装mitt模块
-```
+```js
   1.安装mitt
     npm install --save mitt或者yarn add mitt -S
 
@@ -806,9 +810,9 @@ Vue3.x以后从实例中移除了 $on ,$off 和 $once 方法,$emit 仍然是现�
   import bus from '@/utils'
 ```
 
-# 19.子组件传递父组件(emit)注意点
+# 19.子组件触发父组件方法(emit)注意点
   ## 子组件 child.vue
-```
+```html
 <template>
        <div>
            <button @click ="go" >go</button>
@@ -832,7 +836,7 @@ export default defineComponent({
 </script>
 ```
   ## 父组件
-```
+```js
 <child @haha = 'gogo'><child>
 <script>
 ···
@@ -855,7 +859,7 @@ const gogo =() ={
       ·arg：参数传递给指令 (如果有)。
       ·modifiers：包含修饰符 (如果有) 
       ·dir：一个对象，在注册指令时作为参数传递。
-```
+```js
     const app = Vue.createApp({})
     // 注册一个全局自定义指令 `v-focus`
     app.directive('focus', {
@@ -876,9 +880,10 @@ const gogo =() ={
       unmounted() {}
 
     })
-    ```
+```
     如果想注册局部指令，组件中也接受一个 directives 的选项：
-    ```
+
+```js
     directives: {
       focus: {
         // 指令的定义
@@ -902,7 +907,7 @@ watch：当一条数据影响多条数据的时候使用，例：搜索数据
 
 # 22.vnode的理解
 vnode 虚拟DOM节点 创建：
-```
+```js
 export function Vnode (){
     return {
         tag:'div',
@@ -947,7 +952,6 @@ export function Vnode (){
   检测机制更加全面、精准、高效,更具可调试式的响应跟踪
 
 # 25.你都做过哪些Vue的性能优化？
-```
 编码阶段
 尽量减少data中的数据，data中的数据都会增加getter和setter，会收集对应的watcher
 v-if和v-for不能连用
@@ -974,7 +978,7 @@ sourceMap优化
 骨架屏
 PWA
 还可以使用缓存(客户端缓存、服务端缓存)优化、服务端开启gzip压缩等。
-```
+
 
 # 26.Vue.$nextTick实现原理，是宏任务还是微任务
 1.官方定义：Vue.nextTick([callback,context])
@@ -998,8 +1002,7 @@ observer.observer(article);
     1.vue用异步队列的方式来控制DOM更新和nextTick回调先后执行
     2.microtask因为其高优先级特性，能确保队列中的微任务在一次事件循环前被执行完毕
     3.因为兼容性问题，vue不得不做了microtask向macrotask的降级方案
-   *4.Vue在更新DOM时是异步执行的。只要侦听到数据变化，Vue将开启一个队列，并缓冲在同一事件循环中发
-    生的所有数据变更。如果同一个watcher被多次触发，只会被推入到队列中一次。这种在缓冲时去除重复数据对于避免不必要的计算和DOM操作是非常重要的。nextTick方法会在队列中加入一个回调函数，确保该函数在前面的dom操作完成后才调用。
+   *4.Vue在更新DOM时是异步执行的。只要侦听到数据变化，Vue将开启一个队列，并缓冲在同一事件循环中发生的所有数据变更。如果同一个watcher被多次触发，只会被推入到队列中一次。这种在缓冲时去除重复数据对于避免不必要的计算和DOM操作是非常重要的。nextTick方法会在队列中加入一个回调函数，确保该函数在前面的dom操作完成后才调用。
 
 # 27. Vue3.0 里为什么要用 Proxy API 替代 defineProperty API？
 参考回答：
