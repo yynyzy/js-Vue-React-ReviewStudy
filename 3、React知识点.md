@@ -143,7 +143,7 @@ export default withRouter(demo)
     1.对象式的settate是函数式的setstate的简写方式(语法糖)
     2.使用原则:
         (1).如果新状态不依赖于原状态===>使用对象方式
-        (2).如果新状态依赖于原状态=-==>使用函数方式
+        **(2).如果新状态依赖于原状态=-==>使用函数方式**
         (3).如果需要在setstate()执行后获取最新的状态数据，要在第二个callback函数中读取。
 
 ## 2.React路由组件懒加载
@@ -179,21 +179,27 @@ const Login = lazy(()=>import('xxx/xxxx/test'))
 ## 6.Context理解(常用于[祖][后]组件通信)
     一种组件间通信方式,常用于【祖组件】与【后代组件】间通信使用
     1)）创建Context容器对象:
+```js
         const xxxContext = React.createContext()
+        //const {Provider,Consumer} = React.createContext()
         //const { Provider }  = xxxContext
+```
     2）渲染子组时，外面包裹 xxxContext.Provider，通过value属性给后代组件传递数据:
-        <Provider value = { 数据 }>
-                <子组件>
-        </Provider>
-    
+```js
+    <Provider value = { 数据 }>
+            <子组件>
+    </Provider>
+```
     3)后代组件读取数据:
     //如果不写在一个页面中，记得引入从祖组件中暴露 xxxContext 然后在要用的后代组件中引入 
-        //第一种方式:仅适用于类组件
-        static contextType = xxxContext     //声明接收context 
-        const {...} = this.context          //读取context中的value数据
-    
+    //第一种方式:仅适用于类组件
+```js
+    static contextType = xxxContext     //声明接收context 
+    const {...} = this.context          //读取context中的value数据
+```
         //第二种方式:函数组件与类组件都可以
         //在引入的 xxxContext 中解构 Consumer
+ ```js
         const { Consumer } = xxxContext
         <Consumer>
             {
@@ -201,6 +207,8 @@ const Login = lazy(()=>import('xxx/xxxx/test'))
                 要显示的内容 )
             }
         </Consumer>
+```
+        
 
 
 
@@ -620,6 +628,74 @@ import React, { createContext } from 'react';
       }
     }
     export default App;
+```
+
+
+
+# 8.React 提供三种方式创建 Refs:
+1.字符串 Refs （将被废弃）
+2.回调函数 Refs
+3.React.createRef (从React 16.3开始)
+## 1.字符串 Refs 
+```js
+class MyComponent extends React.Component {
+  myclick() {
+    //通过 this.refs. 获取
+    const value = this.refs.inputField.value;
+  }
+  render() {
+    return (
+      <div>
+        {/* 创建一个字符串 ref: inputField */}
+        <input type="text" ref="inputField" />
+        button onClick ={this.myclick}>点我</button>
+      </div>
+    );
+  }
+}
+```
+
+## 2.回调函数 Refs
+```js
+function CustomTextInput(props) {
+  return (
+    <div>
+      <input ref={props.inputRef} />
+    </div>
+  );
+}
+  
+class Parent extends React.Component {
+  render() {
+    return (
+      <CustomTextInput
+        inputRef={el => this.inputElement = el}
+      />
+    );
+  }
+}
+```
+
+## 3.React.createRef
+```js
+class CustomTextInput extends React.Component {
+  textInput = React.createRef();
+
+  focusText=()=> {
+    // 注意：我们通过 .current 去获得DOM节点
+    this.textInput.current.focus();
+  }
+  
+  render() {
+    // 告诉React我们想要将<input>的ref和构造器中创建的textInput联系起来
+    return (
+      <div>
+        <input  type="text" ref={this.textInput} />
+        <button onClick={this.focusText}><button>
+      </div>
+    );
+  }
+}
 ```
 
 

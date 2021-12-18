@@ -6,7 +6,7 @@ MVVM 是 Model-View-ViewModel 缩写，也就是把 MVC 中的 Controller 演变
 
 在正确渲染组件之前进行一些异步请求是很常见的事。组件通常会在本地处理这种逻辑，绝大多数情况下这是非常完美的做法。该 `<suspense>` 组件提供了另一个方案，允许将等待过程提升到组件树中处理，而不是在单个组件中。
 
-```
+```html
 <template>
   <suspense>
     <template #default>
@@ -19,8 +19,9 @@ MVVM 是 Model-View-ViewModel 缩写，也就是把 MVC 中的 Controller 演变
     </template>
   </suspense>
 </template>
-
-//----------------------React中类似------------
+```
+```js
+  //----------------------React中类似------------
  <Suspense fallback={<h2>Loading...</h2>}>
         <Switch>
          	<Router>
