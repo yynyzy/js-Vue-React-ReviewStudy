@@ -1008,22 +1008,13 @@ observer.observer(article);
 参考回答：
 响应式优化。
 a. defineProperty API 的局限性最大原因是它只能针对单例属性做监听。
-Vue2.x 中的响应式实现正是基于 defineProperty 中的 descriptor，对 data 中的属性做了遍
-历 + 递归，为每个属性设置了 getter、setter。
-这也就是为什么 Vue 只能对 data 中预定义过的属性做出响应的原因，在 Vue 中使用
-下标的方式直接修改属性的值或者添加一个预先不存在的对象属性是无法做到 setter 监
-听的，这是 defineProperty 的局限性。
-b. Proxy API 的监听是针对一个对象的，那么对这个对象的所有操作会进入监听操作，这
-就完全可以代理所有属性，将会带来很大的性能提升和更优的代码。
-Proxy 可以理解成，在目标对象之前架设一层“拦截”，外界对该对象的访问，都必须
-先通过这层拦截，因此提供了一种机制，可以对外界的访问进行过滤和改写。
+Vue2.x 中的响应式实现正是基于 defineProperty 中的 descriptor，对 data 中的属性做了遍历 + 递归，为每个属性设置了getter、setter。这也就是为什么 Vue 只能对 data 中预定义过的属性做出响应的原因，在 Vue 中使用下标的方式直接修改属性的或者添加一个预先不存在的对象属性是无法做到 setter 监听的，这是 defineProperty 的局限性。
+
+b. Proxy API 的监听是针对一个对象的，那么对这个对象的所有操作会进入监听操作，这就完全可以代理所有属性，将会带来很大的性能提升和更优的代码。Proxy 可以理解成，在目标对象之前架设一层“拦截”，外界对该对象的访问，都必须先通过这层拦截，因此提供了一种机制，可以对外界的访问进行过滤和改写。
+
 c. 响应式是惰性的
-在 Vue.js 2.x 中，对于一个深层属性嵌套的对象，要劫持它内部深层次的变化，就需要
-递归遍历这个对象，执行 Object.defineProperty 把每一层对象数据都变成响应式的，这
-无疑会有很大的性能消耗。
-在 Vue.js 3.0 中，使用 Proxy API 并不能监听到对象内部深层次的属性变化，因此它的
-处理方式是在 getter 中去递归响应式，这样的好处是真正访问到的内部属性才会变成响
-应式，简单的可以说是按需实现响应式，减少性能消耗
+在 Vue.js 2.x 中，对于一个深层属性嵌套的对象，要劫持它内部深层次的变化，就需要递归遍历这个对象，执行 Object.defineProperty 把每一层对象数据都变成响应式的，这无疑会有很大的性能消耗。
+在 Vue.js 3.0 中，使用 Proxy API 并不能监听到对象内部深层次的属性变化，因此它的处理方式是在 getter 中去递归响应式，这样的好处是真正访问到的内部属性才会变成响应式，简单的可以说是按需实现响应式，减少性能消耗
 
 
 # 28.前端开发中的 MVC/MVP/MVVM 模式
@@ -1034,16 +1025,16 @@ c. 响应式是惰性的
 ## MVC
 MVC:允许在不改变视图的情况下改变视图对用户输入的响应方式，用户对View的操作交给了Controller处理，在Controller中响应View的事件调用Model的接口对数据进行操作，一旦Model发生变化便通知相关视图进行更新。
 
-MVC模式的业务逻辑主要集中在Controller，而前端的View其实已经具备了独立处理用户事件的能力，当每个事件都流经Controller时，这层会变得十分臃肿。而且MVC中View和Controller一般是一一对应的，捆绑起来表示一个组件，视图与控制器间的过于紧密的连接让Controller的复用性成了问题，如果想多个View共用一个Controller该怎么办呢？这里有一个解决方案：MVP
+*MVC模式的业务逻辑主要集中在Controller*，而前端的View其实已经具备了独立处理用户事件的能力，当每个事件都流经Controller时，这层会变得十分臃肿。而且MVC中View和Controller一般是一一对应的，捆绑起来表示一个组件，*视图与控制器间的过于紧密的连接让Controller的复用性成了问题*，如果想多个View共用一个Controller该怎么办呢？这里有一个解决方案：MVP
 
 ## MVP
 虽然在MVC里，View是可以直接访问Model的，但MVP中的View并不能直接使用Model，而是通过为Presenter提供接口，让Presenter去更新Model，再通过观察者模式更新View。
 与MVC相比，MVP模式通过解耦View和Model，完全分离视图和模型使职责划分更加清晰；由于View不依赖Model，可以将View抽离出来做成组件，它只需要提供一系列接口提供给上层操作。
 
-Presenter作为View和Model之间的“中间人”，除了基本的业务逻辑外，还有大量代码需要对从View到Model和从Model到View的数据进行“手动同步”，这样Presenter显得很重，维护起来会比较困难。而且由于没有数据绑定，如果Presenter对视图渲染的需求增多，它不得不过多关注特定的视图，一旦视图需求发生改变，Presenter也需要改动。
+*Presenter作为View和Model之间的“中间人”，除了基本的业务逻辑外，还有大量代码需要对从View到Model和从Model到View的数据进行“手动同步”，这样Presenter显得很重，维护起来会比较困难。*而且由于没有数据绑定，如果Presenter对视图渲染的需求增多，它不得不过多关注特定的视图，一旦视图需求发生改变，Presenter也需要改动。
 
 ## MVVM
-MVVM把View和Model的同步逻辑自动化了。以前Presenter负责的View和Model同步不再手动地进行操作，而是交给框架所提供的数据绑定功能进行负责，只需要告诉它View显示的数据对应的是Model哪一部分即可。
+*MVVM把View和Model的同步逻辑自动化了。*以前Presenter负责的View和Model同步不再手动地进行操作，而是交给框架所提供的数据绑定功能进行负责，只需要告诉它View显示的数据对应的是Model哪一部分即可。
 ![MVVM](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\MVVM.png)
 
 
@@ -1188,7 +1179,8 @@ export function checkArray (key){
   }
 }
 ```
-2.可以在 main.js 中定义一个自定义指令
+
+2.在 main.js 中定义一个自定义指令
 ```js
 import {checkArray} from '../..'
 Vue.directive('display-key',{
@@ -1235,7 +1227,8 @@ Vue.directive('display-key',{
 ##  3. vue 组件中的 data 是函数而不是对象
 当一个组件被定义，data 必须声明为返回一个初始数据对象的函数，因为组件可能被用来创建多个实例，复用在多个页面。
 
-如果 data 是一个纯碎的对象，则所有的实例将共享引用同一份 data 数据对象，无论在哪个组件实例中修改 data，都会影响到所有的组件实例。如果 data 是函数，每次创建一个新实例后，调用 data 函数，从而返回初始数据的一个全新副本数据对象。这样每复用一次组件，会返回一份新的 data 数据，类似于给每个组件实例创建一个私有的数据空间，让各个组件的实例各自独立，互不影响保持低耦合。
+如果 data 是一个纯碎的对象，则所有的实例将共享引用同一份 data 数据对象，无论在哪个组件实例中修改 data，都会影响到所有的组件实例。
+如果 data 是函数，每次创建一个新实例后，调用 data 函数，从而返回初始数据的一个全新副本数据对象。这样每复用一次组件，会返回一份新的 data 数据，类似于给每个组件实例创建一个私有的数据空间，让各个组件的实例各自独立，互不影响保持低耦合。
 
 ##  4. Vue 钩子函数之钩子事件 hookEvent,监听组件简化代码(仅限，vue3有改变)
 用法：
