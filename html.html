@@ -66,94 +66,68 @@
 </head>
 
 <body>
-    <details>
-        <summary>显示</summary>
-        显示的内容
-    </details>
-    <!-- <script>
-
-        function observer(target) {
-            if (!target && typeof target !== 'object') {
-                return
-            }
-            Object.keys(target).forEach((k) => {
-                defineReactive(target, key, target[k])
-            })
-        }
-
-        function defineReactive(target, key, val) {
-            // 递归响应，处理嵌套对象
-            observer(val)
-
-            // 创建Dep实例： Dep和key一对一对应
-            const dep = new Dep()
-
-            Object.defineProperty(obj, key, {
-                get() {
-                    //收集依赖
-                    Dep.target && dep.addSub(Dep.target)
-                    return val
-                },
-                set(newV) {
-                    if (val !== newV) {
-                        //传入的新值可能是对象，需要遍历
-                        observe(newV)
-                        val = newV
-                        dep.notify()
-                    }
-                }
-            })
-        }
-
-        // Dep: 管理若干watcher实例，它和key一对一关系
-        class Dep {
-            constructor() {
-                this.subs = []
-            }
-            addSub(sub) {
-
-                this.subs.push(sub)
-            }
-            notify(val) {
-                this.subs.forEach((sub) => {
-                    sub.update()
-                })
-            }
-        }
-
-        // 实现update函数可以更新
-        class Watcher {
-            constructor(vm, key, cb) {
-                // this.vm = vm
-                // this.key = key
-                // this.cb = cb
-
-                // 将当前实例指向Dep.target
-                Dep.target = this
-                // this.vm[this.key]
-                // Dep.target = null
-            }
-
-            update() {
-                console.log(`${this.key}属性更新了`)
-                // this.cb(this.vm.$data[this.key])
-            }
-        }
-        //new Watcher(this, 'test')  //对当前的组件创建一个watcher 用于更新
-        //observe(vue.$data)        
-
-    </script> -->
 </body>
 <script>
-    function mynew(fn) {
-        let obj = Object.create({})
-        obj.prototype = fn.prototype
-        let args = [...arguments].slice(1)
-        const res = fn.apply(obj, args)
-        if (Object.prototype.toString.call(res) === '[object Object]') {
-            return res
-        } else {
-            return obj
+    function observe(target) {
+        if (!target || typeof target !== 'object') {
+            return;
+        }
+        Object.keys(target).forEach((k) => {
+            defineReactive(target, k, target[k]);
+        })
+    }
+    function defineReactive(obj, key, val) {
+        observe(val)
+        const dep = new Dep()
+        Object.defineProperty(target, {
+            get: function (obj, key) {
+                if (Dep.target) {
+                    dep.depend()
+                }
+                return obj[key]
+            },
+            set: function (obj, key, newval) {
+                if (val != newval) {
+                    observe(newval)
+                    val = newval
+                    dep.notify()
+                }
+            }
+        })
+    }
+
+    class Dep {
+        static target;
+        constructor() {
+            this.subs = []
+        }
+        depend() {
+            if (Dep.target) {
+                Dep.target.addDep(this)
+            }
+        }
+        notify() {
+            const subs = this.subs.slice()
+            for (let i = 0, l = subs.length; i < l; i++) {
+                subs[i].update()
+            }
+        }
+    }
+
+    class Watcher {
+        constructor(vm, _) {
+            this.newDeps = []
+            this.get()
+        }
+        get() {
+            Dep.target = this
+        }
+        addDep(dep) {
+            this.newDeps.push(dep)
+        }
+        update() {
+            console.log(`${this.key}属性更新了`)
+            // this.cb(this.vm.$data[this.key])
         }
     }
 </script>

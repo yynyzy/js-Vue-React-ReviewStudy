@@ -150,14 +150,14 @@ Vue Router 有内置的基于动态导入的[组件懒加载](https://next.route
     2.作用:在下一次DOM更新结束后执行其指定的回调。
     3.什么时候用:当改变数据后，要基于更新后的新DOM进行某些操作时，要在nextTick所指定的回调函数中执行。
 vue3的写法
-```
+```js
 import { nextTick } from 'vue'
 nextTick(() => {
   // 一些和 DOM 有关的东西
 })
 ```
 
-```
+```js
 import { shallowMount } from '@vue/test-utils'
 import { MyComponent } from './MyComponent.vue'
 import { nextTick } from 'vue'
@@ -175,7 +175,7 @@ test('an async feature', async () => {
 ·实现原理:
 ·对象类型:通过 object.defineProperty()对属性的读取、修改进行拦截(数据劫持)。
 ·数组类型:通过重写更新数组的一系列方法来实现拦截。(对数组的变更方法进行了包裹)。
-```
+```js
 //Object.defineProperty(obj, prop, descriptor)
 //·obj-要定义属性的对象。 
   ·prop-要定义或修改的属性的名称或 Symbol。  
@@ -206,14 +206,14 @@ test('an async feature', async () => {
 ·通过Proxy (代理)︰拦截对象中任意属性的变化,包括:属性值的读写、属性的添加、属性的删除等。
 ·通过Reflect(反射)︰对被代理对象的属性进行操作。
 ·MDN文档中描述的Proxy与Reflect:
-```
+```js
    const p = new Proxy(obj, {
      //target就是obj key就是要取obj里面的哪个属性
-       get(target,propName) {
-               return Reflect.get(target,propName);
+       get(target,key) {
+               return Reflect.get(target,key);
            },
-       set(target,propName,newval) {
-         return Reflect.set(target,propName, newval);
+       set(target,key,newval) {
+         return Reflect.set(target,key, newval);
 
            }
    })
@@ -221,28 +221,26 @@ test('an async feature', async () => {
 
   ## 面试回答 Vue2完整响应式原理
 1.有这样三个关键角色：(Observer,Watcher,Dep)
-  ·Observer: 
+  *·Observer*: 
     1.在数据初始化时，vue会将 data选项转换成 Observer 对象。
     2.Observer 会遍历对象的属性。多层对象是通过递归来实现。数组类型，通过重写数组方法来实现。
     3.通过调用 defineReactive 方法，使用 Object.defineProperty 将属性进行劫持。
     
 
-  ·Watcher: 观察者对象 ,执⾏更新函数（更新dom）
+  *·Watcher*: 观察者对象 ,执⾏更新函数（更新dom）
   实例分为渲染 watcher (render watcher),计算属性 watcher (computed  watcher),侦听器 watcher（user watcher）三种
 
-  ·Dep: 用于收集当前响应式对象的依赖关系,每个响应式对象包括子对象都拥有一个Dep实例, 当数据有变更时,setter 里面会触发 dep.notify() 通知各个watcher去改动。
+  *·Dep*: 用于收集当前响应式对象的依赖关系,每个响应式对象包括子对象都拥有一个Dep实例, 当数据有变更时,setter 里面会触发 dep.notify() 通知各个watcher去改动。
 
 
 ![vue2响应式](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\vue2响应式.png)
 
 
   ## 核心实现
-```js
-/**
+  /**
  * @name Vue数据双向绑定（响应式系统）的实现原理
  */
-
-  <script>
+```js
         function observer(target) {
             if (!target && typeof target !== 'object') {
                 return
@@ -252,7 +250,7 @@ test('an async feature', async () => {
             })
         }
 
-        function defineReactive(target, key, val) {
+        function defineReactive (target, key, val) {
             // 递归响应，处理嵌套对象
             observer(val)
 
@@ -260,62 +258,62 @@ test('an async feature', async () => {
             const dep = new Dep()
 
             Object.defineProperty(obj, key, {
-                get() {
-                    //收集依赖
-                    Dep.target && dep.addSub(Dep.target)
-                    return val
-                },
-                set(newV) {
-                    if (val !== newV) {
-                        //传入的新值可能是对象，需要遍历
-                        observe(newV)
-                        val = newV
-                        dep.notify()
-                    }
+                get: function (obj, key) {
+                if (Dep.target) {
+                    dep.depend()
                 }
-            })
+                return obj[key]
+              },
+               set: function (obj, key, newval) {
+                if (val != newval) {
+                    observe(newval)
+                    val = newval
+                    dep.notify()
+                }
+            }
+          })
         }
 
         // Dep: 管理若干watcher实例，它和key一对一关系
-        class Dep {
-            constructor() {
-                this.subs = []
+     class Dep {
+        static target;
+        constructor() {
+            this.subs = []
+        }
+        depend() {
+            if (Dep.target) {
+                Dep.target.addDep(this)
             }
-            addSub(sub) {
-
-                this.subs.push(sub)
-            }
-            notify(val) {
-                this.subs.forEach((sub) => {
+        }
+        notify() {
+             this.subs.forEach((sub) => {
                     sub.update()
                 })
-            }
         }
+    }
 
-        // 实现update函数可以更新
+        // 实现update函数可以更新, 
         class Watcher {
-            constructor(vm, key, cb) {
-                // this.vm = vm
-                // this.key = key
-                // this.cb = cb
-
+            constructor(vm,_) {
                 // 将当前实例指向Dep.target
-                Dep.target = this
-                // this.vm[this.key]
-                // Dep.target = null
+                this.get
+                this.newDeps = []
             }
-
+            get(){
+               Dep.target = this
+            }
+            addDep(dep){
+                this.newDeps.push(dep);
+            }
             update() {
                 console.log(`${this.key}属性更新了`)
-                // this.cb(this.vm.$data[this.key])
             }
-        }
-        //new Watcher(this, 'test')  //对当前的组件创建一个watcher 用于更新
-        //observe(vue.$data)        
-
-    </script>
+        }     
 ```
-
+在 getter 方法里， 有一个 Dep.target 参数， 这个 target 其实就是 watch 实例， 那么 target 从哪里来的呢。
+在 beforeMount钩子 和 mounted 钩子初始化之间，会实例化 Watch 类, Watch 构造函数中会把 watch 实例保存在 Dep.target 上， 随后会触发所有数据的访问，也就是上面的 getter 方法，dep.depend() 会把 watch 保存起来， 这个过程就是收集依赖。
+ 
+ 
 # 5.watchEffect 和 watch 的区别
   ## 1.watch侦听器
   对基本数据类型进行监听----- watch特性：
