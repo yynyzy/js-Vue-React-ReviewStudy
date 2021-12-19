@@ -134,8 +134,19 @@ export default withRouter(demo)
         2.callback是可选的回调函数，它在状态更新完毕、界面也更新后(render调用后)才被调用
     (2)．函数式写法:setstate(updater，[callback])
     
-    //例子：this.setstate((state,props)=>{count:state.count++})
-    
+    //例子：
+```js
+this.setstate((state,props)=>{count:state.count++}) //依赖于原状态
+```
+```js
+//在setState函数的第二个参数允许传入回调函数，在状态更新完毕后进行调用
+this.setState({
+      load: !this.state.load,
+      count: this.state.count + 1
+    }, () => {
+      console.log(this.state.count);
+      console.log('加载完成')
+```
         1.updater为返回statechange对象的函数。
         2.updater可以接收到state和props。
         3.callback是可选的回调函数，它在状态更新、界面也更新后(render调用后)才被调用。
@@ -144,7 +155,7 @@ export default withRouter(demo)
     2.使用原则:
         (1).如果新状态不依赖于原状态===>使用对象方式
         **(2).如果新状态依赖于原状态=-==>使用函数方式**
-        (3).如果需要在setstate()执行后获取最新的状态数据，要在第二个callback函数中读取。
+        **(3).如果需要在setstate()执行后获取最新的状态数据，要在第二个callback函数中读取。**
 
 ## 2.React路由组件懒加载
   //1.通过React的lazy函数配合 import()函数动态加载路由组件 ===> 路由组件代码会被分开打包
@@ -336,7 +347,15 @@ componentDidCatch(error, info) {
 2、setState的“异步”并不是说内部由异步代码实现，其实本身执行的过程和代码都是同步的，只是合成事件和钩子函数的调用顺序在更新之前，导致在合成事件和钩子函数中没法立马拿到更新后的值，形式了所谓的“异步”，当然可以通过第二个参数 setState(partialState, callback) 中的callback拿到更新后的结果。
 
 3、setState 的批量更新优化也是建立在“异步”（合成事件、钩子函数）之上的，在原生事件和setTimeout 中不会批量更新，在“异步”中如果对同一个值进行多次 setState ， setState 的批量更新策略会对其进行覆盖，取最后一次的执行，如果是同时 setState 多个不同的值，在更新时会对其进行合并批量更新。
-
+```js
+//在setState函数的第二个参数允许传入回调函数，在状态更新完毕后进行调用
+this.setState({
+      load: !this.state.load,
+      count: this.state.count + 1
+    }, () => {
+      console.log(this.state.count);
+      console.log('加载完成')
+```
 
 # 5、React前置授权路由（官方没提供需要自己写）
     需要自定义路由。自定义一个组件代替路由，在组件中根据条件返回一个 Route 组件指向目标组件
@@ -656,22 +675,21 @@ class MyComponent extends React.Component {
 
 ## 2.回调函数 Refs
 ```js
-function CustomTextInput(props) {
-  return (
-    <div>
-      <input ref={props.inputRef} />
-    </div>
-  );
-}
-  
-class Parent extends React.Component {
-  render() {
-    return (
-      <CustomTextInput
-        inputRef={el => this.inputElement = el}
-      />
-    );
-  }
+class Demo extends React.Component {
+    render() {
+        // 箭头函数没有this，往外找是Demo的实例对象, 把当前的ref所在的节点当作函数的实参传给了input1属性
+        return (
+            <div>
+                <input ref={currentNode => this.input1 = currentNode} type="text" placeholder="点击按钮提示数据"/>&nbsp;    
+                <button onClick={this.showData}>点击提示左侧的数据</button>&nbsp;
+            </div>
+        )
+    }
+    showData = () => {
+        const {input1} = this;
+        console.log(this);
+        console.log(input1.value);
+    }
 }
 ```
 
