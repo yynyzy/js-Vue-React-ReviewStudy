@@ -160,18 +160,17 @@ export default withRouter(demo)
 </Suspense>
 
 ## 4.Effect Hook
-    (1).Effect Hook 可以让你在函数组件中执行副作用操作(用于模拟类组件中的生命周期钩子)(2). React中的副作用操作:
-            发ajax请求数据获取设置订阅/启动定时器
-    (3)．语法和说明:
-        useEffect(() =>{
-                //在此可以执行任何带副作用操作，模拟 DidMount() DidUpdate()生命周期钩子
-                return () => {}  //如果return一个函数，表示 componentwillUnmount()钩子
-        }，[stateValue])   //如果指定的是空数组[]，回调函数只会在第一次 render() 后执行
-    (4)．可以把useEffect Hook看做如下三个函数的组合
-            componentDidMount()
-            componentDidUpdate()
-            componentwillUnmount()
-
+(1).Effect Hook 可以让你在函数组件中执行副作用操作(用于模拟类组件中的生命周期钩子)(2). React中的副作用操作:
+        发ajax请求数据获取设置订阅/启动定时器
+(3)．语法和说明:
+    useEffect(() =>{
+            //在此可以执行任何带副作用操作，模拟 DidMount(), DidUpdate()生命周期钩子
+            return () => {}  //如果return一个函数，表示 componentwillUnmount()钩子
+    }，[stateValue])   //如果指定的是空数组[]，回调函数只会在第一次 render() 后执行
+(4)．可以把useEffect Hook看做如下三个函数的组合:
+      *componentDidMount()*
+      *componentDidUpdate()*
+      *componentwillUnmount()*
 
 ## 5.Ref Hook
 (1). Ref Hook可以在函数组件中存储,查找组件内的标签或任意其它数据
@@ -257,10 +256,10 @@ component的2个问题
 问题:
 如果B组件需要A组件内的数据，做不到
 将 main 组件写成以下样子，通过在 A 中返回一个 render函数渲染C组件并且传递data
-```
+```js
 <A render= {(data)=> <C data={data}></C> }>  </A>
 ```
-```
+```js
 在A组件中: render（）{
 	return (<div>
 				<div>这是A组件</div>
@@ -269,7 +268,7 @@ component的2个问题
 	)
 }
 ```
-```
+```js
 c组件:读取A组件传入的数据显示 
 			<div>
 				<div>这是C组件</div>
@@ -287,7 +286,7 @@ c组件:读取A组件传入的数据显示
 使用方式:
     getDerivedStateFromError 配合 componentDidCatch
 
-```
+```js
 //生命周期函数，一旦后台组件报错，就会触发
 static getDerivedstateFromError (error) {
     conso1e.log(error );
@@ -371,12 +370,12 @@ export default class Auth extends react.component{
         // 为什么要用 render 而不是直接 components={this.props.component} ?
         //因为在 Auth权限验证组件中请求的参数不能直接传递到 目标 component 上 
         // (components={this.props.component}) 传的是组件的本体，传不了数据）
-        // 所以用 render(   ()=>{ <目标组件 data={需要传递的数据}  />}  )  传的是组件的调用
+        // 所以用 render(  ()=>{ <目标组件 data={需要传递的数据}  />})  传的是组件的调用
         return <Route render={props=>(             //...props 目标组件需要的剩余路由信息传给他，（exact...）
-        this.state.auth?                           
-        <Component {...props} data={this.state.data}> //数据预载，将前置路由提前请求的数据传过去
-        :
-        <Redirect to="/login">
+            this.state.auth?                           
+            <Component {...props} data={this.state.data}/> //数据预载，将前置路由提前请求的数据传过去
+            :
+            <Redirect to="/login"/>
         )} > 
     }
 
@@ -424,20 +423,18 @@ export default class Reg extends React.component{
 
     render(){
         return (
-            <div>123<div>
+           <Link to="/detail">跳转到 detail </Link>
             .....
-
-
-// Prompt 组件不会被渲染，只会进行路由跳转判断，是否离开
-        <Prompt
-            when={this.state.isBlocking}        // when 判断是否为 true，为 true 进入下一个组件
-            message={location => {
-                //可以接收要传入的参数如（当前组件的location或其他或空）,自定义一些操作 
-                //可以在message 里动态改变 isBlocking 的值来决定离不离开页面
-                if(...条件...){this.setState({isBlocking:false})}
-                console.log(location)
-            }} 
-        />
+            // Prompt 组件不会被渲染，只会进行路由跳转判断，是否离开
+            <Prompt
+                when={this.state.isBlocking}        // when 判断是否为 true，为 true 进入下一个组件
+                message={location => {
+                    //可以接收要传入的参数如（当前组件的location或其他或空）,自定义一些操作 
+                    //可以在message 里动态改变 isBlocking 的值来决定离不离开页面
+                    if(...条件...){this.setState({isBlocking:false})}
+                    console.log(location)
+                }} 
+            />
         )
     }
 }
