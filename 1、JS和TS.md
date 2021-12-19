@@ -939,6 +939,19 @@ Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES202
 
 
 ## 34.原生ajax
+```js
+const xhr = new XMLHttpRequest()
+xhr.open('get', url, true)
+xhr.onreadystatechange = function () {
+  if(xhr.readyState !== 4) {
+    return  false
+  }
+  if(xhr.status >= 200 && xhr.status < 300) {
+    console.log(xhr.responseText)
+  }
+}
+xhr.send(null)
+```
 ajax是一种异步通信的方法,从服务端获取数据,达到局部刷新页面的效果。
 过程：
     ·创建XMLHttpRequest对象;
@@ -946,6 +959,13 @@ ajax是一种异步通信的方法,从服务端获取数据,达到局部刷新�
     ·监听onreadystatechange事件，当readystate等于4时返回responseText;
     ·调用send方法传递参数。
 
+### ajax 的 readyState 有哪几个状态，含义分别是什么？
+5 个状态，分别是 0-4
+0: 还没调用open方法
+1: 未调用send方法，也就是还没发送数据给服务器
+2: 还没有接收到响应
+3: 开始接收到了部分数据
+4: 接收完成，数据可以在客户端使用了
 
 ## 35.js 去除小数点，保留位数
 向上取整  Math.ceil(3.14159) => 4
@@ -1325,6 +1345,17 @@ isRegExp({}); // => false
 通过向 typeOf 里传入不同的类型字符串参数，就可以生成对应的类型判断函数，作为语法糖在业务代码里重复使用。
 
 
+
+## 42.阻止事件冒泡和阻止默认行为 
+```js
+<!-- 阻止 事件冒泡的兼容代码，前者是IE，后者是火狐谷歌 -->
+e.stopPropagation();
+阻止默认行为
+<!-- 阻止默认行为，文字拖拽，a标签的自动跳转，右键菜单 -->
+e.preventDefault();
+```
+
+## 43.
 
 
 ## 100.generator函数(迭代函数—不常用)
