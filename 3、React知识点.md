@@ -9,16 +9,16 @@
     2.导航区的a标签改为Link标签
  <Link to="/xxxxx">Demo</Link>
     3.展示区写Route标签进行路径的匹配
-<Route path= ' /xxxx'component={Demo}/>
+<Route path= '/xxxx'component={Demo}/>
     4.<App>的最外侧包裹了一个<BrowserRouter>或<HashRouter>
 
 ## 2. BrowserRouter 和 HashRouter的区别
 1.底层原理不一样:
-    BrowserRouter使用的是H5的history API不兼容IE9及以下版本。
+    BrowserRouter使用的是*H5的 history API*不兼容IE9及以下版本。
     HashRouter使用的是URL的哈希值。
 2.ur1表现形式不一样
     BrowserRouter的路径中没有#,例如: localhost: 30e0/demo/test
-    HashRouter的路径包含#,例如: 1ocalhost:3000/# / demo/test
+    HashRouter的路径包含#,例如: 1ocalhost:3000/#/demo/test
 3.刷新后对路由state参数的影响
     (1).BrowserRouter没有任何影响，因为state保存在history对象中。
     (2).HashRouter刷新后会导致路由state参数的丢失。！！！！！！！！！！！！！！！
@@ -28,7 +28,7 @@
 ## 3.路由组件与一般组件
     1.写法不同:
         一般组件: <Demo/ >
-        路由组件: <Route path=" /demo" component={Demo}/>
+        路由组件: <Route path="/demo" component={Demo}/>
     2.存放位置不同:
         一般组件:components路由组件: pages
     3.接收到的props不同:
@@ -49,7 +49,7 @@
                         path: "/about"
                         ur1: "/ about"
 
-## 4.NavLink 与封装NavLink
+## 4.NavLink 与封装 NavLink
     1.NavLink 可以实现路由链接的高亮，通过 activeclassName 指定样式名
     2.标签体内容是一个特殊的标签属性
     3.通过 this.props.children 可以获取标签体内容
@@ -71,9 +71,9 @@
 ## 8.Redirect的使用
     1.一般写在所有路由注册的最下方，当所有路由都无法匹配时，跳转到Redirect指定的路由2.具体编码:
 <Switch>
-    <Route path=" / about" component={About}/>
-    <Route path="/ home" component={Home}/>
-    <Redirect to=" / about" />
+    <Route path="/about" component={About}/>
+    <Route path="/home" component={Home}/>
+    <Redirect to="/about"/>
 </Switch>
 
 ## 9.嵌套路由
@@ -147,10 +147,12 @@ export default withRouter(demo)
         (3).如果需要在setstate()执行后获取最新的状态数据，要在第二个callback函数中读取。
 
 ## 2.React路由组件懒加载
-    //1.通过React的lazy函数配合 import()函数动态加载路由组件 ===> 路由组件代码会被分开打包
-const Login = lazy(()=>import('xxx/xxxx/test'))
-    //2.通过<Suspense>指定在加载得到路由打包文件前显示一个自定义loading
+  //1.通过React的lazy函数配合 import()函数动态加载路由组件 ===> 路由组件代码会被分开打包
+```js
+    const Login = lazy(()=>import('xxx/xxxx/test'))
+```
 
+  //2.通过<Suspense>指定在加载得到路由打包文件前显示一个自定义loading
 <Suspense fallback={<h1>loading...</h1>}>
     <Switch>
         <Route path=" /xxx" component={Xxxx}/><Redirect to="/ login" />
