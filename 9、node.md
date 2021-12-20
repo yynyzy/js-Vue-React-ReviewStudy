@@ -13,9 +13,8 @@ node 中也有宏任务和微任务，与浏览器中的事件循环类似，其
     ·process.nextTick(与普通微任务有区别，在微任务队列执行之前执行)
     ·new Promise().then(回调)等。
 
-node事件循环整体理解
 
-node 的事件循环的阶段顺序为：
+## node 的事件循环的阶段顺序为：
 输入数据阶段(incoming data)->轮询阶段(poll)->检查阶段(check)->关闭事件回调阶段(close callback)->定时器检测阶段(timers)->I/O事件回调阶段(I/O callbacks)->闲置阶段(idle, prepare)->轮询阶段...
 阶段概述
 
