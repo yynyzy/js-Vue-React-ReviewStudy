@@ -423,26 +423,25 @@ var obj = {
 ## 12.数组扁平化（ES6自带和自己实现）与数组去重
    ### 数组扁平化
     设定一个多维数组
-    ```
-    let arr = [1,[2,[3,4],5,],6,7,8,9]
-    ```
-   #### 一、使用ES6自带的flat（），如果括号里不写默认为1，Infinity代表正无穷，即对多维数组全部拉平
+```js
+let arr = [1,[2,[3,4],5,],6,7,8,9]
 ```
+   #### 一、使用ES6自带的flat（），如果括号里不写默认为1，Infinity代表正无穷，即对多维数组全部拉平
+```js
 let newarr = arr.flat(Infinity)
 ```
 
    #### 二、reduce
-```
+```js
 function flatten(arr) {
       return arr.reduce((result, item) => {
         return result.concat(Array.isArray(item) ? flatten(item) : item);
       }, []);
 }
-
 ```
 
    #### 三、递归
-```
+```js
  const flatten = function (arr) {
         let res = []
         for (let i = 0; i < arr.length; i++) {
@@ -456,9 +455,6 @@ function flatten(arr) {
     }
 
 ```
-
-
-
 
 ### 数组去重
    #### 1.filter实现
@@ -520,7 +516,7 @@ function distinct6(arr = testArr) {
     2. 手写
 ```js
     const deepClone = function (obj) {
-        if (!obj || typeof obj !== "object") return obj;
+        if ( obj && typeof obj !== "object") return obj;
         if (obj instanceof RegExp) return new RegExp(obj);
         if (obj instanceof Date) return new Date(obj);
     
@@ -758,7 +754,6 @@ Array.prototype.myFilter = function (fn) {
    ### map 
 ```js
    Array.prototype.myMap = function (fn) {
-
         if (!Array.isArray(this) || !this.length || typeof fn !== 'function') {
             return []
         } else {
@@ -770,7 +765,6 @@ Array.prototype.myFilter = function (fn) {
         }
     }
 ```
-
 
    ### reduce
 ```js
@@ -1149,7 +1143,7 @@ class SubType extends SuperType {
 
 
 
-## 37.设计和实现一个  LRU (最近最少使用) 缓存机制。
+## 37.设计和实现一个 LRU (最近最少使用) 缓存机制。
 ```js
 class LRU {
         //capacity :  缓存的容量

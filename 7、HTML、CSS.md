@@ -38,3 +38,21 @@ BFC 是 Block Formatting Context 的缩写，即块格式化上下文。可以�
         显示的内容
 </details>
 ```
+
+# 7.文字单行显示
+```css
+p {
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow: ellipsis;
+```
+
+# 8.多行文本溢出隐藏变为...
+```css
+p {
+    overflow:hidden;
+    display:-webkit-box;
+    -webkit-line-clamp:3;
+    -webkit-box-orient: vertical;
+
+```
