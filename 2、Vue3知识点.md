@@ -1,5 +1,31 @@
 # 0.简述MVVM
 MVVM 是 Model-View-ViewModel 缩写，也就是把 MVC 中的 Controller 演变成 ViewModel。Model 层代表数据模型，View代表UI组件，ViewModel是View和Model层的桥梁，数据会绑定到viewModel层并自动将数据渲染到页面中，视图变化的时候会通知 viewModel 层更新数据。
+# 0.5 mvc，mvp，mvvm是什么
+
+ *mvc*
+模型（Model）：数据保存
+视图（View）：用户界面。
+控制器（Controller）：业务逻辑
+
+![img](https://user-gold-cdn.xitu.io/2019/12/10/16eeea374464210e?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+
+View 传送指令到 Controller
+Controller 完成业务逻辑后，要求 Model 改变状态
+Model 将新的数据发送到 View，用户得到反馈
+
+ *mvp*
+1. 各部分之间的通信，都是双向的。
+2. View 与 Model 不发生联系，都通过 Presenter 传递。
+3. View 非常薄，不部署任何业务逻辑，称为"被动视图"（Passive View），即没有任何主动性，而 Presenter非常厚，所有逻辑都部署在那里。
+
+
+![img](https://user-gold-cdn.xitu.io/2019/12/10/16eeea3971e41642?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+
+*mvvm*
+
+View的变动，自动反映在 ViewModel，反之亦然。
+
+![img](https://user-gold-cdn.xitu.io/2019/12/10/16eeed0206ee71a2?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
 
 # 1.VUE3新特性：suspense
@@ -90,7 +116,7 @@ Vue Router 有内置的基于动态导入的[组件懒加载](https://next.route
 
 # 2.插槽(具名插槽，作用域插槽)
 
-  ## 2.具名插槽
+  ## 具名插槽
 在向具名插槽提供内容的时候，我们可以在一个 <template> 元素上使用 v-slot 指令，并以 v-slot 的参数的形式提供其名称：
 
 父组件<parent>中:
@@ -126,7 +152,7 @@ Vue Router 有内置的基于动态导入的[组件懒加载](https://next.route
 </div>
 ```
 
-  ## 3.作用域插槽
+  ## 作用域插槽
 子组件在作用域上绑定的属性来将组件的信息传给父组件，这些属性会被挂载到父组件接受对象上
 ![vue插槽](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\vue插槽.png)
 ```js
@@ -931,15 +957,15 @@ const gogo =() ={
 ```
 
 # 21.computed与watch
-·watch 属性监听
-是一个对象，键是需要观察的属性，值是对应回调函数，主要用来监听某些特定数据的变化，从而进行某些具体的业务逻辑操作,监听属性的变化，需要在数据变化时执行异步或开销较大的操作时使用
+computed 和 watch 本质都是通过实例化 Watcher 实现，最大区别就是适用场景不同。
 
-·computed 计算属性
-属性的结果会被缓存，当computed中的函数所依赖的属性没有发生改变的时候，那么调用当前函数的时候结果会从缓存中读取。除非依赖的响应式属性变化时才会重新计算，主要当做属性来使用computed中的函数必须 return返回最终的结果，computed更高效，优先使用
+**computed**
+计算属性，依赖其他属性值，且值具备缓存的特性。只有它依赖的属性值发生改变，下一次获取的值才会重新计算。
+适用于数值计算，并且依赖于其他属性时。因为可以利用缓存特性，避免每次获取值，都需要重新计算。
 
-·使用场景
-computed：当一个属性受多个属性影响的时候使用，例：购物车商品结算功能
-watch：当一条数据影响多条数据的时候使用，例：搜索数据
+**watch**
+观察属性，监听属性值变动。每当属性值发生变化，都会执行相应的回调。
+适用于数据变化时执行异步或开销比较大的操作。
 
 # 22.vnode的理解
 vnode 虚拟DOM节点 创建：
@@ -1017,11 +1043,11 @@ PWA
 
 
 # 26.Vue.$nextTick实现原理，是宏任务还是微任务
-1.官方定义：Vue.nextTick([callback,context])
+## 1.官方定义：Vue.nextTick([callback,context])
          在下次DOM更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新之后的DOM
 
 
-2.vue如何检测到DOM更新完毕呢？
+## 2.vue如何检测到DOM更新完毕呢？
     能监听到DOM改动的API：MutationObserver
     MutationObserver是HTML5新增的属性，用于监听DOM修改事件，能够监听到节点的属性、文本内
     容、子节点等的改动，是一个功能强大的利器。
@@ -1034,7 +1060,7 @@ var article = document.querySelector('article');
 observer.observer(article); 
 ```
 
-3.vue的nextTick方法的实现原理了，总结一下就是：
+## 3.vue的nextTick方法的实现原理了，总结一下就是：
     1.vue用异步队列的方式来控制DOM更新和nextTick回调先后执行
     2.microtask因为其高优先级特性，能确保队列中的微任务在一次事件循环前被执行完毕
     3.因为兼容性问题，vue不得不做了microtask向macrotask的降级方案
@@ -1469,6 +1495,32 @@ export function set(target, key, val) {
 ## 2.在Vue修改数组中的某个元素一定要用如下方法:
       1.使用这些API:push()、pop()、shift()、unshift()、splice()、sort()、reverse()
       2.Vue.set(）或vm.$set()
+
+# 38.为什么 v-if 不能和 v-for 一起使用
+性能浪费，每次渲染都要先循环再进行条件判断，考虑用计算属性替代。
+
+Vue2.x中v-for比v-if更高的优先级。
+Vue3.x中v-if 比 v-for 更高的优先级。
+
+# 39.Vue 父组件和子组件生命周期执行顺序
+**1·加载渲染过程**
+*父先创建，才能有子；子创建完成，父才完整。*
+顺序：父 beforeCreate -> 父 created -> 父 beforeMount -> 子 beforeCreate -> 子 created -> 子 beforeMount -> 子 mounted -> 父 mounted
+
+**2·子组件更新过程**
+*子组件更新 影响到 父组件的情况。*
+顺序：父 beforeUpdate -> 子 beforeUpdate -> 子 updated -> 父 updated
+*子组件更新 不影响到 父组件的情况。*
+顺序：子 beforeUpdate -> 子 updated
+
+**3·父组件更新过程**
+*父组件更新 影响到 子组件的情况。*
+顺序：父 beforeUpdate -> 子 beforeUpdate -> 子 updated -> 父 updated
+*父组件更新 不影响到 子组件的情况。*
+顺序：父 beforeUpdate -> 父 updated
+
+**4·销毁过程**
+顺序：父 beforeDestroy -> 子 beforeDestroy -> 子 destroyed -> 父 destroyed
 
 
 # 100 ·················技巧····································

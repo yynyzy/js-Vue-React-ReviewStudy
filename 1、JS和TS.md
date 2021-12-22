@@ -1391,6 +1391,7 @@ function maxRequest(fn,maxNum){
     })
 }
 ```
+
 ## 44.实现 sleep 函数
 ```js
 function sleep(delay){
