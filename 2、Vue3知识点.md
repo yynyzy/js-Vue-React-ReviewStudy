@@ -388,9 +388,11 @@ setTimeout(()=>{
     ·ref定义的数据:操作数据需要.value，读取数据时模板中直接读取不需要.value
     ·reactive定义的数据:操作数据与读取数据:均不需要.value 
 
-# 7.component中的 is
+# 7.Vue 动态组件是什么? is
+```js
 Props：
   is - string | Component
+```
 用法：
 渲染一个“元组件”为动态组件。依 is 的值，来决定哪个组件被渲染。is 的值是一个字符串，它既可以是 HTML 标签名称也可以是组件名称。
 ```js
@@ -406,6 +408,37 @@ Props：
 <!-- 可以用来渲染原生 HTML 元素 -->
 <component :is="href ? 'a' : 'span'"></component>
 ```
+
+```html
+<template>
+  <div v-for="val in componentsData" :key="val.id">
+    <component :is="val.type">
+  </div>
+</template>
+<script>
+import CustomTitle from './CustomTitle'
+import CustomText from './CustomText'
+import CustomImage from './CustomImage'
+
+export default {
+  data() {
+    return {
+      componentsData: [{
+        id: 1,
+        type: 'CustomTitle'
+      },{
+        id: 2,
+        type: 'CustomText'
+      },{
+        id: 3
+        type: 'CustomImage'
+      }]
+    }
+  }
+}
+</script>
+```
+
 
 # 8.setup的两个注意点
 .setup执行的时机
@@ -848,6 +881,8 @@ const gogo =() ={
 
 # 20.自定义指令directive（vue3的自定义指令里的生命周期与vue2的不同）
  注意：指令定义时不需要加v-, 使用时需要加 
+ *指令定义函数提供如下钩子函数：*
+
   ### 可以接受两个参数：
   ·el
     指令绑定到的元素。这可用于直接操作 DOM。
@@ -864,6 +899,7 @@ const gogo =() ={
     // 注册一个全局自定义指令 `v-focus`
     app.directive('focus', {
        // 指令是具有一组生命周期的钩子：
+
       // 在绑定元素的 attribute 或事件监听器被应用之前调用
       created(el,binding) {},
       // 在绑定元素的父组件挂载之前调用
@@ -1095,26 +1131,347 @@ const {proxy} = getCurrentInstance()//获取上下文实例
 proxy.$axios()
 ```
 
+# 31.Vue 路由传参方式
+*方案一*
+```js
+{
+  path: '/detail/:id',
+  name: 'Detail',
+  component: () => import('./Detail.vue')
+}
+// 路由跳转
+let id = 1
+this.$router.push({ path: '/detail/${id}'})
+// 获取参数
+this.$route.params.id
+```
+*方案二*
+方案二URL 虽然不显示我们的传参，但是是可以在子组件获取参数的。当然也有问题：会存在刷新丢失参数。
+若想不丢失，需和方案一路由配置一样。原因是第二种方式传参是上一个页面 push 函数中携带的，刷新没有 push 的动作。
+```js
+{
+  path: '/detail',
+  name: 'Detail',
+  component: () => import('./Detail.vue')
+}
+// 路由跳转
+let id = 1
+this.$router.push({ name: 'Detail', params: { id: id } })
+// 获取参数
+this.$route.params.id
+```
+*方案三*
+```js
+{
+  path: '/detail',
+  name: 'Detail',
+  component: () => import('./Detail.vue')
+}
+// 路由跳转
+let id = 1
+this.$router.push({ name: 'Detail', query: { id: id } })
+// 获取参数
+this.$route.query.id
+```
 
-# ················特殊技巧····································
+# 32.Vue-Router 完整的导航解析流程
+·导航被触发
+·在失活的组件里调用 beforeRouteLeave 守卫
+·调用全局 beforeEach 前置守卫
+·重用的组件调用 beforeRouteUpdate 守卫（2.2+）
+·路由配置调用 beforeEnter
+·解析异步路由组件
+·在被激活的组件里调用 beforeRouteEnter 守卫
+·调用全局的 beforeResolve 守卫（2.5+）
+·导航被确认
+·调用全局的 afterEach
+·触发 DOM 更新
+·调用  beforeRouteEnter 守卫中传给 next 的回调函数，创建好的组件实例会作为回调函数的参数传入
 
-# 100.Vue2监视数据的原理及一些问题,Vue.set:
-1.vue会监视data中所有层次的数据。
+# 33.Vue-Router 有哪几种导航守卫
+**1.全局前置守卫 !!!**
+在路由跳转前触发，可在执行 next 方法前做一些身份登录验证的逻辑。
+```js
+const router = new VueRouter({})
+
+router.beforeEach((to, from, next) => {
+  ...
+  // 必须执行 next 方法来触发路由跳转 
+  next() 
+})
+```
+
+**2.全局解析守卫**
+与 beforeEach 类似，也是路由跳转前触发，区别是还需在所有组件内守卫和异步路由组件被解析之后，也就是在组件内 beforeRouteEnter 之后被调用。
+```js
+const router = new VueRouter({})
+router.beforeResolve((to, from, next) => {
+  ...
+  // 必须执行 next 方法来触发路由跳转 
+  next() 
+})
+})
+```
+
+**3.全局后置钩子**
+和守卫不同的是，这些钩子不会接受 next 函数也不会改变导航本身。
+```js
+router.afterEach((to, from) => {
+  // ...
+})
+```
+
+**4.路由独享守卫 !!!**
+可在路由配置上直接定义 beforeEnter
+```js
+const router = new VueRouter({
+  routes: [
+    {
+      path: '/home',
+      component: Home,
+      beforeEnter: (to, from, next) => {
+      
+      }
+    }
+  ]
+})
+```
+**5.组件内的守卫**
+组件内可直接定义如下路由导航守卫
+```js
+const Foo = {
+  template: `...`,
+  beforeRouteEnter(to, from, next) {
+    // 不能获取组件实例 this
+    // 当守卫执行前，组件实例还没被创建
+  },
+  beforeRouteUpdate(to, from, next) {
+    // 当前路由改变，但是组件被复用时调用
+    // 可访问实例 this
+  },
+  beforeRouteLeave(to, from, next) {
+    // 导航离开组件时被调用
+  }
+}
+```
+
+# 34. 介绍一下 keep-alive 与 keep-alive 的实现
+keep-alive 是 Vue 内置的一个组件，可以缓存组件的状态，避免重复渲染，提高性能。
+*keep-alive 内置组件有3个属性：*
+*·include：*字符串或正则表达式，名称匹配的组件会被缓存。
+*·exclude：*字符串或正则表达式，名称匹配的组件不会被缓存。
+*·max：*缓存组件数量阈值
+设置 keep-alive 的组件，会*增加两个生命钩子（activated / deactivated）*。
+
+首次进入组件：beforeCreate -> created -> beforeMount -> mounted -> activated
+离开组件触发deactivated，因为组件缓存不销毁，所以不会触发 beforeDestroy 和 destroyed 生命钩子。再次进入组件后直接从 activated 生命钩子开始。
+
+思路：vuex 使用数组存储列表页名字，列表页离开结合 beforeRouteLeave 钩子判断是否需要缓存，对全局数组进行更改。
+核心源码：vue/src/core/components/keep-alive.js
+ ## keep-alive 的实现
+LRU（Least Recently Used） 替换策略核心思想是替换最近最少使用。
+```js
+/**
+* 遍历 cache 将不需要的缓存的从 cache 中清除
+*/
+function pruneCache (keepAliveInstance, filter) {
+  const { cache, keys, _vnode } = keepAliveInstance
+  for (const key in cache) {
+    const cachedNode = cache[key]
+    if (cachedNode) {
+      const name = getComponentName(cachedNode.componentOptions)
+      if (name && !filter(name)) {
+        pruneCacheEntry(cache, key, keys, _vnode)
+      }
+    }
+  }
+}
+/**
+* 删除 cache 中键值为 key 的虚拟DOM
+*/
+function pruneCacheEntry (cache, key, keys, current) {
+  const entry = cache[key]
+  if (entry && (!current || entry.tag !== current.tag)) {
+    // 执行组件的 destroy 钩子
+    entry.componentInstance.$destroy()
+  }
+  // cache 中组件对应的虚拟DOM置null
+  cache[key] = null
+  // 删除缓存虚拟DOM的 key
+  remove(keys, key)
+}
+
+export default {
+  name: 'keep-alive',
+  abstract: true,  
+
+  props: {
+    include: patternTypes,
+    exclude: patternTypes,
+    max: [String, Number]
+  },
+
+  created () {
+    // 缓存虚拟 DOM
+    this.cache = Object.create(null) 
+    // 缓存虚拟DOM的键集合
+    this.keys = [] 
+  },
+
+  destroyed () {
+    // 删除所有的缓存内容
+    for (const key in this.cache) {
+      pruneCacheEntry(this.cache, key, this.keys)
+    }
+  },
+
+  mounted () {
+    // 监听 include、exclude 参数变化，调用 pruneCache修改缓存中的缓存数据
+    this.$watch('include', val => {
+      pruneCache(this, name => matches(val, name))
+    })
+    this.$watch('exclude', val => {
+      pruneCache(this, name => !matches(val, name))
+    })
+  },
+
+  // 由 render 函数决定渲染结果
+  render () {
+    const slot = this.$slots.default
+    // 获取第一个子组件虚拟DOM
+    const vnode: VNode = getFirstComponentChild(slot)
+    // 获取虚拟 DOM 的配置参数
+    const componentOptions: ? VNodeComponentOptions = vnode && vnode.componentOptions
+    if (componentOptions) {
+      // 获取组件名称
+      const name: ?string = getComponentName(componentOptions)
+      const { include, exclude } = this
+      // 若不在include或者在exclude中，直接退出，不走缓存机制
+      if (
+        (include && (!name || !matches(include, name))) ||
+        (exclude && name && matches(exclude, name))
+      ) {
+        return vnode
+      }
+
+      const { cache, keys } = this
+      // 获取组件key
+      const key: ?string = vnode.key == null
+        ? componentOptions.Ctor.cid + (componentOptions.tag ? `::${componentOptions.tag}` : '')
+        : vnode.key
+      // 命中缓存
+      if (cache[key]) {
+        // 从 cache 中获取缓存的实例设置到当前的组件上
+        vnode.componentInstance = cache[key].componentInstance
+        // 删除原有存在的key，并置于最后
+        remove(keys, key)
+        keys.push(key)
+      // 未命中缓存
+      } else {
+        // 缓存当前虚拟节点
+        cache[key] = vnode
+        // 添加当前组件key
+        keys.push(key)
+        // 若缓存组件超过max值，LRU 替换
+        if(this.max && keys.length > parseInt(this.max)) {
+          pruneCacheEntry(cache, keys[0], keys, this._vnode)
+        }
+      }
+      // 设置当前组件 keep-alive 为 true
+      vnode.data.keepAlive = true
+    }
+    return vnode || (slot && slot[0])
+  }
+}
+```
+
+# 35.Vue 过滤器 filter 了解么
+Vue 过滤器可用在两个地方：双花括号插值和 v-bind 表达式。
+*Vue3 中已经废弃这个特点。*
+过滤器分为 全局过滤器 和 局部过滤器。
+
+## 局部过滤器
+```js
+<template>
+  <div>{{ message | formatMessage }}</div>
+</template>
+<script>
+export default {
+  filters: {
+    formatMessage: function(value) {
+      // 可基于源值做一些处理
+      return value
+    }
+  }
+}
+</script>
+```
+
+## 全局过滤器
+```js
+Vue.filter('formatMessage', function(value) {
+  // 可基于源值做一些处理
+  return value
+})
+
+过滤器可串联，执行顺序从左到右，第二个过滤器输入值是第一个过滤器的输出值。
+<div>{{ message | formatMessage1 | formatMessage2 }}</div>
+```
+
+# 36.Vue.$delete 和 delete 的区别
+Vue.$delete 是直接删除了元素，*改变了数组的长度*；
+delete 是将被*删除的元素变成 undefined* ，其他*元素键值不变*。
+
+# 37.Vue.$set 如何解决对象新增属性不能响应的问题
+Vue.$set的出现是由于Object.defineProperty的局限性：无法检测对象属性的新增或删除。
+
+源码位置：vue/src/core/observer/index.js
+```js
+export function set(target, key, val) {
+  // 数组
+  if(Array.isArray(target) && isValidArrayIndex(key)) {
+    // 修改数组长度，避免索引大于数组长度导致splice错误
+    target.length = Math.max(target.length, key)
+    // 利用数组splice触发响应
+    target.splice(key, 1, val)
+    return val
+  }
+  // key 已经存在，直接修改属性值
+  if(key in target && !(key in Object.prototype)) {
+    target[key] = val
+    return val
+  }
+  const ob = target.__ob__
+  // target 不是响应式数据，直接赋值
+  if(!ob) {
+    target[key] = val
+    return val
+  }
+  // 响应式处理属性
+  defineReactive(ob.value, key, val)
+  // 派发更新
+  ob.dep.notify()
+  return val
+}
+实现原理：
+若是数组，直接使用数组的 splice 方法触发响应式。
+若是对象，判断属性是否存在，对象是否是响应式。
+以上都不满足，最后通过 defineReactive 对属性进行响应式处理。
+
+```
 ## 1.如何监测对象中的数据( $set 解决vue2对象新增属性不能响应的问题)?
 通过setter实现监视,且要在new Vue时就传入要监测的数据。
     (1).对象中后追加的属性，Vue默认不做响应式处理
     (2).如需给后添加的属性做响应式,请使用如下API:
               Vue.set(target, propertyName/index, value）或 
               vm.$set(target, propertyName/index,value)
-## 2.如何监测数组中的数据?
-通过包裹数组更新元素的方法实现,本质就是做了两件事:
-      (1).调用原生对应的方法对数组进行更新。
-      (2).重新解析模板，进而更新页面。
-4.在Vue修改数组中的某个元素一定要用如下方法:
+
+## 2.在Vue修改数组中的某个元素一定要用如下方法:
       1.使用这些API:push()、pop()、shift()、unshift()、splice()、sort()、reverse()
       2.Vue.set(）或vm.$set()
 
 
+# 100 ·················技巧····································
 
 # 101.Vue路由组件化(运用require.context)
 ```js

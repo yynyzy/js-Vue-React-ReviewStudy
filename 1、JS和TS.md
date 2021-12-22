@@ -1351,6 +1351,32 @@ e.preventDefault();
 
 ## 43.实现 maxRequest，成功后resolve结果，失败后重试，尝试一定次数后才真正reject
 ```js
+Promise.retry = async (promiseFunc, maxTimes = 3) => {
+  let result;
+  while (maxTimes > 0) {
+    --maxTimes;
+    // 新建一个promise接管目标promise的resolve以及reject
+    await new Promise((res, rej) => {
+      promiseFunc()
+        .then((result1) => {
+          // 成功即可终端循环
+          maxTimes = 0;
+          result = result1;
+          res();
+        })
+        .catch((e) => {
+          // 失败检测是否还有重试次数
+          if (maxTimes === 0) {
+            rej(e);
+          } else {
+            res();
+          }
+        });
+    });
+  }
+  return result;
+};
+
 function maxRequest(fn,maxNum){
     return new Promise((resolve,reject) => {
         if(maxNum === 0){
