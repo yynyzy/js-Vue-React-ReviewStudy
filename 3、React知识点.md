@@ -719,20 +719,23 @@ class CustomTextInput extends React.Component {
 
 # 9.React 生命周期（新旧对比）
 ## 旧生命周期：
-1.挂载过程：
-  //getDefaultProps（设置默认的props，只会调用一次）
-  //getInitialState（设置默认的state，只会调用一次）
- ·componentWillMount
- ·render
- ·componentDidMount
- ·componentWillunmount
-
+```js
+1.挂载过程
+// getDefaultProps（设置默认的props，只会调用一次）
+// getInitialState（设置默认的state，只会调用一次）
+ ·componentWillMount()
+ ·render()
+ ·componentDidMount()
+ ·componentWillunmount()
+```
+```js
 2.更新过程
- ·componentWillReceiveProps （父组件重传props时就会调用，在该函数中调用 this.setState() 不会引起第二次渲染。）
- ·shouldComponentUpdate
- ·componentWillUpdate
+ ·componentWillReceiveProps(newProps) （父组件重传props时就会调用，在该函数中调用 this.setState() 不会引起第二次渲染。）
+ ·shouldComponentUpdate(nextProps, nextState)
+ ·componentWillUpdate(nextProps, nextState)
  ·render
- ·componentDidUpdate
+ ·componentDidUpdate(prevProps, prevState)
+```
 
  ## 新生命周期：（没什么用）
 1. static **getDerivedStateFromProps**(props, state)
