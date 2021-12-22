@@ -717,6 +717,57 @@ class CustomTextInput extends React.Component {
 
 
 
+# 9.React 生命周期（新旧对比）
+## 旧生命周期：
+1.挂载过程：
+  //getDefaultProps（设置默认的props，只会调用一次）
+  //getInitialState（设置默认的state，只会调用一次）
+ ·componentWillMount
+ ·render
+ ·componentDidMount
+ ·componentWillunmount
+
+2.更新过程
+ ·componentWillReceiveProps （父组件重传props时就会调用，在该函数中调用 this.setState() 不会引起第二次渲染。）
+ ·shouldComponentUpdate
+ ·componentWillUpdate
+ ·render
+ ·componentDidUpdate
+
+ ## 新生命周期：（没什么用）
+1. static **getDerivedStateFromProps**(props, state)
+增加了*静态函数* getDerivedStateFromProps 来取代 componentWillMount 与 componentWillUpdate，强制开发者在render之前只做无副作用的操作，而且能做的操作局限在根据props和state决定新的state。
+*触发时机:* 会在每次组件被重新渲染前被调用, 这意味着无论是父组件的更新, props 的变化, 或是组件内部执行了 setState(), 它都会被调用。
+在组件创建时和更新时的render方法之前调用，它应该返回一个对象来更新状态，或者返回null来不更新任何内容。
+getDerivedStateFromProps 里面的 *this为undefined*
+
+2. **getSnapshotBeforeUpdate**(prevProps, prevState) 
+增加了 getSnapshotBeforeUpdate 取代了 componentWillReceiveProps
+·在最近一次渲染输出（提交到 DOM 节点）之前调用。使您的组件可以在可能更改之前从DOM捕获一些信息（例如滚动位置）。此生命周期返回的任何值都将作为参数传递给componentDidUpdate（）。
+·可以访问更新前的 props 和 state。
+·需要与 componentDidUpdate() 方法一起使用，否则会出现错误。
+
+```js
+getSnapshotBeforeUpdate(prevProps, prevState) {
+    //我们是否要添加新的 items 到列表?
+    // 捕捉滚动位置，以便我们可以稍后调整滚动.
+    if (prevProps.list.length < this.props.list.length) {
+      const list = this.listRef.current;
+      return list.scrollHeight - list.scrollTop;
+    }
+    return null;
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    //如果我们有snapshot值, 我们已经添加了 新的items.
+    // 调整滚动以至于这些新的items 不会将旧items推出视图。
+    // (这边的snapshot是 getSnapshotBeforeUpdate方法的返回值)
+    if (snapshot !== null) {
+      const list = this.listRef.current;
+      list.scrollTop = list.scrollHeight - snapshot;
+    }
+  }
+```
 
 # 100.React面试题（setState修改数据）
 ```js
