@@ -1,5 +1,5 @@
 # 0.简述MVVM
-MVVM 是 Model-View-ViewModel 缩写，也就是把 MVC 中的 Controller 演变成 ViewModel。Model 层代表数据模型，View代表UI组件，ViewModel是View和Model层的桥梁，数据会绑定到viewModel层并自动将数据渲染到页面中，视图变化的时候会通知 viewModel 层更新数据。
+MVVM是Model-View-ViewModel的缩写。Model 代表数据层，可定义修改数据、编写业务逻辑。View 代表视图层，负责将数据渲染成页面。ViewModel 负责监听数据层数据变化，控制视图层行为交互，简单讲，就是同步数据层和视图层的对象。ViewModel 通过双向绑定把 View 和 Model 层连接起来，且同步工作无需人为干涉，使开发人员只关注业务逻辑，无需频繁操作DOM，不需关注数据状态的同步问题。
 # 0.5 mvc，mvp，mvvm是什么
 
  *mvc*
@@ -269,14 +269,14 @@ test('an async feature', async () => {
 ```js
         function observer(target) {
             if (!target && typeof target !== 'object') {
-                return
+                return target
             }
             Object.keys(target).forEach((k) => {
                 defineReactive(target, key, target[k])
             })
         }
 
-        function defineReactive (target, key, val) {
+        function defineReactive (obj, key, val) {
             // 递归响应，处理嵌套对象
             observer(val)
 
@@ -322,7 +322,7 @@ test('an async feature', async () => {
         class Watcher {
             constructor(vm,_) {
                 // 将当前实例指向Dep.target
-                this.get
+                this.get()
                 this.newDeps = []
             }
             get(){
@@ -1046,7 +1046,6 @@ PWA
 ## 1.官方定义：Vue.nextTick([callback,context])
          在下次DOM更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新之后的DOM
 
-
 ## 2.vue如何检测到DOM更新完毕呢？
     能监听到DOM改动的API：MutationObserver
     MutationObserver是HTML5新增的属性，用于监听DOM修改事件，能够监听到节点的属性、文本内
@@ -1060,13 +1059,108 @@ var article = document.querySelector('article');
 observer.observer(article); 
 ```
 
-## 3.vue的nextTick方法的实现原理了，总结一下就是：
-    1.vue用异步队列的方式来控制DOM更新和nextTick回调先后执行
-    2.microtask因为其高优先级特性，能确保队列中的微任务在一次事件循环前被执行完毕
-    3.因为兼容性问题，vue不得不做了microtask向macrotask的降级方案
-   *4.Vue在更新DOM时是异步执行的。只要侦听到数据变化，Vue将开启一个队列，并缓冲在同一事件循环中发生的所有数据变更。如果同一个watcher被多次触发，只会被推入到队列中一次。这种在缓冲时去除重复数据对于避免不必要的计算和DOM操作是非常重要的。nextTick方法会在队列中加入一个回调函数，确保该函数在前面的dom操作完成后才调用。
+## 3.Vue.$nextTick 的原理
+nextTick：在下次 DOM 更新循环结束之后执行延迟回调。常用于修改数据后获取更新后的DOM。
+源码位置：vue/src/core/util/next-tick.js
+```js
+import { noop } from 'shared/util'
+import { handleError } from './error'
+import { isIE, isIOS, isNative } from './env'
 
-# 27. Vue3.0 里为什么要用 Proxy API 替代 defineProperty API？
+// 是否使用微任务标识
+export let isUsingMicroTask = false
+
+// 回调函数队列
+const callbacks = []
+// 异步锁
+let pending = false
+
+function flushCallbacks () {
+  // 表示下一个 flushCallbacks 可以进入浏览器的任务队列了
+  pending = false
+  // 防止 nextTick 中包含 nextTick时出现问题，在执行回调函数队列前，提前复制备份，清空回调函数队列
+  const copies = callbacks.slice(0)
+  // 清空 callbacks 数组
+  callbacks.length = 0
+  for (let i = 0; i < copies.length; i++) {
+    copies[i]()
+  }
+}
+
+let timerFunc
+
+// 浏览器能力检测
+// 使用宏任务或微任务的目的是宏任务和微任务必在同步代码结束之后执行，这时能保证是最终渲染好的DOM。
+// 宏任务耗费时间是大于微任务，在浏览器支持的情况下，优先使用微任务。
+// 宏任务中效率也有差距，最低的就是 setTimeout
+if (typeof Promise !== 'undefined' && isNative(Promise)) {
+  const p = Promise.resolve()
+  timerFunc = () => {
+    p.then(flushCallbacks)
+    if (isIOS) setTimeout(noop)
+  }
+  isUsingMicroTask = true
+} else if (!isIE && typeof MutationObserver !== 'undefined' && (
+  isNative(MutationObserver) ||
+  MutationObserver.toString() === '[object MutationObserverConstructor]'
+)) {
+  let counter = 1
+  const observer = new MutationObserver(flushCallbacks)
+  const textNode = document.createTextNode(String(counter))
+  observer.observe(textNode, {
+    characterData: true
+  })
+  timerFunc = () => {
+    counter = (counter + 1) % 2
+    textNode.data = String(counter)
+  }
+  isUsingMicroTask = true
+} else if (typeof setImmediate !== 'undefined' && isNative(setImmediate)) {
+  timerFunc = () => {
+    setImmediate(flushCallbacks)
+  }
+} else {
+  timerFunc = () => {
+    setTimeout(flushCallbacks, 0)
+  }
+}
+
+export function nextTick (cb?: Function, ctx?: Object) {
+  let _resolve
+  // 将 nextTick 的回调函数用 try catch 包裹一层，用于异常捕获
+  // 将包裹后的函数放到 callback 中
+  callbacks.push(() => {
+    if (cb) {
+      try {
+        cb.call(ctx)
+      } catch (e) {
+        handleError(e, ctx, 'nextTick')
+      }
+    } else if (_resolve) {
+      _resolve(ctx)
+    }
+  })
+  // pengding 为 false, 执行 timerFunc
+  if (!pending) {
+    // 关上锁
+    pending = true
+    timerFunc()
+  }
+  if (!cb && typeof Promise !== 'undefined') {
+    return new Promise(resolve => {
+      _resolve = resolve
+    })
+  }
+}
+```
+
+## 4.总结：
+运用异步锁的概念，保证同一时刻任务队列中只有一个 flushCallbacks。当 pengding 为 false 的时候，表示浏览器任务队列中没有 flushCallbacks 函数；当 pengding 为 true 的时候，表示浏览器任务队列中已经放入 flushCallbacks；待执行 flushCallback 函数时，pengding 会被再次置为 false，表示下一个 flushCallbacks 可进入任务队列。
+环境能力检测，选择可选中效率最高的（宏任务/微任务）进行包装执行，保证是在同步代码都执行完成后再去执行修改 DOM 等操作。
+flushCallbacks 先拷贝再清空，为了防止nextTick嵌套nextTick导致循环不结束
+
+
+# 27.Vue3.0 里为什么要用 Proxy API 替代 defineProperty API？
 参考回答：
 响应式优化。
 a. defineProperty API 的局限性最大原因是它只能针对单例属性做监听。
@@ -1522,6 +1616,17 @@ Vue3.x中v-if 比 v-for 更高的优先级。
 **4·销毁过程**
 顺序：父 beforeDestroy -> 子 beforeDestroy -> 子 destroyed -> 父 destroyed
 
+# 40.Vue 生命周期
+*beforeCreate*  	vue实例初始化后，数据观测（data observer）和事件配置之前。*data、methods都无法访问。*
+*created*	      vue实例创建完成后立即调用 ，可访问 data、computed、watch、methods。*未挂载 DOM*，不能访问ref。
+*beforeMount*	    在 DOM 挂载开始之前调用。
+*mounted*	        vue实例被挂载到 DOM。
+*beforeUpdate*	  数据更新之前调用，发生在虚拟 DOM 打补丁之前。
+*updated*	        数据更新之后调用。
+*beforeDestroy*	  实例销毁前调用。
+*destroyed*	      实例销毁后调用 。
+调用异步请求可在created、beforeMount、mounted生命周期中调用，因为相关数据都已创建。最好的选择是在created中调用。
+获取DOM在mounted中获取，获取可用$ref方法，这点毋庸置疑。
 
 # 100 ·················技巧····································
 
