@@ -142,6 +142,16 @@
 
     </script> -->
     <script>
+        function s(str) {
+            let str2 = ""
+            for (let i = 0; i < str.length; i++) {
+                if (str.indexOf(str[i]) == i) {
+                    str2 += str[i]
+                }
+            }
+            return str2
+        }
+        console.log(s('CanvasRenderingContext2D'));
     </script>
 </body>
 
