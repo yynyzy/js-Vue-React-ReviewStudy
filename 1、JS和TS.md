@@ -1381,6 +1381,44 @@ function sleep(delay){
 }
 ```
 
+## 45.使用setTimeout实现setInterval方法
+```js
+function mysetinterval(fn,time){
+    console.log("利用steTimeout实现setInterval");
+    function interval(){//执行该函数，异步被挂起time时间后在执行，一上来就执行fn
+        setTimeout(interval,time);//异步
+        //好，time时间过去，这个异步被执行，而内部执行的函数正是interval，就相当于进了一个循环，递归
+        fn();//同步
+    }
+    setTimeout(interval,time);//interval被延迟time时间执行
+}
+```
+
+## 46.模拟实现Array.find()、Array.findIndex()
+Array.find()
+用于找出第一个符合条件的数组成员，参数为一个回调函数
+[1, 4, -5, 10].find((n) => n < 0) // -5
+```js
+Array.prototype.myFind = function (fn, start = 0, end = this.length) {
+    for (let i = start; i < end; i++) {
+        if (fn.call(this, this[i], i, this)) {
+            return this[i]
+        }
+    }
+}
+```
+```js
+Array.prototype.myFindIndex = function (fn, start = 0, end = this.length) {
+    for (let i = start; i < end; i++) {
+        if (fn.call(this, this[i], i, this)) {
+            return i
+        }
+    }
+    return -1
+}
+```
+
+
 ## 100.generator函数(迭代函数—不常用)
   ### 基本用法
 generator函数跟普通函数在写法上的区别就是，多了一个星号*，并且只有在generator函数中才能使用yield，什么是yield呢，他相当于generator函数执行的中途暂停点，比如下方有3个暂停点。而怎么才能暂停后继续走呢？那就得使用到next方法，next方法执行后会返回一个对象，对象中有value 和 done两个属性
