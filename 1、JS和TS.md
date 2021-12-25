@@ -694,6 +694,26 @@ function distinct6(arr = testArr) {
 
 ## 19.手写 Promise
 
+## 19.5 Promise.resolve 和 Promise.reject
+*Promsie.resolve(value)* 可以将任何值转成值为 value 状态是 fulfilled 的 Promise，但如果传入的值本身是 Promise 则会原样返回它。
+```js
+Promise.resolve = function(value) {
+    // 如果是 Promsie，则直接输出它
+    if(value instanceof Promise){
+        return value
+    }
+    return new Promise(resolve => resolve(value))
+}
+```
+
+*Promise.reject*
+和 Promise.resolve() 类似，Promise.reject() 会实例化一个 rejected 状态的 Promise。但与 Promise.resolve() 不同的是，如果给 Promise.reject() 传递一个 Promise 对象，则这个对象会成为新 Promise 的值。
+```js
+Promise.reject = function(reason) {
+    return new Promise((resolve, reject) => reject(reason))
+}
+```
+
 ## 20.手写 Promise.all
   ### Promise.all: 
   传入的所有Promise最终都转化为fulfilled态时，则会执行resolve回调，并将返回值是的所有的 Promise 的resolve的回调的value的数组。其中一个任何Promise为reject状态时，则返回的Promise的状态更改为rejected。
