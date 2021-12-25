@@ -43,8 +43,8 @@ BFC 是 Block Formatting Context 的缩写，即块格式化上下文。可以�
 ```css
 p {
     overflow:hidden;
-    white-space:nowrap;
     text-overflow: ellipsis;
+    white-space:nowrap;
 ```
 
 # 8.多行文本溢出隐藏变为...
@@ -54,5 +54,19 @@ p {
     display:-webkit-box;
     -webkit-line-clamp:3;
     -webkit-box-orient: vertical;
-
 ```
+
+# 9.行内元素与块级元素
+行内元素：1.不能换行 2.不能设置大小 3.大小由内容决定
+块级元素: 1.独占一行 2.可以设置大小 3.宽度继承父元素宽度
+
+# css中的子元素中的百分比（%）到底是谁的百分比
+（1）padding
+子元素的padding如果设置百分比，不论是垂直方向或者是水平方向，都相对于直接父亲元素的width，而与父元素的height无关。
+
+（2）margin
+跟padding一样，margin也是如此，子元素的margin如果设置成百分比，不论是垂直方向还是水平方向，都相对于直接父元素的width。
+
+# src和href的区别
+·href (Hypertext Reference)指定*网络资源的位置*，从而在当前元素或者当前文档和由当前属性定义的需要的锚点或资源之间*定义一个链接或者关系*。
+·src (Source)属性仅仅 嵌入当前资源到当前文档元素定义的位置。当浏览器找到在浏览器下载，编译，*执行这个文件之前页面的加载和处理会被暂停*。
