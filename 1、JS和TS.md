@@ -159,8 +159,7 @@ function debounce (fn, delay) {
                 let context = this
                 timer = setTimeout(() => {
                     fn.apply(context,  [...arguments])
-                }
-                    , delay)
+                }, delay)
             }
         }
 
@@ -170,7 +169,7 @@ const debounce = (fn, wait, immediate) => {
       let timer = null;
       return function (...args) {
     if (timer) clearTimeout(timer)
-     let context = this
+    let context = this
     if (immediate) {
       (!timer) && fn.call(context, ...args)  
       timer = setTimeout(() => {
@@ -456,7 +455,7 @@ function flatten(arr) {
 
 ```
 
-### 数组去重
+   ### 数组去重
    #### 1.filter实现
    ```js
    function distinct4(arr = testArr) {
@@ -813,11 +812,12 @@ function _instanceof(A, B) {
         //Object.prototype.__proto__ === null
         if (A === null)
             return false;
-        if (O === A)// 这里重点：当 O 严格等于 A 时，返回 true
+        if (A === O)// 这里重点：当 O 严格等于 A 时，返回 true
             return true;
         A = A.__proto__;
     }
 }
+
 ```
 
 ## 23.JS 数据类型
