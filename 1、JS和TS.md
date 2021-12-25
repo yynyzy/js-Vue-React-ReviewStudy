@@ -972,7 +972,7 @@ parseFloat(Number(19.520100).toFixed(2))
 // 如果只想去除小数点后多余的0 （比如 18.2300 -->  18.23）
 parseFloat(arg)
 
-## 36.JS常用8种继承方案
+## 36.JS常用7种继承方案
    ### 1.原型链继承 
    缺点：原型链方案存在的缺点：多个实例对引用类型的操作会被篡改。因为实例的对引用类型都是通过 prototype 继承来的
 ```js
@@ -1112,8 +1112,8 @@ function SubType(name, age){
 
  function inheritPrototype(subType, superType){
   var ptype = Object.create(superType.prototype); // 创建对象，创建父类原型的一个副本
-  ptype.constructor = subType;                    // 增强对象，弥补因重写原型而失去的默认的constructor 属性
   subType.prototype = ptype;                      // 指定对象，将新创建的对象赋值给子类的原型
+  ptype.constructor = subType;                    // 增强对象，弥补因重写原型而失去的默认的constructor 属性
 }
 
 // 调用函数（盗用构造函数方式）将父类原型指向子类
@@ -1128,18 +1128,15 @@ SubType.prototype.sayAge = function(){
 
    ### 7.ES6类继承 
 ```js
-class SuperType {
-    constructor(){
-
-    }
-}
-class SubType extends SuperType {
-    constructor(){
-        super()
-        ···
-    }
+class Point {
 }
 
+class ColorPoint extends Point {
+    constructor(x, y, color) {
+        super(x,y);
+        this.color = color
+    }
+}
 ```
 
 
