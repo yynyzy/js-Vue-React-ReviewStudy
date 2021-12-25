@@ -850,8 +850,9 @@ Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES202
 ## 28.JS用 FileReader 对象读取blob对象二进制数据
 使用FileReader对象，web应用程序可以异步的读取存储在用户计算机上的文件(或者原始数据缓冲)内容，可以使用File对象或者Blob对象来指定所要处理的文件或数据
   ### 1.创建实例
+```js
   var reader = new FileReader();
-
+```
   ### 2.方法
   方法定义	                                 描述
   abort():void	                            终止文件读取操作
