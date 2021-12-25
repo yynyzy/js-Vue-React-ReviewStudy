@@ -142,14 +142,11 @@
 
     </script> -->
     <script>
-        let inherit = (function () {
-            function F() { }
-            return function (target, origin) {
-                F.prototype = origin.prototype;
-                target.prototype = new F();
-                target.prototype.constructor = origin
-            }
-        })()
+        function a(A, B = undefined) {
+            console.log(A === null);
+            console.log(A, B);
+        }
+        a(null)
     </script>
 </body>
 

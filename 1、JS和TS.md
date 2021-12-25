@@ -1416,6 +1416,26 @@ Array.prototype.myFindIndex = function (fn, start = 0, end = this.length) {
 }
 ```
 
+## 47.Object.create()方法创建一个新对象，使用现有的对象来提供新创建的对象的__proto__。
+```js
+Object.create2 = function(proto, propertyObject = undefined) {
+    if (typeof proto !== 'object' && typeof proto !== 'function') {
+        throw new TypeError('Object prototype may only be an Object or null.')
+    function F() {}
+    F.prototype = proto
+    const obj = new F()
+    if (propertyObject != undefined) {
+        Object.defineProperties(obj, propertyObject)
+    }
+    if (proto === null) {
+        // 创建一个没有原型对象的对象，Object.create(null)
+        obj.__proto__ = null
+    }
+    return obj
+}
+
+```
+
 
 ## 100.generator函数(迭代函数—不常用)
   ### 基本用法
