@@ -6,13 +6,50 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        .box {
+            padding: 0 200px 0 200px;
+        }
+
+        .center,
+        .left,
+        .right {
+            height: 500px;
+            float: left;
+            position: relative;
+        }
+
+        .center {
+            width: 100%;
+            background: pink;
+        }
+
+        .left {
+            width: 200px;
+            background: red;
+            left: -200px;
+            margin-left: -100%;
+        }
+
+        .right {
+            width: 200px;
+            background: green;
+            right: -200px;
+            margin-left: -200px;
+        }
+    </style>
+
 </head>
-<div id='app'>
-</div>
 
 <body>
+    <div class="box">
+        <div class="center"></div>
+        <div class="left"></div>
+        <div class="right"></div>
+    </div>
+</body>
 
-    <!-- <script>
+<!-- <script>
         class Vue {
             constructor(options) {
                 options.beforeCreate.bind(this)();
@@ -141,18 +178,17 @@
 
 
     </script> -->
-    <script>
-        const arrayA = [4, 2, 1, 2, 5];
-        const arrayB = [2, 3, 1, 6];
-        function test(arrayA, arrayB) {
-            return arrayA.filter(v => {
-                return arrayB.includes(v)
-            }).filter((v, i, arr) => {
-                return arr.indexOf(v) === i
-            }).sort()
-        }
-        console.log(test(arrayA, arrayB));
-    </script>
+<script>
+    const promise = new Promise((resolve, reject) => {
+        reject(1)
+    }).catch(() => {
+        console.log(2);
+    }).then(() => {
+        console.log(3);
+    }, (v) => {
+        console.log(v);
+    })
+</script>
 </body>
 
 </html>

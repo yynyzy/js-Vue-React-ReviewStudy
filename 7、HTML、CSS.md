@@ -11,10 +11,23 @@ CSS盒模型本质上是一个盒子，封装周围的HTML元素，它包括：�
 盒模型允许我们在其它元素和周围元素边框之间的空间放置元素。
 
 # 3.什么是BFC？BFC的布局规则是什么？如何创建BFC？BFC应用？
-BFC 是 Block Formatting Context 的缩写，即块格式化上下文。可以看成是一个单独环境，里面的元素不会影响外面的元素。
-布局规则：Box是CSS布局的对象和基本单位，页面是由若干个Box组成的。元素的类型和display属性，决定了这个Box的类型。不同类型的Box会参与不同的Formatting Context。
-创建：浮动元素 display：inline-block position:absolute
-应用: 1.分属于不同的BFC时,可以防止margin重叠 2.清除内部浮动 3.自适应多栏布局
+W3C官方解释为：BFC它决定了元素如何对其内容进行定位，以及与其它元素的关系和相互作用，当涉及到可视化布局时，Block Formatting Context提供了一个环境，HTML在这个环境中按照一定的规则进行布局。
+简单来说就是，BFC是一个*完全独立的空间*（布局环境），让*空间里*的子元素*不会影响*到*外面的布局*。那么怎么使用BFC呢，BFC可以看做是一个CSS元素属性
+
+**怎样触发BFC**
+这里简单列举几个触发BFC使用的CSS属性：
+    ·overflow: hidden       （overflow的值不为visible的元素；）
+    ·display: inline-block
+    ·position: absolute
+    ·position: fixed
+    ·display: flex
+
+**BFC的规则**
+·BFC就是一个块级元素，块级元素会在垂直方向一个接一个的排列
+·BFC就是页面中的一个隔离的独立容器，容器里的标签不会影响到外部标签
+·垂直方向的距离由margin决定， 属于同一个BFC的两个相邻的标签外边距会发生重叠
+·计算BFC的高度时，浮动元素也参与计算
+
 
 # 4.DOM、BOM对象
 ·BOM 是指 浏览器对象模型
@@ -70,3 +83,44 @@ p {
 # src和href的区别
 ·href (Hypertext Reference)指定*网络资源的位置*，从而在当前元素或者当前文档和由当前属性定义的需要的锚点或资源之间*定义一个链接或者关系*。
 ·src (Source)属性仅仅 嵌入当前资源到当前文档元素定义的位置。当浏览器找到在浏览器下载，编译，*执行这个文件之前页面的加载和处理会被暂停*。
+
+# 左侧宽度固定，右侧自适应的两栏布局
+第三种：利用flex
+首先，给父容器设置display: flex，然后让右侧div自动放大，撑满剩余空间，设置属性flex: 1 1 auto（也可简写为flex: auto）。
+```css
+.wrapper {
+  border: 1px solid #000;
+  display: flex;
+}
+.left {
+  width: 200px;
+  height: 200px;
+  background-color: rgb(97, 143, 204);
+}
+.right {
+  height: 300px;
+  background-color: rgb(165, 103, 207);
+  flex: 1 1 auto;
+}
+
+```
+
+第四种：利用浮动+BFC
+首先让左侧元素浮动，使其脱离文档流。为了让浮动不影响右侧元素，可以使右侧元素形成一个BFC。最简单的就是为右侧元素设置overflow: hidden。
+```js
+.wrapper {
+  border: 1px solid #000;
+}
+.left {
+  width: 200px;
+  height: 200px;
+  background-color: rgb(97, 143, 204);
+  float: left;
+}
+.right {
+  height: 300px;
+  background-color: rgb(165, 103, 207);
+  overflow: hidden;
+}
+
+```

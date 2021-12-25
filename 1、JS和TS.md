@@ -1498,6 +1498,75 @@ function process(arrayA, arrayB) {
 }
 ```
 
+## 49.Promise.all 并发限制
+```js
+function multiRequest(urls = [], maxNum) {
+  // 请求总数量
+  const len = urls.length;
+  // 根据请求数量创建一个数组来保存请求的结果
+  const result = new Array(len).fill(false);
+  // 当前完成的数量
+  let count = 0;
+
+  return new Promise((resolve, reject) => {
+    // 请求maxNum个
+    while (count < maxNum) {
+      next();
+    }
+    function next() {
+      let current = count++;
+      // 处理边界条件,超过了请求上限
+      if (current >= len) {
+        // 请求全部完成就将promise置为成功状态, 然后将result作为promise值返回
+        !result.includes(false) && resolve(result);
+        return;
+      }
+      const url = urls[current];
+      console.log(`开始 ${current}`, new Date().toLocaleString());
+      fetch(url)
+        .then((res) => {
+          // 保存请求结果
+          result[current] = res;
+          console.log(`完成 ${current}`, new Date().toLocaleString());
+          // 请求没有全部完成, 就递归
+          if (current < len) {
+            next();
+          }
+        })
+        .catch((err) => {
+          console.log(`结束 ${current}`, new Date().toLocaleString());
+          result[current] = err;
+          // 请求没有全部完成, 就递归
+          if (current < len) {
+            next();
+          }
+        });
+    }
+  });
+}
+
+```
+
+## 50.手写trim
+```js
+function trim(str){
+    let len = str.length
+    let start = 0,end=0
+    for(let i =0; i <len; i++){
+        if(str[i]==""){
+            start=i
+        }
+    }
+    for(let i =len-1; i>0; i--){
+        if(str[i]==""){
+           end=i+1
+        }
+    }
+    return str.slice(start,end);
+}
+
+```
+
 ## 100.generator函数(迭代函数—不常用)
   ### 基本用法
 generator函数跟普通函数在写法上的区别就是，多了一个星号*，并且只有在generator函数中才能使用yield，什么是yield呢，他相当于generator函数执行的中途暂停点，比如下方有3个暂停点。而怎么才能暂停后继续走呢？那就得使用到next方法，next方法执行后会返回一个对象，对象中有value 和 done两个属性
