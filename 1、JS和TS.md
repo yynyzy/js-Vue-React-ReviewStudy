@@ -384,7 +384,6 @@ let Public = {
     function Otaku (name, age) {
     this.strength = 60;
     this.age = age;
-
     return {
         name: name,
         habit: 'Games'
@@ -452,7 +451,14 @@ function flatten(arr) {
         }
         return res
     }
-
+```
+   
+   #### 四、展开运算符
+```js
+    function flattenMd(arr) {
+        let flatten = arr => [].concat(...arr)//可去掉一层[]
+        return flatten(arr.map(item => Array.isArray(item) ? flattenMd(item) : item))
+    }
 ```
 
    ### 数组去重
@@ -714,7 +720,7 @@ Promise.reject = function(reason) {
 }
 ```
 
-## 20.手写 Promise.all
+## 20.手写 Promise.all 和 Promise.race
   ### Promise.all: 
   传入的所有Promise最终都转化为fulfilled态时，则会执行resolve回调，并将返回值是的所有的 Promise 的resolve的回调的value的数组。其中一个任何Promise为reject状态时，则返回的Promise的状态更改为rejected。
   ```js
@@ -1456,6 +1462,41 @@ Object.create2 = function(proto, propertyObject = undefined) {
 
 ```
 
+## 48.取得两个数组⾥相同的部分, 并去重
+- 取得两个数组⾥相同的部分, 并去重
+- 然后按照从⼩到⼤顺序排序, 最后结果返回 (注意, 是返回结果, 不是把结果打印出来)
+
+```js
+const arrayA = [4, 2, 1, 2, 5];
+const arrayB = [2, 3, 1, 6];
+function process(arrayA, arrayB) {
+}
+应该返回 [1, 2]
+```
+
+第一种：
+```js
+function process(arrayA, arrayB){
+  return arrayA
+    .filter((v) => arrayB.includes(v))
+    .filter((v, i, arr) => arr.indexOf(v) === i )
+    .sort((a, b) => a-b);
+}
+```
+
+第⼆种：
+```js
+function process(arrayA, arrayB) {
+  const set = new Set();
+  while(arrayA.length > 0) {
+    const ele = arrayA.pop();
+    if (arrayB.includes(ele)) {
+      set.add(ele);
+    }
+  }
+  return [...set].sort((a,b) => a - b);
+}
+```
 
 ## 100.generator函数(迭代函数—不常用)
   ### 基本用法

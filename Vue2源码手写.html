@@ -142,11 +142,16 @@
 
     </script> -->
     <script>
-        function a(A, B = undefined) {
-            console.log(A === null);
-            console.log(A, B);
+        const arrayA = [4, 2, 1, 2, 5];
+        const arrayB = [2, 3, 1, 6];
+        function test(arrayA, arrayB) {
+            return arrayA.filter(v => {
+                return arrayB.includes(v)
+            }).filter((v, i, arr) => {
+                return arr.indexOf(v) === i
+            }).sort()
         }
-        a(null)
+        console.log(test(arrayA, arrayB));
     </script>
 </body>
 
