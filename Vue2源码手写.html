@@ -7,35 +7,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        .box {
-            padding: 0 200px 0 200px;
-        }
-
         .center,
         .left,
         .right {
-            height: 500px;
             float: left;
-            position: relative;
         }
 
         .center {
             width: 100%;
-            background: pink;
+            height: 500px;
+        }
+
+        .ss {
+            height: 100%;
+            background-color: red;
+            margin: 180px 0 200px 0;
         }
 
         .left {
-            width: 200px;
-            background: red;
-            left: -200px;
+            background-color: rgb(70, 170, 61);
             margin-left: -100%;
+            width: 180px;
+            height: 500px;
         }
 
         .right {
-            width: 200px;
-            background: green;
-            right: -200px;
+            background-color: rgb(109, 28, 202);
             margin-left: -200px;
+            width: 200px;
+            height: 500px;
         }
     </style>
 
@@ -43,9 +43,11 @@
 
 <body>
     <div class="box">
-        <div class="center"></div>
-        <div class="left"></div>
-        <div class="right"></div>
+        <div class="center">
+            <div class="ss">111</div>
+        </div>
+        <div class="left">222</div>
+        <div class="right">333</div>
     </div>
 </body>
 
