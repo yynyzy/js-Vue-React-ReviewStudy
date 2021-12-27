@@ -141,13 +141,17 @@ W3C官方解释为：BFC它决定了元素如何对其内容进行定位，以�
 ·DOM 是指文档对象模型
 可以访问HTML文档的所有元素。
 
-# 5.设置3D效果
+# *5.设置3D效果(perspective,transform-style)*
+```css
+{
 //这个属性允许你改变3D元素是怎样查看透视图。加在最外面的包裹3D元素的元素上
  perspective：800px
  //开启3D
  transform-style:preserve-3d
  //写3D代码
  transform:rotateX(45deg)rotateY(45deg);
+}
+```
 
 # 6.details和summary标签
 ```js
@@ -422,4 +426,31 @@ requestAnimationFrame 会把每一帧中的所有DOM操作集中起来，在一�
         render();
         window.requestAnimationFrame(animloop);
     })();
+```
+
+# *17.css动画*
+*注意：animation-duration* 属性定义需要多长时间才能完成动画。如果未指定 animation-duration 属性，则动画不会发生，因为默认值是 0s（0秒）
+*animation-delay* 属性规定动画开始的延迟时间。
+```css
+/* 动画代码 */
+@keyframes example {
+  from {background-color: red;}
+  to {background-color: yellow;}
+}
+@keyframes example {
+  0%   {background-color: red;}
+  25%  {background-color: yellow;}
+  50%  {background-color: blue;}
+  100% {background-color: green;}
+}
+
+/* 向此元素应用动画效果 */
+div {
+  width: 100px;
+  height: 100px;
+  background-color: red;
+  animation-name: example;
+  animation-duration: 4s;
+   animation-delay: 2s;
+}
 ```

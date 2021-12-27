@@ -1620,7 +1620,7 @@ Vue3.x中v-if 比 v-for 更高的优先级。
 **4·销毁过程**
 顺序：父 beforeDestroy -> 子 beforeDestroy -> 子 destroyed -> 父 destroyed
 
-# 40.Vue 生命周期
+# 40.**Vue 生命周期**
 *beforeCreate*  	vue实例初始化后，数据观测（data observer）和事件配置之前。*data、methods都无法访问。*
 *created*	      vue实例创建完成后立即调用 ，可访问 data、computed、watch、methods。*未挂载 DOM*，不能访问ref。
 *beforeMount*	    在 DOM 挂载开始之前调用。

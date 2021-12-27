@@ -572,7 +572,7 @@ function deepClone1(obj, hash = new WeakMap) {
 4.Object.prototype.toString.call([]).slice(8,-1);  // [Object Array]
 ```
 
-## 17.说一下从url输入到返回请求的过程
+## 17.**说一下从url输入到返回请求的过程**
    ### 1·DNS解析查找
     1.输入url后，先对url进行解析。
     2.走DNS缓存：浏览器缓存，系统缓存，路由器缓存，IPS服务器缓存，根域名服务器缓存，顶级域名服务器缓存，主域名服务器缓存。如果缓存了你要访问的URL，就返回 IP 地址。没有就发起一个DNS查询。
