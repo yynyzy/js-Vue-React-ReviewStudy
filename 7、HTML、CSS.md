@@ -409,3 +409,17 @@ p {
 element::first-line
 element::after（在每个element元素的内容之后插入内容。我们可能更多的是用来清除浮动或验证表单提示等其它）
 ```
+
+# 16.requestAnimationFrame
+
+window.requestAnimationFrame() 告诉浏览器——你希望执行一个动画，并且要求浏览器在下次重绘之前调用指定的回调函数更新动画。该方法需要传入一个回调函数作为参数，该回调函数会在浏览器下一次重绘之前执行
+
+*注意：*若你想在浏览器下次重绘之前继续更新下一帧动画，那么回调函数自身必须再次调用window.requestAnimationFrame()
+requestAnimationFrame 会把每一帧中的所有DOM操作集中起来，在一次重绘或回流中就完成，并且重绘或回流的时间间隔紧紧跟随浏览器的刷新频率，一般来说，这个频率为每秒60帧。
+```js
+  //requestAnimationFrame效果
+    (function animloop() {
+        render();
+        window.requestAnimationFrame(animloop);
+    })();
+```
