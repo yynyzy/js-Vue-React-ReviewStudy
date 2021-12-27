@@ -196,7 +196,7 @@ test('an async feature', async () => {
 })
 ```
 
-# 4.Vue3.0中的响应式原理
+# 4.**Vue中的响应式原理**
   ## 1.vue2.x的响应式
 ·实现原理:
 ·对象类型:通过 object.defineProperty()对属性的读取、修改进行拦截(数据劫持)。
@@ -240,7 +240,6 @@ test('an async feature', async () => {
            },
        set(target,key,newval) {
          return Reflect.set(target,key, newval);
-
            }
    })
 ```
@@ -252,12 +251,10 @@ test('an async feature', async () => {
     2.Observer 会遍历对象的属性。多层对象是通过递归来实现。数组类型，通过重写数组方法来实现。
     3.通过调用 defineReactive 方法，使用 Object.defineProperty 将属性进行劫持。
     
-
   *·Watcher*: 观察者对象 ,执⾏更新函数（更新dom）
   实例分为渲染 watcher (render watcher),计算属性 watcher (computed  watcher),侦听器 watcher（user watcher）三种
 
   *·Dep*: 用于收集当前响应式对象的依赖关系,每个响应式对象包括子对象都拥有一个Dep实例, 当数据有变更时,setter 里面会触发 dep.notify() 通知各个watcher去改动。
-
 
 ![vue2响应式](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\vue2响应式.png)
 
@@ -268,7 +265,7 @@ test('an async feature', async () => {
  */
 ```js
         function observer(target) {
-            if (!target && typeof target !== 'object') {
+            if (typeof target !== 'object') {
                 return target
             }
             Object.keys(target).forEach((k) => {
@@ -318,23 +315,23 @@ test('an async feature', async () => {
         }
     }
 
-        // 实现update函数可以更新, 
-        class Watcher {
-            constructor(vm,_) {
-                // 将当前实例指向Dep.target
-                this.get()
-                this.newDeps = []
-            }
-            get(){
-               Dep.target = this
-            }
-            addDep(dep){
-                this.newDeps.push(dep);
-            }
-            update() {
-                console.log(`${this.key}属性更新了`)
-            }
-        }     
+      // 实现update函数可以更新, 
+      class Watcher {
+          constructor(vm,_) {
+              // 将当前实例指向Dep.target
+              this.get()
+              this.newDeps = []
+          }
+          get(){
+             Dep.target = this
+          }
+          addDep(dep){
+              this.newDeps.push(dep);
+          }
+          update() {
+              console.log(`${this.key}属性更新了`)
+          }
+      }     
 ```
 在 getter 方法里， 有一个 Dep.target 参数， 这个 target 其实就是 watch 实例， 那么 target 从哪里来的呢。
 在 beforeMount钩子 和 mounted 钩子初始化之间，会实例化 Watch 类, Watch 构造函数中会把 watch 实例保存在 Dep.target 上， 随后会触发所有数据的访问，也就是上面的 getter 方法，dep.depend() 会把 watch 保存起来， 这个过程就是收集依赖。
@@ -1163,12 +1160,12 @@ flushCallbacks 先拷贝再清空，为了防止nextTick嵌套nextTick导致循�
 # 27.Vue3.0 里为什么要用 Proxy API 替代 defineProperty API？
 参考回答：
 响应式优化。
-a. defineProperty API 的局限性最大原因是它只能针对单例属性做监听。
+a. *defineProperty* API 的局限性最大原因是它只能针对*单例属性*做监听。
 Vue2.x 中的响应式实现正是基于 defineProperty 中的 descriptor，对 data 中的属性做了遍历 + 递归，为每个属性设置了getter、setter。这也就是为什么 Vue 只能对 data 中预定义过的属性做出响应的原因，在 Vue 中使用下标的方式直接修改属性的或者添加一个预先不存在的对象属性是无法做到 setter 监听的，这是 defineProperty 的局限性。
 
-b. Proxy API 的监听是针对一个对象的，那么对这个对象的所有操作会进入监听操作，这就完全可以代理所有属性，将会带来很大的性能提升和更优的代码。Proxy 可以理解成，在目标对象之前架设一层“拦截”，外界对该对象的访问，都必须先通过这层拦截，因此提供了一种机制，可以对外界的访问进行过滤和改写。
+b. *Proxy* API 的监听是*针对一个对象*的，那么对这个对象的所有操作会进入监听操作，这就完全可以代理所有属性，将会带来很大的性能提升和更优的代码。Proxy 可以理解成，在目标对象之前架设一层“拦截”，外界对该对象的访问，都必须先通过这层拦截，因此提供了一种机制，可以对外界的访问进行过滤和改写。
 
-c. 响应式是惰性的
+c. *响应式是惰性的*
 在 Vue.js 2.x 中，对于一个深层属性嵌套的对象，要劫持它内部深层次的变化，就需要递归遍历这个对象，执行 Object.defineProperty 把每一层对象数据都变成响应式的，这无疑会有很大的性能消耗。
 在 Vue.js 3.0 中，使用 Proxy API 并不能监听到对象内部深层次的属性变化，因此它的处理方式是在 getter 中去递归响应式，这样的好处是真正访问到的内部属性才会变成响应式，简单的可以说是按需实现响应式，减少性能消耗
 

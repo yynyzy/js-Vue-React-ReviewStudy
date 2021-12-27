@@ -520,26 +520,22 @@ function distinct6(arr = testArr) {
     
     2. 手写
 ```js
-function deepClone(obj) {
-        //=>过滤特殊情况
-        if (obj === null) return null;
-        if (typeof obj !== "object") return obj;
-        if (obj instanceof RegExp) {
-            return new RegExp(obj);
-        }
-        if (obj instanceof Date) {
-            return new Date(obj);
-        }
-        //=>不直接创建空对象目的:克隆的结果和之前保持相同的所属类
-        // let newObj = new obj.constructor;
-        let newObj = Array.isArray(obj) ? [] : {};
-        for (let key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                newObj[key] = deepClone(obj[key]);
+function deepClone1(obj, hash = new WeakMap) {
+            if (obj == null) return obj
+            if (typeof obj !== 'objcet') return obj
+            if (obj instanceof RegExp) return new RegExp(obj)
+            if (obj instanceof Date) return new Date(obj)
+            if (hash.get(obj)) return hash.get(obj)
+            // let res = Array.isArray(obj) ? [] : {}
+            let res = new obj.constructor();
+            hash.set(obj, res)
+            for (let v in obj) {
+                if (obj.hasOwnProperty(v)) {
+                    res[v] = deepClone(obj[v], hash)
+                }
             }
+            return res
         }
-        return newObj;
-    }
 ```
 
 
