@@ -1632,6 +1632,82 @@ Vue3.x中v-if 比 v-for 更高的优先级。
 调用异步请求可在created、beforeMount、mounted生命周期中调用，因为相关数据都已创建。最好的选择是在created中调用。
 获取DOM在mounted中获取，获取可用$ref方法，这点毋庸置疑。
 
+# 41.vue 中怎么重置 data?
+在vue中：
+this.$data 获取当前状态下的data
+this.$options.data() 获取该组件初始状态下的data
+然后我们利用如下方法实现：
+Object.assign(this.$data, this.$options.data())
+
+
+# 42.组件中写 name 选项有什么作用
+1, 项目使用 keep-alive 时，可搭配组件 name 进行缓存过滤
+2, DOM 做递归组件时需要调用自身 name
+3, Vue-devtools 调试工具里显示的组见名称是由 Vue 中组件 name 决定的
+
+# 43.vue-cli 替我们做了哪些工作？
+.vue 文件 --> .js 文件
+ES6 语法 --> ES5 语法
+Sass,Less,Stylus --> CSS
+对 jpg,png,font 等静态资源的处理
+热更新
+定义环境变量，区分 dev 和 production 模式
+
+# 44.vue中router与route区别
+*1、$route对象*
+        $route对象表示当前的路由信息，包含了当前 URL 解析得到的信息。包含当前的路径，参数，query对象等。
+
+*·$route.path*字符串，对应当前路由的路径，总是解析为绝对路径，如"/foo/bar"。
+*·$route.params*一个 key/value 对象，包含了 动态片段 和 全匹配片段，如果没有路由参数，就是一个空对象。
+*·$route.query* 一个 key/value 对象，表示URL查询参数。例：/foo?user=1，则有$route.query.user == 1
+·*$route.hash* 当前路由的hash值 (不带#) ，如果没有 hash 值，则为空字符串。锚点*
+*·$route.fullPath* 完成解析后的 URL，包含查询参数和hash的完整路径。
+*·$route.matched* 数组，包含当前匹配的路径中所包含的所有片段所对应的配置参数对象。
+*·$route.name* 当前路径名字
+*·$route.meta* 路由元信息
+导航钩子的参数：
+router.beforeEach((to,from, next)=>{//to 和from都是 路由信息对象,后面使用路由的钩子函数就容易理解了})
+
+*2、$router对象*
+        $router对象是全局路由的实例，是router构造方法的实例
+        ·push
+        ·go
+        ·replace
+
+# 45.vue3 路由hash与History的设置
+一、history
+关键字：*createWebHistory*
+```js
+import { createRouter, createWebHistory } from 'vue-router'
+const routes = [ {
+  path: '/userinfo',
+  name: 'UserInfo',
+  component: () => import('../views/UserInfo.vue')
+}]
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
+  routes
+})
+export default router
+```
+
+一、history
+关键字：*createWebHistory*
+```js
+import { createRouter, createWebHashHistory } from 'vue-router'
+const routes = [{
+  path: '/userinfo',
+  name: 'UserInfo',
+  component: () => import('../views/UserInfo.vue')
+}]
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes
+})
+export default router
+
+```
+
 # 100 ·················技巧····································
 
 # 101.Vue路由组件化(运用require.context)
