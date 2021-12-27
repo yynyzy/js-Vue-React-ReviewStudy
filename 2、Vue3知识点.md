@@ -289,8 +289,8 @@ test('an async feature', async () => {
               },
                set: function (obj, key, newval) {
                 if (val != newval) {
-                    observe(newval)
                     val = newval
+                    observe(newval)
                     dep.notify()
                 }
             }
@@ -308,6 +308,10 @@ test('an async feature', async () => {
                 Dep.target.addDep(this)
             }
         }
+         // 为当前收集器添加Watcher
+        addSub(watcher) {
+          this.subs.push(watcher);
+        }
         notify() {
              this.subs.forEach((sub) => {
                     sub.update()
@@ -320,14 +324,17 @@ test('an async feature', async () => {
           constructor(vm,_) {
               // 将当前实例指向Dep.target
               this.get()
-              this.newDeps = []
           }
           get(){
-             Dep.target = this
+            // 将当前Dep.target指向自己
+              Dep.target = this;
+  
           }
+          // 向添加当前Wathcer 到 dep subs数组中
           addDep(dep){
-              this.newDeps.push(dep);
+              dep.addSub(this);
           }
+          // 更新方法，用于触发vm._render
           update() {
               console.log(`${this.key}属性更新了`)
           }
@@ -766,7 +773,7 @@ return {
 2.可利用它跳过:没有使用指令语法、没有使用插值语法的节点，会加快编译。
 
 
-# 17.跨域解决（代理转发，cors，JSONP）
+# 17.**跨域解决**（代理转发，cors，JSONP）
 ## 代理转发
 ```js
 在 vue.config.js 文件中配置

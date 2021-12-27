@@ -1092,10 +1092,16 @@ Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES202
 
 
 
-## 32.原型、原型链(高频)
+## 32.**原型、原型链**(高频)
 ·原型: 对象中固有的__proto__属性，该属性指向构造函数的prototype原型属性。
 ·原型链: 当我们访问一个对象的属性时，如果这个对象内部不存在这个属性，那么它就会去它的原型对象里找这个属性，这个原型对象又会有自己的原型，于是就这样一直找下去，也就是原型链的概念。原型链的尽头一般来说都是Object.prototype所以这就是我们新建的对象为什么能够使用toString()等方法的原因。
 
+*Function 和 Object是相互继承的*
+![function和object是相互继承的](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\function和object是相互继承的.png)
+```js
+Function.prototype.__proto__ === Object.prototype;//true
+Object.__proto__ === Function.prototype;//true
+```
 
 ## 34.原生ajax
 ```js
