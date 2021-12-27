@@ -11,11 +11,11 @@
 <body>
     <script>
         var b = 10;
-        (function b () {
-            b = 20;  
-         b + 10
-            console.log(b);   
-            console.log(c);  //function b() {}
+        (function b() {
+            b = 20;
+            b + 10
+            console.log(b);
+            // console.log(c);  //function b() {}
             console.log(window.b);
         })();
 
@@ -24,7 +24,7 @@
         (function b() {
             var b1 = 20;
             console.log(b1); // 20
-            console.log(window.b1); // 10 
+            console.log(window.b1); // 10
         })()
     </script>
 </body>

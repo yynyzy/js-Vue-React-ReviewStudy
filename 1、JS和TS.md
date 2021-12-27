@@ -520,16 +520,21 @@ function distinct6(arr = testArr) {
     
     2. 手写
 ```js
-    const deepClone = function (obj) {
-        if ( obj && typeof obj !== "object") return obj;
-        if (obj instanceof RegExp) return new RegExp(obj);
-        if (obj instanceof Date) return new Date(obj);
-    
-        <!-- //=>不直接创建空对象目的:克隆的结果和之前保持相同的所属类 let newObj = new obj.constructor -->
+function deepClone(obj) {
+        //=>过滤特殊情况
+        if (obj === null) return null;
+        if (typeof obj !== "object") return obj;
+        if (obj instanceof RegExp) {
+            return new RegExp(obj);
+        }
+        if (obj instanceof Date) {
+            return new Date(obj);
+        }
+        //=>不直接创建空对象目的:克隆的结果和之前保持相同的所属类
+        // let newObj = new obj.constructor;
         let newObj = Array.isArray(obj) ? [] : {};
-        for (var key in obj) {
+        for (let key in obj) {
             if (obj.hasOwnProperty(key)) {
-                //Object的hasOwnProperty()方法返回一个布尔值，判断对象是否包含特定的自身（非继承）属性。
                 newObj[key] = deepClone(obj[key]);
             }
         }

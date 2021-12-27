@@ -21,7 +21,7 @@
         .ss {
             height: 100%;
             background-color: red;
-            margin: 180px 0 200px 0;
+            margin: 0 200px 0 180px;
         }
 
         .left {
@@ -181,15 +181,24 @@
 
     </script> -->
 <script>
-    const promise = new Promise((resolve, reject) => {
-        reject(1)
-    }).catch(() => {
-        console.log(2);
-    }).then(() => {
-        console.log(3);
-    }, (v) => {
-        console.log(v);
-    })
+    var x = 2;
+    var y = {
+        x: 3,
+        z: (function (x) {
+            this.x *= x;
+            x += 2;
+            return function (n) {
+                this.x *= n;
+                x += 3;
+                console.log(x);
+            }
+        })(x)
+    };
+    var m = y.z;
+
+    m(4);   //7
+    y.z(5);  //10
+    console.log(x, y.x);  //16  15
 </script>
 </body>
 
