@@ -1,3 +1,108 @@
+# 0. 圣杯布局 和 双飞翼布局
+*圣杯布局*
+```html
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            min-width: 390px;
+        }
+        .center,
+        .left,
+        .right {
+            float: left;
+        }
+        .container {
+            height: 500px;
+            padding: 0 200px 0 180px;
+            overflow: hidden;
+        }
+        .center {
+            width: 100%;
+            height: 500px;
+            background-color: red;
+            overflow: hidden;
+        }
+        .left {
+            background-color: rgb(76, 224, 62);
+            margin-left: -100%;
+            position: relative;
+            left: -180px;
+            width: 180px;
+            height: 500px;
+        }
+        .right {
+            background-color: rgb(109, 28, 202);
+            margin-right: -200px;
+            width: 200px;
+            height: 500px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="center">我是center</div>
+        <div class="left">我是left</div>
+        <div class="right">我是right</div>
+    </div>
+</body>
+```
+*双飞翼布局*
+```html
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-width: 390px;
+        }
+
+        .container,
+        .left,
+        .right {
+            float: left;
+        }
+
+        .container {
+            height: 500px;
+            width: 100%;
+        }
+
+        .center {
+            height: 500px;
+            background-color: red;
+            margin: 0 200px 0 180px;
+        }
+
+        .left {
+            background-color: rgb(76, 224, 62);
+            margin-left: -100%;
+            width: 180px;
+            height: 500px;
+        }
+
+        .right {
+            background-color: rgb(109, 28, 202);
+            margin-left: -200px;
+            width: 200px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="center">我是center</div>
+    </div>
+    <div class="left">我是left</div>
+    <div class="right">我是right</div>
+</body>
+```
+
 # 1.HTML5新特性、语义化标签
 语义化：从标签上即可以直观的知道这个标签的作用，而不是滥用div。
 语义化的优点有:
@@ -73,18 +178,166 @@ p {
 行内元素：1.不能换行 2.不能设置大小 3.大小由内容决定
 块级元素: 1.独占一行 2.可以设置大小 3.宽度继承父元素宽度
 
-# css中的子元素中的百分比（%）到底是谁的百分比
+# 10.css中的子元素中的百分比（%）到底是谁的百分比
 （1）padding
 子元素的padding如果设置百分比，不论是垂直方向或者是水平方向，都相对于直接父亲元素的width，而与父元素的height无关。
 
 （2）margin
 跟padding一样，margin也是如此，子元素的margin如果设置成百分比，不论是垂直方向还是水平方向，都相对于直接父元素的width。
 
-# src和href的区别
+# 11.src和href的区别
 ·href (Hypertext Reference)指定*网络资源的位置*，从而在当前元素或者当前文档和由当前属性定义的需要的锚点或资源之间*定义一个链接或者关系*。
 ·src (Source)属性仅仅 嵌入当前资源到当前文档元素定义的位置。当浏览器找到在浏览器下载，编译，*执行这个文件之前页面的加载和处理会被暂停*。
 
-# 左侧宽度固定，右侧自适应的两栏布局
+# 12.怎么让一个div水平垂直居中
+
+```html
+<div class="parent">
+    <div class="child"></div>
+</div>
+```
+
+## 1）使用position + transform，不定宽高时
+```css
+.parent{
+    position: relative;
+}
+.child{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+}
+```
+
+## 2）使用position + transform，有宽高时
+```css
+.parent{
+    position: relative;
+}
+.child{
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -50px;
+    margin-top: -50px;
+}
+
+```
+
+## 3）使用flex
+```css
+.parent{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+```
+
+或者
+
+```css
+.parent{
+    display: flex;
+    align-items: center;
+}
+.child{
+    margin: 0 auto;
+}
+```
+
+或者
+
+```css
+.parent{
+    display: flex;
+}
+.child{
+    margin: auto;
+}
+```
+
+## 4）使用position（四边全为0）(父元素最好有宽高)
+
+```css
+.parent{
+    position: relative;
+}
+.child{
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+```
+
+## 5）使用grid
+```css
+.parent{
+    display: grid;
+}
+.child{
+    justify-self: center;
+    align-self: center;
+}
+
+```
+
+## 6）使用table
+```css
+.parent{
+    display: table;
+}
+.child{
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+
+```
+
+或者
+
+```css
+.parent {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+}
+.child {
+    display: inline-block;
+}
+
+```
+
+7）使用伪类
+
+```css
+.parent{
+    font-size: 0;
+    text-align: center;
+}
+.parent::before {
+    content: "";
+    display: inline-block;
+    width: 0;
+    height: 100%;
+    vertical-align: middle;
+}
+.child{
+    display: inline-block;
+    vertical-align: middle;
+}
+
+```
+
+# 13.左侧宽度固定，右侧自适应的两栏布局
 第三种：利用flex
 首先，给父容器设置display: flex，然后让右侧div自动放大，撑满剩余空间，设置属性flex: 1 1 auto（也可简写为flex: auto）。
 ```css
@@ -122,5 +375,37 @@ p {
   background-color: rgb(165, 103, 207);
   overflow: hidden;
 }
+```
 
+# 14.css 选择器优先级
+```js
+权重计算规则:
+0.第一优先级,!important会覆盖页面内任何位置的元素样式
+1.内联样式，如style="color: green"，权值为1000
+2.ID选择器，如#app，权值为0100
+3.类、伪类、属性选择器，如.foo, :first-child, div[class="foo"]，权值为0010
+4.标签、伪元素选择器，如div::first-line，权值为0001
+5.通配符、子类选择器、兄弟选择器，如*, >, +，权值为0000
+6.继承的样式没有权值
+```
+
+# 15.css选择器
+```css
+1.ID 选择器
+2.类选择器
+3.标签选择器
+4.后代选择器
+5.子选择器     >
+6.相邻兄弟选择器 element+element（选择紧接在 element元素之后的 element 元素）
+7.一般兄弟选择器 element1~element2（选择前面有 element1 元素的每个 elem 元素）
+8.伪类选择器（
+    :nth-child(n) 孩子选择器
+    element:first-child
+    element:last-child
+    :nth-last-child(n) 倒数第n个子元素
+    a:hover             选择鼠标指针位于其上的链接。
+    ）
+9.伪元素选择器
+element::first-line
+element::after（在每个element元素的内容之后插入内容。我们可能更多的是用来清除浮动或验证表单提示等其它）
 ```

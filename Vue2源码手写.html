@@ -7,47 +7,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-width: 390px;
+        }
+
         .center,
         .left,
         .right {
             float: left;
         }
 
+        .container {
+            height: 500px;
+            padding: 0 200px 0 180px;
+            overflow: hidden;
+        }
+
         .center {
             width: 100%;
             height: 500px;
-        }
-
-        .ss {
-            height: 100%;
             background-color: red;
-            margin: 0 200px 0 180px;
+            /* overflow: hidden; */
         }
 
         .left {
-            background-color: rgb(70, 170, 61);
+            background-color: rgb(76, 224, 62);
             margin-left: -100%;
+            position: relative;
+            left: -180px;
             width: 180px;
             height: 500px;
         }
 
         .right {
             background-color: rgb(109, 28, 202);
-            margin-left: -200px;
+            margin-right: -200px;
             width: 200px;
             height: 500px;
         }
     </style>
-
 </head>
 
 <body>
-    <div class="box">
-        <div class="center">
-            <div class="ss">111</div>
-        </div>
-        <div class="left">222</div>
-        <div class="right">333</div>
+    <div class="container">
+        <div class="center">我是center</div>
+        <div class="left">我是left</div>
+        <div class="right">我是right</div>
     </div>
 </body>
 
@@ -185,20 +195,22 @@
     var y = {
         x: 3,
         z: (function (x) {
-            this.x *= x;
-            x += 2;
+            this.x *= x;    //3*5=15
+            x += 2;         //3+2=5
             return function (n) {
-                this.x *= n;
+                console.log(this.x);
+                this.x *= n;    //window.x*4
+                console.log(x);
                 x += 3;
                 console.log(x);
             }
         })(x)
     };
     var m = y.z;
-
+    console.log(m);
     m(4);   //7
     y.z(5);  //10
-    console.log(x, y.x);  //16  15
+    // console.log(x, y.x);  //16  15
 </script>
 </body>
 
