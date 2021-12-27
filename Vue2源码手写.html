@@ -191,26 +191,11 @@
 
     </script> -->
 <script>
-    var x = 2;
-    var y = {
-        x: 3,
-        z: (function (x) {
-            this.x *= x;    //3*5=15
-            x += 2;         //3+2=5
-            return function (n) {
-                console.log(this.x);
-                this.x *= n;    //window.x*4
-                console.log(x);
-                x += 3;
-                console.log(x);
-            }
-        })(x)
-    };
-    var m = y.z;
-    console.log(m);
-    m(4);   //7
-    y.z(5);  //10
-    // console.log(x, y.x);  //16  15
+    let i = 0
+    setInterval(() => {
+        console.log(i++);
+    }, 1000)
+
 </script>
 </body>
 
