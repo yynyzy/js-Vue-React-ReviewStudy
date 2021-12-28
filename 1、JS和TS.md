@@ -1711,6 +1711,28 @@ function trim(str){
 
 ```
 
+## 51.数组的常用方法，哪些改变了原数组
+改变原数组的
+```js
+shift unshift push pop splice reverse sort fill
+```
+
+不改变原数组的
+```js
+concat slice
+```
+
+## 52.手写 push 方法
+```js
+    Array.prototype.push1 = function () {
+      for (var i = 0; i < arguments.length; i++) {
+        this[this.length] = arguments[i];
+      }
+      return this.length;
+    }
+
+```
+
 ## 100.generator函数(迭代函数—不常用)
   ### 基本用法
 generator函数跟普通函数在写法上的区别就是，多了一个星号*，并且只有在generator函数中才能使用yield，什么是yield呢，他相当于generator函数执行的中途暂停点，比如下方有3个暂停点。而怎么才能暂停后继续走呢？那就得使用到next方法，next方法执行后会返回一个对象，对象中有value 和 done两个属性

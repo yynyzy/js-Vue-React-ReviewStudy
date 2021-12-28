@@ -191,10 +191,12 @@
 
     </script> -->
 <script>
-    let i = 0
-    setInterval(() => {
-        console.log(i++);
-    }, 1000)
+    push(){
+        for (var i = 0; i < arguments.length; i++) {
+            this[this.length] = arguments[i];
+        }
+        return this.length
+    }
 
 </script>
 </body>
