@@ -945,7 +945,17 @@ const gogo =() ={
       // 卸载绑定元素的父组件时调用
       unmounted() {}
 
+    // vue2的自定义指令生命周期函数
+    // bind: function () {},
+    // inserted: function () {},
+    // update: function () {},
+    // componentUpdated: function () {},
+    // unbind: function () {}
+
     })
+
+
+
 ```
     如果想注册局部指令，组件中也接受一个 directives 的选项：
 
