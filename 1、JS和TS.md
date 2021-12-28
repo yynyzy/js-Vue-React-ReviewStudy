@@ -1767,6 +1767,58 @@ concat slice
 
 ```
 
+## 53.Web Workers  JS多线程环境
+通过 new Worker(文件) 创建Worker线程，并将任务分配给worker线程
+通过 worker.onmessage 与 worker.postMessage 传递信息
+```js
+// 主线程 index.js
+
+// 传入一个要执行的js文件，实例化Web Worker
+// 此时会导致浏览器下载js文件，但不会执行
+let worker = new Worker('worderDemo.js')
+// 监听Worker传递过来的信息
+worker.onmessage = function(event){
+   const {data} = event
+}
+// 监听Worker内部错误
+worker.onerror = function(event){
+  const {
+    filename,  // 文件名
+    lineno,    // 代码行数
+    message    // 完整的错误信息
+  } = event
+}
+// 给Worker发送消息启动执行
+worker.postMessage({
+  type:'cmd',
+  data:'start'
+})
+// 停止worker的工作，内部代码会立即停止执行，后续的过程都不会再发生
+worker.terminate()
+
+
+
+// Web Worker:  worderDemo.js 
+
+// 监听主线程的发送消息
+self.onmessage = function(event){
+  const {data} = event
+  
+  self.postMessage({
+    type:'end',
+    data:'Worker处理完数据了'
+  })
+}
+```
+
+Worker所执行的JavaScript是完全独立的一个作用域，不与页面共享作用域，且Web Worker中的全局对象指向的是worker对象本身，所以this指向worker对象，这里self也引用worker对象。在这个特殊域中，无法访问DOM，也无法通过任何形式影响页面的外观。
+注意点：
+    ·同源策略：分配给Worker线程运行的脚本文件，必须与主线程的脚本文件同源
+    ·脚本限制：不能执行alert()和confirm()方法，但可以使用XMLHTTPRequest
+    ·文件限制：Worker无法读取本地文件(file://)，所加载的文件必须来源网络
+    ·DOM限制：Worker不能操作Dom，也无法使用window/doument这些，但可以使用navigator等。
+    ·通信联系：Worker 线程和主线程不在同一个上下文环境，它们不能直接通信，必须通过消息完成。
+
 ## 100.generator函数(迭代函数—不常用)
   ### 基本用法
 generator函数跟普通函数在写法上的区别就是，多了一个星号*，并且只有在generator函数中才能使用yield，什么是yield呢，他相当于generator函数执行的中途暂停点，比如下方有3个暂停点。而怎么才能暂停后继续走呢？那就得使用到next方法，next方法执行后会返回一个对象，对象中有value 和 done两个属性

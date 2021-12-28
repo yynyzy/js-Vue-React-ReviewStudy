@@ -191,13 +191,41 @@
 
     </script> -->
 <script>
-    push(){
-        for (var i = 0; i < arguments.length; i++) {
-            this[this.length] = arguments[i];
+    //输入：nums = [-1, 0, 1, 2, -1, -4]
+    //输出：[[-1, -1, 2], [-1, 0, 1]]
+    var threeSum = function (nums) {
+        let res = []
+        let len = nums.length
+        nums.sort((a, b) => { return a - b })
+        for (let i = 0; i < len - 2; i++) {
+            if (nums[i] !== nums[i - 1]) {
+                let start = i + 1
+                let end = len - 1
+                while (start < end) {
+                    if (nums[i] + nums[start] + nums[end] === 0) {
+                        res.push([nums[i], nums[start], nums[end]])
+                        start++
+                        end--
+                        while (start < end && nums[start] === nums[start - 1]) {
+                            start++
+                        }
+                        while (start < end && nums[end] === nums[end + 1]) {
+                            end--
+                        }
+                    }
+                    if (nums[i] + nums[start] + nums[end] > 0) {
+                        end--
+                    }
+                    if (nums[i] + nums[start] + nums[end] < 0) {
+                        start++
+                    }
+                }
+            }
         }
-        return this.length
-    }
+        return res
+    };
 
+    console.log(threeSum([-1, 0, 1, 2, -1, -4]));
 </script>
 </body>
 
