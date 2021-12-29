@@ -99,7 +99,7 @@ fetch('http://localhost:3000/,
 	json(): 返回结果和JSON.parse(responseText)一样
 
 
-## 3.手写、说说bind、call、apply 区别？
+## 3.**手写、说说bind、call、apply 区别？**
 都是改变this指向，不过bind返回的是一个函数，而apply和call 直接返回结果。
 apply的第二个参数接受的是一个数组，而 call 接受的是参数列表
 
@@ -370,7 +370,7 @@ let Public = {
     4.构造函数中若有返回值，就直接返回；否则返回新对象
 ```js
     function myNew(fn){
-        let obj = Object.create({})
+        let obj = Object.create(null)
         obj.__proto__ = fn.prototype
         let args =[...arguments].slice(1)
         const res = fn.apply(obj,args)
