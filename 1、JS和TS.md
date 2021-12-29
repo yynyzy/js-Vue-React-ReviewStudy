@@ -597,16 +597,19 @@ function deepClone1(obj, hash = new WeakMap) {
    ![tcp三次握手](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\tcp三次握手.png)
 
    #### 四次挥手
-    第一次挥手：Client发送一个FIN（seq=x），用来关闭Client到Server的数据传送，
+    第一次挥手：Client发送一个FIN，标志位FIN为1,（seq=u），用来关闭Client到Server的数据传送，
     Client进入FIN_WAIT_1状态。
 
-    第二次挥手：Server收到FIN后，发送一个ACK给Client（ack=x+1）,
+    第二次挥手：Server收到FIN后，发送一个ACK，标志位 ACK 为1给Client（ack=x+1）,
     Server进入CLOSE_WAIT状态。
 
-    第三次挥手：Server发送一个FIN，用来关闭Server到Client的数据传送，Server进入LAST_ACK状态。
+    第三次挥手：Server发送一个 标志位FIN与标志位ACK为1，（seq=w，ack=u+1）
+    用来关闭Server到Client的数据传送，Server进入LAST_ACK状态。
 
-    第四次挥手：Client收到FIN后，Client进入TIME_WAIT状态，接着发送一个ACK给Server，确认序号为收到序号+1，Server进入CLOSED状态，完成四次挥手。
+    第四次挥手：Client收到后进入TIME_WAIT状态，
+    接着发送一个标志位ACK为1，（seq=u+1,ack=w+1）给Server，确认序号为收到序号+1，Server进入CLOSED状态，完成四次挥手。
    ![tcp四次挥手](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\tcp四次挥手.png)
+   
    ##### 为什么客户端最后还要等待2MSL？
     ·第一，保证客户端发送的最后一个ACK报文能够到达服务器，因为这个ACK报文可能丢失，站在服务器的角度看来，我已经发送了FIN+ACK报文请求断开了，客户端还没有给我回应，应该是我发送的请求断开报文它没有收到，于是服务器又会重新发送一次，而客户端就能在这个2MSL时间段内收到这个重传的报文，接着给出回应报文，并且会重启2MSL计时器。
     ·第二，防止类似与“三次握手”中提到了的“已经失效的连接请求报文段”出现在本连接中。客户端发送完最后一个确认报文后，在这个2MSL时间中，就可以使本连接持续的时间内所产生的所有报文段都从网络中消失。这样新的连接中不会出现旧连接的请求报文。
