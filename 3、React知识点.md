@@ -739,13 +739,13 @@ class CustomTextInput extends React.Component {
 
  ## 新生命周期：（没什么用）
 1. static **getDerivedStateFromProps**(props, state)
-增加了*静态函数* getDerivedStateFromProps 来取代 componentWillMount 与 componentWillUpdate，强制开发者在render之前只做无副作用的操作，而且能做的操作局限在根据props和state决定新的state。
+增加了*静态函数* getDerivedStateFromProps 来取代 *componentWillMount* 与 *componentWillUpdate*，强制开发者在render之前只做无副作用的操作，而且能做的操作局限在根据props和state决定新的state。
 *触发时机:* 会在每次组件被重新渲染前被调用, 这意味着无论是父组件的更新, props 的变化, 或是组件内部执行了 setState(), 它都会被调用。
 在组件创建时和更新时的render方法之前调用，它应该返回一个对象来更新状态，或者返回null来不更新任何内容。
 getDerivedStateFromProps 里面的 *this为undefined*
 
 2. **getSnapshotBeforeUpdate**(prevProps, prevState) 
-增加了 getSnapshotBeforeUpdate 取代了 componentWillReceiveProps
+增加了 getSnapshotBeforeUpdate 取代了 *componentWillReceiveProps*
 ·在最近一次渲染输出（提交到 DOM 节点）之前调用。使您的组件可以在可能更改之前从DOM捕获一些信息（例如滚动位置）。此生命周期返回的任何值都将作为参数传递给componentDidUpdate（）。
 ·可以访问更新前的 props 和 state。
 ·需要与 componentDidUpdate() 方法一起使用，否则会出现错误。
@@ -771,6 +771,13 @@ getSnapshotBeforeUpdate(prevProps, prevState) {
     }
   }
 ```
+
+# 10.useMemo与useCallback
+useMemo和useCallback都会在组件第一次渲染的时候执行，之后会在其依赖的变量发生改变时再次执行；
+useMemo返回缓存的变量
+useCallback返回缓存的函数
+
+useEffect、useMemo、useCallback都是自带闭包的。也就是说，每一次组件的渲染，其都会捕获当前组件函数上下文中的状态(state, props)，所以每一次这三种hooks的执行，反映的也都是当前的状态，你无法使用它们来捕获上一次的状态。对于这种情况，我们应该使用ref来访问。
 
 # 100.React面试题（setState修改数据）
 ```js

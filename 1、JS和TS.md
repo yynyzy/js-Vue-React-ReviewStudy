@@ -1597,16 +1597,64 @@ function myGetData(promiseFunc, times) {//retry函数
 }
 ```
 
-## 44.实现 sleep 函数
+## 44.从 Promise、Async/Await 、Generator等角度实现一个 sleep 函数
+一、传统方法，回调函数
 ```js
-function sleep(delay){
-    return new Promise((resolve,reject) => {
-       setTimeout(()=>{
-           resolve()
-       },delay)
-    })
+// 利用回调函数
+function sleep(callback,time) {
+  if(typeof callback === 'function') {
+     setTimeout(callback,time)
+  }
+ }
+function output(){
+    console.log(1);
 }
+sleep(output,1000);
 ```
+
+二、从Promise方面进行实现
+```js
+// Promise
+const sleep = (time) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve, time);
+  })
+}
+ 
+sleep(5000).then(() => {
+    console.log('业务代码') 
+})
+```
+
+三、从async/await进行实现
+```js
+const sleep = (time) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve, time);
+  })
+}
+async function sleepAsync () {
+    await sleep(5000);
+    console.log('业务代码')
+}
+sleepAsync()
+```
+
+四、从Generator 配合yield进行实现
+```js
+//Generator
+const sleep = (time) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve, time);
+  })
+}
+function* sleepGenerator(time) {
+    yield sleep(time);
+}
+sleepGenerator(5000).next().value.then(()=>{
+    console.log('业务代码')
+})
+``` 
 
 ## 45.使用setTimeout实现setInterval方法
 ```js
@@ -1877,6 +1925,17 @@ weakmap对key弱引用，实际的key可能在某次垃圾回收操作时被清�
 ·支持推送
 ·并且可以让开发者自己控制管理缓存的内容以及版本
 ·它设计为完全异步，同步API（如XHR和localStorage）不能在service worker中使用
+
+## 58.e.target 和 e.currentTarget 区别
+```js
+1.e.target
+触发事件的对象 (某个DOM元素) 的引用。当事件处理程序在事件的冒泡或捕获阶段被调用时，它与event.currentTarget不同。
+event.target 属性可以用来实现事件委托 (event delegation)。
+
+2.e.currentTarget
+返回绑定事件的元素
+当事件遍历DOM时，接口的currentTarget只读属性Event标识事件的当前目标。它始终引用事件处理程序附加到的元素，而不是Event.target标识事件发生的元素。
+```
 
 
 ## 100.generator函数(迭代函数—不常用)
