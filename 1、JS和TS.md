@@ -728,12 +728,26 @@ function deepClone1(obj, hash = new WeakMap) {
 
 
 ## 18.浏览器事件循环
-    
-    1.Js在执行一段代码时候 首先会在主进程创建一个执行栈 然后创建一个上下文push到执行栈。当函数执行的时候，也会创建一个上下文push到执行栈，当执行栈执行完成后，就会从栈中弹出。遇到异步任务进入Event Table并注册函数。当指定的事情完成时，Event Table会将这个函数移入Event Queue（事件队列）。
-    2.同步任务会在调用栈中按照顺序等待主线程依次执行，异步任务会在同步任务执行完，调用栈被清空后，从 Event Queue读取到执行栈执行。
-    3.异步任务又有宏认为和微任务。当同步任务执行完，会查看有没有微任务，如果有，从微任务队列中读取执行完的所有微任务。当所有微任务执行完毕后，开始执行宏任务，每完成一个宏任务，浏览器都会重新看一下有没有新的微任务产生，如果有执行微任务，没有执行下一个宏任务。
-    4.依照此循环运作
+1.Js在执行一段代码时候 首先会在*主进程创建一个执行栈* 然后*创建一个上下文*push到执行栈。当函数执行的时候，也创建一个上下文push到执行栈，当执行栈执行完成后，就会从栈中弹出。遇到*异步任务进入Event Table*并注册函数。当指的事情完成时，*Event Table会将这个函数移入Event Queue（事件队列）*。
+2.*同步任务*会在调用栈中*按照顺序*等待主线程依次执行，异步任务会在同步任务执行完，调用栈被清空后，从 Event Queu读取到执行栈执行。
+3.异步任务又有*宏任务和微任务*。当同步任务执行完，会查看有没有微任务，如果有，从微任务队列中读取*执行完的所有微务*。当所有微任务执行完毕后，开始*执行宏任务*，*每完成一个宏任务*，浏览器都会*重新看一下有没有新的微任务产生*，如果执行微任务，没有执行下一个宏任务。
+4.依照此循环运作
 
+*微任务包含：*
+Promise.then
+Object.observe
+MutationObserver
+process.nextTick(Node.js 环境)
+
+*宏任务包含：*
+script(整体代码)
+setTimeout
+setInterval
+I/O
+UI交互事件
+postMessage
+MessageChannel
+setImmediate(Node.js 环境)
 
 
 ## 19.手写 Promise
@@ -1145,6 +1159,7 @@ Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES202
 ```js
 Function.prototype.__proto__ === Object.prototype;//true
 Object.__proto__ === Function.prototype;//true
+Object.prototype.__proto__ === null;
 ```
 
 ## 34.原生ajax
@@ -1186,7 +1201,7 @@ parseFloat(Number(19.520100).toFixed(2))
 // 如果只想去除小数点后多余的0 （比如 18.2300 -->  18.23）
 parseFloat(arg)
 
-## 36.JS常用7种继承方案
+## 36.**JS常用7种继承方案**
    ### 1.原型链继承 
    缺点：原型链方案存在的缺点：多个实例对引用类型的操作会被篡改。因为实例的对引用类型都是通过 prototype 继承来的
 ```js
@@ -1283,7 +1298,7 @@ SubType.prototype.sayAge = function(){
    ### 5.寄生式继承 
 ```js
 function createAnother(original){
-    const clone = Object(original)  // 通过调用 object() 函数创建一个新对象
+    const clone = Object.create(original)  // 通过调用 object() 函数创建一个新对象
     clone.sayHi = function(){       // 以某种方式来增强对象
         console.log('hello')
     }
@@ -1327,7 +1342,7 @@ function SubType(name, age){
  function inheritPrototype(subType, superType){
   var ptype = Object.create(superType.prototype); // 创建对象，创建父类原型的一个副本
   subType.prototype = ptype;                      // 指定对象，将新创建的对象赋值给子类的原型
-  ptype.constructor = subType;                    // 增强对象，弥补因重写原型而失去的默认的constructor 属性
+  subType.prototype.constructor = subType;                    // 增强对象，弥补因重写原型而失去的默认的constructor 属性
 }
 
 // 调用函数（盗用构造函数方式）将父类原型指向子类
@@ -1828,6 +1843,41 @@ Worker所执行的JavaScript是完全独立的一个作用域，不与页面共�
     ·文件限制：Worker无法读取本地文件(file://)，所加载的文件必须来源网络
     ·DOM限制：Worker不能操作Dom，也无法使用window/doument这些，但可以使用navigator等。
     ·通信联系：Worker 线程和主线程不在同一个上下文环境，它们不能直接通信，必须通过消息完成。
+
+## 54.函数中的arguments是数组吗？类数组转数组的方法了解一下？
+是类数组，是属于鸭子类型的范畴，长得像数组，
+    ·... 运算符
+    ·Array.from
+    ·Array.prototype.slice.apply(arguments)
+
+## 55.typeof String(1) typeof new String(1) 返回值
+```js
+typeof String(1)        //string
+typeof new String(1)   //object
+```
+
+## 56.Map和WeakMap的区别
+map对key强引用，当map引用了一个key的时候，(内存堆空间的)实际key内容不会被垃圾回收掉。(有内存泄漏风险)
+weakmap对key弱引用，实际的key可能在某次垃圾回收操作时被清除掉，导致weakmap中的这对key-value也会消失掉。
+
+引用计数:只要存在计数，就不会被垃圾回收机制回收(垃圾回收)。
+强引用：引用并计数，只要引用存在，垃圾回收器永远不会回收。
+
+## 57.service worker 是什么
+*一句话概括：*
+一个服务器与浏览器之间的中间人角色，如果网站中注册了service worker那么它可以拦截当前网站所有的请求，进行判断（需要编写相应的判断程序），如果需要向服务器发起请求的就转给服务器，如果可以直接使用缓存的就直接返回缓存不再转给服务器。从而大大提高浏览体验。
+
+*以下是一些细碎的描述*
+·基于web worker（一个独立于JavaScript主线程的独立线程，在里面执行需要消耗大量资源的操作不会堵塞主线程）
+·在web worker的基础上增加了离线缓存的能力
+·本质上充当Web应用程序（服务器）与浏览器之间的代理服务器（可以拦截全站的请求，并作出相应的动作->由开发者指定的动·作）
+·创建有效的离线体验（将一些不常更新的内容缓存在浏览器，提高访问体验）
+·由事件驱动的,具有生命周期
+·可以访问cache和indexDB
+·支持推送
+·并且可以让开发者自己控制管理缓存的内容以及版本
+·它设计为完全异步，同步API（如XHR和localStorage）不能在service worker中使用
+
 
 ## 100.generator函数(迭代函数—不常用)
   ### 基本用法
