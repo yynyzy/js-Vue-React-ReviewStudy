@@ -727,7 +727,7 @@ function deepClone1(obj, hash = new WeakMap) {
    ### 8·连接结束
 
 
-## 18.浏览器事件循环
+## 18.**浏览器事件循环**
 1.Js在执行一段代码时候 首先会在*主进程创建一个执行栈* 然后*创建一个上下文*push到执行栈。当函数执行的时候，也创建一个上下文push到执行栈，当执行栈执行完成后，就会从栈中弹出。遇到*异步任务进入Event Table*并注册函数。当指的事情完成时，*Event Table会将这个函数移入Event Queue（事件队列）*。
 2.*同步任务*会在调用栈中*按照顺序*等待主线程依次执行，异步任务会在同步任务执行完，调用栈被清空后，从 Event Queu读取到执行栈执行。
 3.异步任务又有*宏任务和微任务*。当同步任务执行完，会查看有没有微任务，如果有，从微任务队列中读取*执行完的所有微务*。当所有微任务执行完毕后，开始*执行宏任务*，*每完成一个宏任务*，浏览器都会*重新看一下有没有新的微任务产生*，如果执行微任务，没有执行下一个宏任务。
@@ -750,7 +750,9 @@ MessageChannel
 setImmediate(Node.js 环境)
 
 
-## 19.手写 Promise
+## 19.手写 Promise(then与catch的返回值问题)
+catch为then的语法糖，它是then(null,rejection)的别名，也就是说catch也是then,它用于捕获错误，它的参数也就是then的第二个参数，所以，假设catch中如果return值的话，新的promise对象也会是接受状态（即resolve）。
+
 ```js
 const PENDING = 'PENDING'
 const RESOLVE = 'RESOLVE'
@@ -1084,9 +1086,6 @@ Number,Boolean,String,null,undefined,Symbol,Object(array,function), bigInt(ES202
   onloadend	        当读取操作完成时调用,不管是成功还是失败
   onloadstart	    当读取操作将要开始之前调用
   onprogress	    在读取数据过程中周期性调用
-
-
-
 
 
 ## 29.JS继承的圣杯模式

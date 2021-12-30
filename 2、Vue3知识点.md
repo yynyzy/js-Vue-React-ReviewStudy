@@ -799,6 +799,7 @@ var Head = function (req, res, next) {
   res.header('Access-Control-Allow-Origin', 'http://localhost:3001');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-control-allow-credentials',true);
   next();
 }
 app.use(Head);
@@ -806,7 +807,6 @@ app.use(Head);
 ### 前端 配合(withCredentials: true)
 ```js
 Axios 配置
-
 const axiosInstance = axios.create({
   withCredentials: true
 })
@@ -828,6 +828,11 @@ axiosInstance.interceptors.response.use(response => {
 })
  
 ```
+##### cookie samesite问题 无法携带 cookie 
+原因是 chrome 2020年新版本的浏览器更改了 cookie 的一个属性：samesite
+以前版本的 samesite 默认值是 none ，即只要配置了上述的 cors 跨域就可以带上 cookie。
+但是现在的默认值改成了 lax, 即只能在主域名相同情况下携带 cookie
+
 
 # 18.Vue2 和 Vue3 全局事件总线(GlobalEventBus)
   ## Vue2

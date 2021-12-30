@@ -779,6 +779,69 @@ useCallback返回缓存的函数
 
 useEffect、useMemo、useCallback都是自带闭包的。也就是说，每一次组件的渲染，其都会捕获当前组件函数上下文中的状态(state, props)，所以每一次这三种hooks的执行，反映的也都是当前的状态，你无法使用它们来捕获上一次的状态。对于这种情况，我们应该使用ref来访问。
 
+# 11.React15 和 React16 的架构对比
+## React 15 时期的渲染机制
+15版本是基于**Stack Reconcilation(栈调和器)**。它是递归、同步的方式。栈的优点在于用少量的代码就可以实现diff功能。并且非常容易理解。但是它也带来了严重的性能问题。
+（“调和”又译为“协调”：通过如 ReactDOM 等类库使虚拟 DOM 与“真实的” DOM 同步这一过程叫作协调（调和）。）
+
+## React15时期架构的缺点
+React15架构可以分为两层：
+*Reconciler（协调器）*—— 负责找出变化的组件
+*Renderer（渲染器）*—— 负责将变化的组件渲染到页面
+
+每当有更新发生时，Reconciler会做如下工作：
+  ·调用函数组件、或class组件的render方法，将返回的JSX转化为虚拟DOM
+  ·将虚拟DOM和上次更新时的虚拟DOM对比
+  ·通过对比找出本次更新中变化的虚拟DOM
+  ·通知Renderer将变化的虚拟DOM渲染到页面上
+而React15使用的是栈调和器，由于递归执行，所以*更新一旦开始，中途就无法中断*。当调用层级很深时，递归更新时间超过了屏幕刷新时间间隔，用户交互就会卡顿。
+
+## React16架构概览（多了一个调度器）
+React16架构可以分为三层：
+*Scheduler（调度器）*—— 调度任务的优先级，高优任务优先进入Reconciler
+*Reconciler（协调器）*—— 负责找出变化的组件
+*Renderer（渲染器）*—— 负责将变化的组件渲染到页面上
+
+通过上面基础知识已经了解，当JS执行时间过长，带给用户的体验就是所谓的“卡顿”。那么我们要如何解决这个问题呢？
+答案是：在浏览器每一帧的时间中，预留一些时间给JS线程，React利用这部分时间更新组件（可以看到，在源码中，预留的初始时间是5ms）。
+当预留的时间不够用时，React将线程控制权交还给浏览器使其有时间渲染UI，React则等待下一帧时间到来，继续被中断的工作。
+既然我们以浏览器是否有剩余时间作为任务中断的标准，那么我们需要一种机制，当浏览器有剩余时间时通知我们。所以React就实现了一个Scheduler（调度器），除了在空闲时触发回调的功能外，Scheduler还提供了多种调度优先级供任务设置。
+
+**Reconciler（协调器）**
+在React15中Reconciler是递归处理虚拟DOM的。让我们看看React16的Reconciler。
+我们可以看见，更新工作从递归变成了可以中断的循环过程。每次循环都会调用shouldYield判断当前是否有剩余时间。
+```js
+/** @noinline */
+function workLoopConcurrent() {
+  // Perform work until Scheduler asks us to yield
+  while (workInProgress !== null && !shouldYield()) {
+    workInProgress = performUnitOfWork(workInProgress);
+  }
+}
+```
+同时注意,*16中的更新是可中断的*，那React如何解决要是中断了，DOM渲染不完全的问题呢？
+在React16中，Reconciler与Renderer不再是严格同步的（不是一协调完一个就立刻通知Renderer去渲染）。而是当Scheduler将任务交给Reconciler后，Reconciler会为变化的虚拟DOM打上代表增/删/更新的标记。
+整个Scheduler与Reconciler的工作都在内存中进行。只有*当所有组件都完成Reconciler的工作*，才会统一*交给Renderer*。
+
+中断的原因：
+·其他更高优先级任务需要先更新
+·当前帧没有剩余时间
+由于都在内存中进行，不会更新页面上的DOM，所以即使反复中断，用户也不会看见更新不完全的DOM。
+
+实时上，由于Scheduler和Reconciler都是平台无关的，所以React为他们单独发了一个包react-Reconciler。你可以用这个包自己实现一个ReactDOM
+
+## 总结
+1.React15 使用的是栈调和器，栈调和器是递归执行调和操作的，更新一旦开始，中途就无法中断。倘若递归层级过深，则可能会造成浏览器渲染卡顿。
+2.React16 使用的是全新的"Fiber调和器"，这就依托于React16的重点了—Fiber架构。目前简要概括就是，React16能够实现*中断调和*，*分批次异步地调和*。从而达到*不因为JS执行时间过久影响浏览器渲染*。
+
+# 12.React diff算法Part 1: 传统diff算法的时间复杂度为什么是O(n^3)?
+传统的diff算法计算一棵树变成另一棵的复杂度是O(n^3)。有一个基本的概念需要了解，编辑距离（edit distance）。
+Wiki的解释是：edit distance is a way of quantifying how dissimilar two strings (e.g., words) are to one another by counting the minimum number of operations required to transform one string to the other。=> 我的理解是从一个东西变成另一个东西的最少步骤。传统的diff算法里，从一棵树变成另一棵的需要的最少步骤，解决这个问题（tree edit distance）的时间复杂度是O(n^3)，怎么来的呢？
+
+两棵树中的节点一一进行对比的复杂度为O(n^2)，树1上的点1要遍历树2上的所有的点，树1上的点2也要遍历树2的所有点，以此类推，复杂度为O(n^2)。如果在比较过程中发现树1（也就是旧树）上的一个点A在树2（新树）上没有找到，点A会被删掉，在老diff算法里点A被删后的空位，需要遍历树2上的所有点去找到一个可以填充它，复杂度为O(n)。
+
+**总结一下**，对于旧树上的点A来说，它要和新树上的所有点比较，复杂度为O(n)，然后如果点A在新树上没找到的话，点A会被删掉，然后遍历新树上的所有点找到一个去填空，复杂度增加为了O(n^2)，这样的操作会在旧树上的每个点进行，最终复杂度为O(n^3)。
+
 # 100.React面试题（setState修改数据）
 ```js
 class Example extends React.Component {
