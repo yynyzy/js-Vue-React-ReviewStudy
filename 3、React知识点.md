@@ -842,6 +842,27 @@ Wiki的解释是：edit distance is a way of quantifying how dissimilar two stri
 
 **总结一下**，对于旧树上的点A来说，它要和新树上的所有点比较，复杂度为O(n)，然后如果点A在新树上没找到的话，点A会被删掉，然后遍历新树上的所有点找到一个去填空，复杂度增加为了O(n^2)，这样的操作会在旧树上的每个点进行，最终复杂度为O(n^3)。
 
+# 13.redux三大件：store、action、reducer简述
+*store*
+一个对象，保存着对redux中的操作方法，包括dispatch（发送action），subscribe(订阅redux中的状态变化)和getState（获得状态）。store是只读的，Redux 应用有且只有一个单一的 store。
+
+*action*
+主要有两个作用：
+用type字段描述我们准备执行的动作，通知reducer进行相应的处理；
+向reducer传递数据，它是store数据的唯一来源。
+
+*reducer*
+也有两个作用：
+分发action,根据action中type的不同，处理不同的事件；
+返回新的state。
+
+redux三大原则
+1.单一数据源：所有状态都保存在单一的store中
+2.state是只读的：不能直接对store进行修改，只能用新的store替换旧的store
+3.使用纯函数来执行修改：reducer是只读的
+
+
+
 # 100.React面试题（setState修改数据）
 ```js
 class Example extends React.Component {
