@@ -1723,6 +1723,51 @@ export default router
 
 ```
 
+# 46. Diff对比流程
+1.Diff算法是一种*对比算法*。对比两者是旧虚拟DOM和新虚拟DOM，对比出是哪个虚拟节点更改了，找出这个虚拟节点，并只更新这个虚拟节点所对应的真实节点，而不用更新其他数据没发生改变的节点，实现精准地更新真实DOM，进而提高效率。
+2.*Diff同层对比:*新旧虚拟DOM对比的时候，Diff算法比较只会在同层级进行, 不会跨层级比较。 所以Diff算法是:深度优先算法。 时间复杂度:O(n)
+3.*Diff对比流程:*当数据改变时，会触发setter，并且通过Dep.notify去通知所有订阅者Watcher，订阅者们就会调用patch方法，给真实DOM打补丁，更新相应的视图。
+4.*patch方法*:对比当前同层的虚拟节点是否为同一种类型的标签(同一类型的标准，下面会讲)：
+是：继续执行patchVnode方法进行深层比对
+否：没必要比对了，直接整个节点替换成新虚拟节点
+*patch的核心原理代码*
+```js
+function patch(oldVnode, newVnode) {
+  // 比较是否为一个类型的节点
+  if (sameVnode(oldVnode, newVnode)) {
+    // 是：继续进行深层比较
+    patchVnode(oldVnode, newVnode)
+  } else {
+    // 否
+    const oldEl = oldVnode.el // 旧虚拟节点的真实DOM节点
+    const parentEle = api.parentNode(oldEl) // 获取父节点
+    createEle(newVnode) // 创建新虚拟节点对应的真实DOM节点
+    if (parentEle !== null) {
+      api.insertBefore(parentEle, vnode.el, api.nextSibling(oEl)) // 将新元素添加进父元素
+      api.removeChild(parentEle, oldVnode.el)  // 移除以前的旧元素节点
+      // 设置null，释放内存
+      oldVnode = null
+    }
+  }
+
+  return newVnode
+}
+```
+5.*sameVnode方法*
+patch关键的一步就是sameVnode方法判断是否为同一类型节点，那问题来了，怎么才算是同一类型节点呢？这个类型的标准是什么呢？
+*核心原理代码:*
+```js
+function sameVnode(oldVnode, newVnode) {
+  return (
+    oldVnode.key === newVnode.key &&                  // key值是否一样
+    oldVnode.tagName === newVnode.tagName &&          // 标签名是否一样
+    oldVnode.isComment === newVnode.isComment &&      // 是否都为注释节点
+    isDef(oldVnode.data) === isDef(newVnode.data) &&  // 是否都定义了data
+    sameInputType(oldVnode, newVnode)                 // 当标签为input时，type必须是否相同
+  )
+}
+```
+
 # 100 ·················技巧····································
 
 # 101.Vue路由组件化(运用require.context)
@@ -1816,9 +1861,9 @@ Vue.directive('display-key',{
 
 # 200 ·················性能优化····································
 
-##  1. v-for 遍历必须为 item 添加 key，且避免同时使用 v-if
+## 1. v-for 遍历必须为 item 添加 key，且避免同时使用 v-if
 
-##  2. 长列表性能优化
+## 2. 长列表性能优化
   Vue 会通过 Object.defineProperty 对数据进行劫持，来实现视图响应数据的变化，然而有些时候我们的组件就是纯粹的数据展示，不会有任何改变，我们就不需要 Vue 来劫持我们的数据，在大量数据展示的情况下，这能够很明显的减少组件初始化的时间，那如何禁止 Vue 劫持我们的数据呢？可以通过 Object.freeze 方法来冻结一个对象，一旦被冻结的对象就再也不能被修改了。
   ```js
   export default {
@@ -1833,13 +1878,13 @@ Vue.directive('display-key',{
 };
   ```
 
-##  3. vue 组件中的 data 是函数而不是对象
+## 3. vue 组件中的 data 是函数而不是对象
 当一个组件被定义，data 必须声明为返回一个初始数据对象的函数，因为组件可能被用来创建多个实例，复用在多个页面。
 
 如果 data 是一个纯碎的对象，则所有的实例将共享引用同一份 data 数据对象，无论在哪个组件实例中修改 data，都会影响到所有的组件实例。
 如果 data 是函数，每次创建一个新实例后，调用 data 函数，从而返回初始数据的一个全新副本数据对象。这样每复用一次组件，会返回一份新的 data 数据，类似于给每个组件实例创建一个私有的数据空间，让各个组件的实例各自独立，互不影响保持低耦合。
 
-##  4. Vue 钩子函数之钩子事件 hookEvent,监听组件简化代码(仅限，vue3有改变)
+## 4. Vue 钩子函数之钩子事件 hookEvent,监听组件简化代码(仅限，vue3有改变)
 用法：
 通过 $on(eventName, eventHandler) 侦听一个事件；
 通过 $once(eventName,eventHandler) 一次性侦听一个事件；
@@ -1885,25 +1930,25 @@ export default{
 }
 ```
 
-##  5. 组件懒加载
+## 5. 组件懒加载
 在单页应用中，如果没有应用懒加载，运用 webpack 打包后的文件将会异常的大，造成进入首页时，需要加载的内容过多，延时过长，不利于用户体验，而运用懒加载则可以将页面进行划分，需要的时候加载页面，可以有效的分担首页所承担的加载压力，减少首页加载用时。
 
-##  6. 非响应式数据
+## 6. 非响应式数据
 初始化时，vue 会对 data 做 getter、setter 改造。在 Vue 的文档中介绍数据绑定和响应时，特意标注了对于经过 Object.freeze() 方法的对象无法进行更新响应
   使用了 Object.freeze()之后，减少了 observer 的开销。
   
-##  7. 不要将所有的数据都放到 data 中
+## 7. 不要将所有的数据都放到 data 中
 data 中的数据都会增加 getter 和 setter，又会收集 watcher，这样还占内存。不需要响应式的数据我们可以定义在实例上。
 
-##  8. v-for元素绑定事件代理
+## 8. v-for元素绑定事件代理
 事件代理作用主要是 2 个：
 1.将事件处理程序代理到父节点，减少内存占用率
 2.动态生成子节点时能自动绑定事件处理程序到父节点
 
-##  9. 函数式组件
+## 9. 函数式组件
 函数式组件是无状态，它无法实例化，没有任何的生命周期和方法。创建函数式组件也很简单，只需要在模板添加 functional 声明即可。一般适合只依赖于外部数据的变化而变化的组件，因其轻量，渲染性能也会有所提高。
 
-##  10. provide 和 inject 组件通信
+## 10. provide 和 inject 组件通信
 痛点：常用的父子组件通信方式都是父组件绑定要传递给子组件的数据，子组件通过 props 属性接收，一旦组件层级变多时，采用这种方式一级一级传递值非常麻烦，而且代码可读性不高，不便后期维护。
 
 vue 提供了 provide 和 inject 帮助我们解决多层次嵌套嵌套通信问题。在 provide 中指定要传递给子孙组件的数据，子孙组件通过 inject 注入祖父组件传递过来的数据，可以轻松实现跨级访问父组件的数据。
