@@ -834,15 +834,7 @@ function workLoopConcurrent() {
 1.React15 使用的是栈调和器，栈调和器是递归执行调和操作的，更新一旦开始，中途就无法中断。倘若递归层级过深，则可能会造成浏览器渲染卡顿。
 2.React16 使用的是全新的"Fiber调和器"，这就依托于React16的重点了—Fiber架构。目前简要概括就是，React16能够实现*中断调和*，*分批次异步地调和*。从而达到*不因为JS执行时间过久影响浏览器渲染*。
 
-# 12.React diff算法Part 1: 传统diff算法的时间复杂度为什么是O(n^3)?
-传统的diff算法计算一棵树变成另一棵的复杂度是O(n^3)。有一个基本的概念需要了解，编辑距离（edit distance）。
-Wiki的解释是：edit distance is a way of quantifying how dissimilar two strings (e.g., words) are to one another by counting the minimum number of operations required to transform one string to the other。=> 我的理解是从一个东西变成另一个东西的最少步骤。传统的diff算法里，从一棵树变成另一棵的需要的最少步骤，解决这个问题（tree edit distance）的时间复杂度是O(n^3)，怎么来的呢？
-
-两棵树中的节点一一进行对比的复杂度为O(n^2)，树1上的点1要遍历树2上的所有的点，树1上的点2也要遍历树2的所有点，以此类推，复杂度为O(n^2)。如果在比较过程中发现树1（也就是旧树）上的一个点A在树2（新树）上没有找到，点A会被删掉，在老diff算法里点A被删后的空位，需要遍历树2上的所有点去找到一个可以填充它，复杂度为O(n)。
-
-**总结一下**，对于旧树上的点A来说，它要和新树上的所有点比较，复杂度为O(n)，然后如果点A在新树上没找到的话，点A会被删掉，然后遍历新树上的所有点找到一个去填空，复杂度增加为了O(n^2)，这样的操作会在旧树上的每个点进行，最终复杂度为O(n^3)。
-
-# 13.redux三大件：store、action、reducer简述
+# 12.redux三大件：store、action、reducer简述
 *store*
 一个对象，保存着对redux中的操作方法，包括dispatch（发送action），subscribe(订阅redux中的状态变化)和getState（获得状态）。store是只读的，Redux 应用有且只有一个单一的 store。
 
@@ -861,6 +853,19 @@ redux三大原则
 2.state是只读的：不能直接对store进行修改，只能用新的store替换旧的store
 3.使用纯函数来执行修改：reducer是只读的
 
+# 13.React diff算法Part 1: 传统diff算法的时间复杂度为什么是O(n^3)?
+传统的diff算法计算一棵树变成另一棵的复杂度是O(n^3)。有一个基本的概念需要了解，编辑距离（edit distance）。
+Wiki的解释是：edit distance is a way of quantifying how dissimilar two strings (e.g., words) are to one another by counting the minimum number of operations required to transform one string to the other。=> 我的理解是从一个东西变成另一个东西的最少步骤。传统的diff算法里，从一棵树变成另一棵的需要的最少步骤，解决这个问题（tree edit distance）的时间复杂度是O(n^3)，怎么来的呢？
+
+两棵树中的节点一一进行对比的复杂度为O(n^2)，树1上的点1要遍历树2上的所有的点，树1上的点2也要遍历树2的所有点，以此类推，复杂度为O(n^2)。如果在比较过程中发现树1（也就是旧树）上的一个点A在树2（新树）上没有找到，点A会被删掉，在老diff算法里点A被删后的空位，需要遍历树2上的所有点去找到一个可以填充它，复杂度为O(n)。
+
+**总结一下**，对于旧树上的点A来说，它要和新树上的所有点比较，复杂度为O(n)，然后如果点A在新树上没找到的话，点A会被删掉，然后遍历新树上的所有点找到一个去填空，复杂度增加为了O(n^2)，这样的操作会在旧树上的每个点进行，最终复杂度为O(n^3)。
+
+
+
+
+
+# 14.React Diff算法详解
 
 
 # 100.React面试题（setState修改数据）
