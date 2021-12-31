@@ -1926,16 +1926,26 @@ weakmap对key弱引用，实际的key可能在某次垃圾回收操作时被清�
 ·它设计为完全异步，同步API（如XHR和localStorage）不能在service worker中使用
 
 ## 58.e.target 和 e.currentTarget 区别
-```js
 1.e.target
 触发事件的对象 (某个DOM元素) 的引用。当事件处理程序在事件的冒泡或捕获阶段被调用时，它与event.currentTarget不同。
-event.target 属性可以用来实现事件委托 (event delegation)。
+event.target 属性可以用来*实现事件委托* (event delegation)。
 
 2.e.currentTarget
 返回绑定事件的元素
-当事件遍历DOM时，接口的currentTarget只读属性Event标识事件的当前目标。它始终引用事件处理程序附加到的元素，而不是Event.target标识事件发生的元素。
-```
+当事件遍历DOM时，接口的currentTarget只读属性Event标识事件的当前目标。它*始终引用事件处理程序附加到的元素*，而不是Event.target标识事件发生的元素。
 
+## 59.require（运行时才执行） 和 import（编译时执行）的区别？
+1.导入require 导出 exports/module.exports *是 CommonJS 的标准*，通常适用范围如 Node.js
+2.import/export 是 *ES6 的标准*，通常适用范围如 React
+3.require 是*赋值过程*并且是**运行时才执行**，也就是**同步加载**
+4.require 可以理解为一个*全局方法*，因为它是一个方法所以意味着*可以在任何地方执行*。
+5.import 是*解构过程*并且是**编译时执行，输出接口**，理解为**异步加载**
+6.import *会提升*到整个模块的*头部*，具有置顶性，但是建议写在文件的顶部。
+7.commonjs 输出的，是一个**值的拷贝**，而es6输出的是**值的引用**；
+
+*require和import的性能*
+require 的性能相对于 import 稍低。
+因为 require 是在运行时才引入模块并且还赋值给某个变量，而 import 只需要依据 import 中的接口在编译时引入指定模块所以性能稍高
 
 ## 100.generator函数(迭代函数—不常用)
   ### 基本用法
