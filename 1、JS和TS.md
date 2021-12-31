@@ -1947,6 +1947,63 @@ event.target 属性可以用来*实现事件委托* (event delegation)。
 require 的性能相对于 import 稍低。
 因为 require 是在运行时才引入模块并且还赋值给某个变量，而 import 只需要依据 import 中的接口在编译时引入指定模块所以性能稍高
 
+## 60.javascript 实现一个带并发限制的异步调度器，保证同时最多运行2个任务
+```js
+class Scheduler {
+	constructor() {
+		this.tasks = [], // 待运行的任务
+		this.usingTask = [] // 正在运行的任务
+	}
+	// promiseCreator 是一个异步函数，return Promise
+	add(promiseCreator) {
+		return new Promise((resolve, reject) => {
+			promiseCreator.resolve = resolve
+			if (this.usingTask.length < 2) {
+				this.usingRun(promiseCreator)
+			} else {
+				this.tasks.push(promiseCreator)
+			}
+		})
+	}
+
+	usingRun(promiseCreator) {
+		this.usingTask.push(promiseCreator)
+		promiseCreator().then(() => {
+			promiseCreator.resolve()
+			this.usingMove(promiseCreator)      //异步任务完成一个后，从usingTask 数组中删除它
+			if (this.tasks.length > 0) {        //判断 tasks 等待队列中有没有任务，有就取出并调用它
+				this.usingRun(this.tasks.shift())   
+			}
+		})
+	}
+
+	usingMove(promiseCreator) {
+		let index = this.usingTask.findIndex(promiseCreator)
+		this.usingTask.splice(index, 1)
+	}
+}
+
+//测试
+const timeout = (time) => new Promise(resolve => {
+	setTimeout(resolve, time)
+})
+const scheduler = new Scheduler()
+const addTask = (time, order) => {
+	scheduler.add(() => timeout(time)).then(() => console.log(order))
+}
+
+addTask(400, 4) 
+addTask(200, 2) 
+addTask(300, 3) 
+addTask(100, 1) 
+
+// 2, 4, 3, 1
+
+```
+
+## 61. 异步请求缓存，怎么保证当前ajax请求相同资源时，真实网络层中，实际只发出一次请求
+缓存的时候去重，去重的标准是，url相同，method相同，data相同，headers相同，可以根据实际情况优化标准
+
 ## 100.generator函数(迭代函数—不常用)
   ### 基本用法
 generator函数跟普通函数在写法上的区别就是，多了一个星号*，并且只有在generator函数中才能使用yield，什么是yield呢，他相当于generator函数执行的中途暂停点，比如下方有3个暂停点。而怎么才能暂停后继续走呢？那就得使用到next方法，next方法执行后会返回一个对象，对象中有value 和 done两个属性
