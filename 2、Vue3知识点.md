@@ -1727,7 +1727,7 @@ export default router
 1.Diff算法是一种*对比算法*。对比两者是旧虚拟DOM和新虚拟DOM，对比出是哪个虚拟节点更改了，找出这个虚拟节点，并只更新这个虚拟节点所对应的真实节点，而不用更新其他数据没发生改变的节点，实现精准地更新真实DOM，进而提高效率。
 2.*Diff同层对比:*新旧虚拟DOM对比的时候，Diff算法比较只会在同层级进行, 不会跨层级比较。 所以Diff算法是:深度优先算法。 时间复杂度:O(n)
 3.*Diff对比流程:*当数据改变时，会触发setter，并且通过Dep.notify去通知所有订阅者Watcher，订阅者们就会调用patch方法，给真实DOM打补丁，更新相应的视图。
-4.*patch方法*:对比当前同层的虚拟节点是否为同一种类型的标签(同一类型的标准，下面会讲)：
+**4.patch方法**:对比当前同层的虚拟节点是否为同一种类型的标签(同一类型的标准，下面会讲)：
 是：继续执行patchVnode方法进行深层比对
 否：没必要比对了，直接整个节点替换成新虚拟节点
 *patch的核心原理代码*
@@ -1753,7 +1753,7 @@ function patch(oldVnode, newVnode) {
   return newVnode
 }
 ```
-5.*sameVnode方法*
+**5.sameVnode方法**
 patch关键的一步就是sameVnode方法判断是否为同一类型节点，那问题来了，怎么才算是同一类型节点呢？这个类型的标准是什么呢？
 *核心原理代码:*
 ```js
@@ -1767,6 +1767,47 @@ function sameVnode(oldVnode, newVnode) {
   )
 }
 ```
+**6.patchVnode方法**
+·找到对应的真实DOM，称为el
+·判断newVnode和oldVnode是否指向同一个对象，如果是，那么直接return
+·如果他们都有文本节点并且不相等，那么将el的文本节点设置为newVnode的文本节点。
+·如果oldVnode有子节点而newVnode没有，则删除el的子节点
+·如果oldVnode没有子节点而newVnode有，则将newVnode的子节点真实化之后添加到el
+·如果两者都有子节点，则执行*updateChildren函数*比较子节点，这一步很重要
+```js
+function patchVnode(oldVnode, newVnode) {
+  const el = newVnode.el = oldVnode.el // 获取真实DOM对象
+  // 获取新旧虚拟节点的子节点数组
+  const oldCh = oldVnode.children, newCh = newVnode.children
+  // 如果新旧虚拟节点是同一个对象，则终止
+  if (oldVnode === newVnode) return
+  // 如果新旧虚拟节点是文本节点，且文本不一样
+  if (oldVnode.text !== null && newVnode.text !== null && oldVnode.text !== newVnode.text) {
+    // 则直接将真实DOM中文本更新为新虚拟节点的文本
+    api.setTextContent(el, newVnode.text)
+  } else {
+    // 否则
+
+    if (oldCh && newCh && oldCh !== newCh) {
+      // 新旧虚拟节点都有子节点，且子节点不一样
+
+      // 对比子节点，并更新
+      updateChildren(el, oldCh, newCh)
+    } else if (newCh) {
+      // 新虚拟节点有子节点，旧虚拟节点没有
+
+      // 创建新虚拟节点的子节点，并更新到真实DOM上去
+      createEle(newVnode)
+    } else if (oldCh) {
+      // 旧虚拟节点有子节点，新虚拟节点没有
+
+      //直接删除真实DOM里对应的子节点
+      api.removeChild(el)
+    }
+  }
+}
+```
+
 
 # 100 ·················技巧····································
 
