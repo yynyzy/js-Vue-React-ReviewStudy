@@ -1689,7 +1689,7 @@ router.beforeEach((to,from, next)=>{//to 和from都是 路由信息对象,后面
         ·go
         ·replace
 
-# 45.vue3 路由hash与History的设置
+# 45.vue3 路由hash与History的设置（createWebHistory，createWebHashHistory）
 一、history
 关键字：*createWebHistory*
 ```js
@@ -1723,7 +1723,7 @@ export default router
 
 ```
 
-# 46. Diff对比流程
+# 46. **Diff对比流程**
 1.Diff算法是一种*对比算法*。对比两者是旧虚拟DOM和新虚拟DOM，对比出是哪个虚拟节点更改了，找出这个虚拟节点，并只更新这个虚拟节点所对应的真实节点，而不用更新其他数据没发生改变的节点，实现精准地更新真实DOM，进而提高效率。
 2.*Diff同层对比:*新旧虚拟DOM对比的时候，Diff算法比较只会在同层级进行, 不会跨层级比较。 所以Diff算法是:深度优先算法。 时间复杂度:O(n)
 3.*Diff对比流程:*当数据改变时，会触发setter，并且通过Dep.notify去通知所有订阅者Watcher，订阅者们就会调用patch方法，给真实DOM打补丁，更新相应的视图。
