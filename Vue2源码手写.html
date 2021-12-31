@@ -60,145 +60,58 @@
         <div class="right">我是right</div>
     </div>
 </body>
-
-<!-- <script>
-        class Vue {
-            constructor(options) {
-                options.beforeCreate.bind(this)();
-                this.$data = options.data()
-                //把 this.$data 的属性，给 Vue 的对象也赋值成这样，就可以使用 this.msg 进行获取值
-                this.observer()
-                options.created.bind(this)()
-                options.beforeMount.bind(this)()
-                this.$el = document.querySelector(options.el)
-                options.mounted.bind(this)()
-
-                // 执行编译初始化代码
-                this.compile(this.$el)
-
-
-            }
-            //负责模板解析，初始化 view 视图。
-            compile(parent) {
-                let nodes = parent.childNodes
-                let len = nodes.length
-                let that = this
-                that.dep = new Dep()
-                for (let i = 0; i < len; i++) {
-                    //元素节点
-                    if (nodes[i].nodeType == 1) {
-                        let node = nodes[i]
-                        //是双向绑定
-                        if (nodes[i].hasAttribute('v-model')) {
-                            //v-model= 的值
-                            let key = nodes[i].getAttribute('v-model').trim()
-                            nodes[i].value = this[key]
-                            nodes[i].addEventListener('input', () => {
-                                this[key] = node.value
-                            })
-                        }
-                        this.compile(node)
-                    }
-
-                    //文本节点
-                    if (nodes[i].nodeType == 3) {
-                        let node = nodes[i]
-                        let reg = /{{(.*)}}/g;
-                        nodes[i].textContent.replace(reg, (a, b) => {
-                            let key = b.trim()
-                            let watcher = new Watcher(that, b, node, 'textContent')
-                            that.dep.addSub(key, watcher)
-                            nodes[i].textContent = this.$data[b.trim()]
-                        })
-                        console.log(that.dep);
-                    }
-                }
-            }
-
-            observer() {
-                for (let key in this.$data) {
-                    let value = this.$data[key]
-                    let that = this
-                    //将 this.$data中的每个数据通过 defineProperty 绑定到 this（即 Vue上，这样直接 this.msg 拿数据）
-                    Object.defineProperty(this, key, {
-                        get() {
-                            return value;
-                        },
-                        set(newval) {
-                            console.log('##', newval);
-                            value = newval
-                            console.log(that.dep);
-                            that.dep.subs[key].forEach(v => {
-                                v.update()
-                            })
-                        }
-                    })
-                }
-            }
-        }
-
-        class Dep {
-            constructor() {
-                this.subs = {};
-            }
-            addSub(k, watcher) {
-                if (this.subs[k]) {
-                    this.subs[k].push(watcher)
-                } else {
-                    this.subs[k] = []
-                    this.subs[k].push(watcher)
-                }
-            }
-        }
-
-        class Watcher {
-            constructor(vm, key, node, attr) {
-                this.vm = vm
-                this.key = key
-                this.node = node
-                this.attr = attr
-            }
-            update() {
-                this.node[this.attr] = this.vm[this.key]
-            }
-        }
-
-
-        const vm = new Vue({
-            el: '#app',
-            data() {
-                return {
-                    msg: 'yzy'
-                }
-            },
-            beforeCreate() {
-                // console.log('beforeCreate');
-            },
-            created() {
-                // console.log('created');
-            },
-            beforeMount() {
-                // console.log('beforeMount');
-            },
-            mounted() {
-                // console.log('mounted');
-                // console.log(this.msg);
-                // console.log(this.$data.msg);
-            }
-
-        });
-
-
-    </script> -->
 <script>
-    function a() {
-        console.log(1);
-    }
-    a.prototype = function ss() {
+    class Scheduler {
+        constructor(limit) {
+            this.limit = limit
+            this.queue = [] // 待运行的任务
+            this.count = 0  //计数
+        }
+        // promiseTask 是一个异步函数，return Promise
+        add(promiseTask) {
+            return new Promise((resolve, reject) => {
+                promiseTask.resolve = resolve
+                promiseTask.reject = reject
+                this.queue.push(promiseTask)
+                this.start()
+            })
+        }
 
+        start() {
+            if (this.count < this.limit) {
+                this.count++
+                const task = this.queue.shift()
+                task().then((res) => {
+                    task.resolve(res)
+                })
+                    .catch(err => {
+                        task.reject(err)
+                    }).finally(() => {
+                        this.count--
+                        this.start()
+                    })
+            }
+
+        }
     }
-    let b = new a()
-    console.log(b.__proto__.__proto__);
+
+    //测试
+    const timeout = (time) => new Promise(resolve => {
+        setTimeout(resolve, time)
+    })
+
+    const scheduler = new Scheduler(2)
+    const addTask = (time, order) => {
+        scheduler.add(() => timeout(time)).then(() => console.log(order))
+    }
+
+    addTask(1000, '1')
+    addTask(500, '2')
+    addTask(300, '3')
+    addTask(400, '4')
+
+
+// 打印顺序是：2 3 1 4
 </script>
 </body>
 

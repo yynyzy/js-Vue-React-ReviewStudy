@@ -1949,55 +1949,52 @@ require 的性能相对于 import 稍低。
 
 ## 60.javascript 实现一个带并发限制的异步调度器，保证同时最多运行2个任务
 ```js
-class Scheduler {
-	constructor() {
-		this.tasks = [], // 待运行的任务
-		this.usingTask = [] // 正在运行的任务
-	}
-	// promiseCreator 是一个异步函数，return Promise
-	add(promiseCreator) {
-		return new Promise((resolve, reject) => {
-			promiseCreator.resolve = resolve
-			if (this.usingTask.length < 2) {
-				this.usingRun(promiseCreator)
-			} else {
-				this.tasks.push(promiseCreator)
-			}
-		})
-	}
+ class Scheduler {
+        constructor(limit) {
+            this.limit = limit
+            this.queue = [] // 待运行的任务
+            this.count = 0  //计数
+        }
+        // promiseTask 是一个异步函数，return Promise
+        add(promiseTask) {
+            return new Promise((resolve, reject) => {
+                promiseTask.resolve = resolve
+                promiseTask.reject = reject
+                this.queue.push(promiseTask)
+                this.start()
+            })
+        }
 
-	usingRun(promiseCreator) {
-		this.usingTask.push(promiseCreator)
-		promiseCreator().then(() => {
-			promiseCreator.resolve()
-			this.usingMove(promiseCreator)      //异步任务完成一个后，从usingTask 数组中删除它
-			if (this.tasks.length > 0) {        //判断 tasks 等待队列中有没有任务，有就取出并调用它
-				this.usingRun(this.tasks.shift())   
-			}
-		})
-	}
+        start() {
+            if (this.count < this.limit) {
+                this.count++
+                const task = this.queue.shift()
+                task().then((res) => {
+                    task.resolve(res)
+                })
+                    .catch(err => {
+                        task.reject(err)
+                    }).finally(() => {
+                        this.count--
+                        this.start()
+                    })
+            }
 
-	usingMove(promiseCreator) {
-		let index = this.usingTask.findIndex(promiseCreator)
-		this.usingTask.splice(index, 1)
-	}
-}
+        }
+    }
 
-//测试
-const timeout = (time) => new Promise(resolve => {
-	setTimeout(resolve, time)
-})
-const scheduler = new Scheduler()
-const addTask = (time, order) => {
-	scheduler.add(() => timeout(time)).then(() => console.log(order))
-}
-
-addTask(400, 4) 
-addTask(200, 2) 
-addTask(300, 3) 
-addTask(100, 1) 
-
-// 2, 4, 3, 1
+    //测试
+    const timeout = (time) => new Promise(resolve => {
+        setTimeout(resolve, time)
+    })
+    const scheduler = new Scheduler(2)
+    const addTask = (time, order) => {
+        scheduler.add(() => timeout(time)).then(() => console.log(order))
+    }
+    addTask(1000, '1')
+    addTask(500, '2')
+    addTask(300, '3')
+    addTask(400, '4')
 
 ```
 
