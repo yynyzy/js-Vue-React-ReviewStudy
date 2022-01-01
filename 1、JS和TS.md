@@ -712,11 +712,10 @@ function deepClone1(obj, hash = new WeakMap) {
    
    ### 6·浏览器解析渲染页面(解析html以构建dom树 -> 构建render树 -> 布局render树 -> 绘制render树)
    过程：
-        ·解析HTML形成DOM树
-        ·解析CSS形成CSSOM 树
-        ·合并DOM树和CSSOM树形成渲染树
-        ·浏览器开始布局render树
-        ·浏览器开始绘制render树
+        ·解析HTML形成*DOM树*：渲染引擎解析HTML文档，生成内容树
+        ·解析css,构建*渲染树*：解析css样式文件
+        ·*布局渲染树*: render tree：从根节点递归调用
+        ·*绘制渲染树*: 遍历渲染树，使用UI层来绘制每一个节点
         ·页面在首次加载时必然会经历reflow和repain：（重绘不一定回流，回流一定会重绘）
             回流：当Render Tree中部分或全部元素的尺寸、结构、或某些属性发生改变时，浏览器重新渲染部分或全部文档的过程。
             重绘：当页面中元素样式的改变并不影响它在文档流中的位置时(color、background-color),浏览器会将新样式赋予给元素并重新绘制它。

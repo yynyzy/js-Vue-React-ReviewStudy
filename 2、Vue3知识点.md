@@ -570,11 +570,37 @@ let fullName = computed({
 ·类似于vue2.x中的mixin。
 ·自定义hook的优势:复用代码,让setup中的逻辑更清楚易懂。
 
-# 11.toRef
-·作用:创建一个 ref 对象，其value值指向另一个对象的某个属性。
-·语法: const name = toRef( person , 'name')
-·应用:要将响应式对象中的某个属性单独提供给外部使用时。
-·扩展: toRefs 与toRef功能一致，但可以批量创建多个ref对象，语法: toRefs(person)
+# 11.Vue路由的两种模式
+**hash**
+原理：早期的前端路由的实现就是基于location.hash来实现的，location.hash的值就是URL中#后面的内容
+其实现原理就是监听#后面的内容来发起Ajax请求来进行局部更新，而不需要刷新整个页面。
+使用 *hashchange* 事件来监听 URL 的变化，以下这几种情况改变 URL 都会触发 hashchange 事件：浏览器前进后退改变 URL、a标签改变 URL、window.location改变URL。
+*优点：*
+·兼容低版本浏览器
+·只有#符号之前的内容才会包含在请求中被发送到后端，也就是说就算后端没有对路由全覆盖，但是不会返回404错误 hash值的改变，都会在浏览器的访问历史中增加一个记录，所以可以通过浏览器的回退、前进按钮控制hash的切换 会覆盖锚点定位元素的功能
+*缺点：*
+·不太美观，#后面传输的数据复杂的话会出现问题
+
+**history**
+原理：history 提供了 pushState 和 replaceState 两个方法来记录路由状态，这两个方法改变 URL 不会引起页面刷新。pushState(state, title, url) 和 replaceState(state, title, url)都可以接受三个相同的参数。
+
+*优点：*
+·使用简单，比较美观
+·pushState()设置新的URL可以是任意与当前URL同源的URL，而hash只能改变#后面的内容，因此只能设置与当前URL同文档的URL
+·pushState()设置的URL与当前URL一模一样时也会被添加到历史记录栈中，而hash#后面的内容必须被修改才会被添加到新的记录栈中
+·pushState()可以通过stateObject参数添加任意类型的数据到记录中，而hash只能添加短字符串
+·pushState()可额外设置title属性供后续使用
+
+*缺点：*
+·前端的URL必须和向发送请求后端URL保持一致，否则会报404错误
+·由于History API的缘故，低版本浏览器有兼容行问题
+
+**两种不同使用场景**
+·从上文可见，hash模式下url会带有#，当你希望url更优雅时，可以使用history模式。
+·当使用history模式时，需要注意在服务端增加一个覆盖所有情况的候选资源：如果 URL 匹配不到任何静态资源，则应该返回同一个 index.html 页面，这个页面就是你 app 依赖的页面。
+·当需要兼容低版本的浏览器时，建议使用hash模式。
+·当需要添加任意类型数据到记录时，可以使用history模式。
+
 
 # 12.vue不常用 composition API
  1. *shallowReactive *              //只对第一层响应式，深层次对象里面的不会改变
@@ -693,7 +719,10 @@ const store = createStore({
 # 15.ref 和 toRef 的区别
 ref是对原始数据的拷贝，当修改ref数据时，模板中的视图会发生改变，但是原始数据并不会改变。
 toRef是对原始数据的引用，修改toRef数据时，原始数据也会发生改变，但是视图并不会更新。
-
+  ·作用:创建一个 ref 对象，其value值指向另一个对象的某个属性。
+  ·语法: const name = toRef( person , 'name')
+  ·应用:要将响应式对象中的某个属性单独提供给外部使用时。
+  ·扩展: toRefs 与toRef功能一致，但可以批量创建多个ref对象，语法: toRefs(person)
 ```js
 let b = "yzy"
 let a = ref（b）
@@ -1668,7 +1697,7 @@ Sass,Less,Stylus --> CSS
 热更新
 定义环境变量，区分 dev 和 production 模式
 
-# 44.vue中  router 与route区别
+# 44.vue中  router 与 route 区别
 *1、$route对象*
         $route对象表示*当前的路由信息*，包含了当前 URL 解析得到的信息。包含当前的路径，参数，query对象等。
 
@@ -1841,6 +1870,7 @@ const routes={
 </keep-alive>
 
 ```
+
 # 100 ·················技巧····································
 
 # 101.Vue路由组件化(运用require.context)
