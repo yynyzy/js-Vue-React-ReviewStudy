@@ -2001,13 +2001,18 @@ require 的性能相对于 import 稍低。
 ## 61. 异步请求缓存，怎么保证当前ajax请求相同资源时，真实网络层中，实际只发出一次请求
 缓存的时候去重，去重的标准是，url相同，method相同，data相同，headers相同，可以根据实际情况优化标准
 
-## 判断是安卓还是ios手机 来实施兼容
+## 62.判断是安卓还是ios手机 来实施兼容
 //window.navigator.userAgent 原生js 可以拿到是什么手机系统
-if( 是ios ){
+```js
+var ua = window.navigator.userAgent.toLowerCase()
+
+var isIos =(ua.indexOf('iphone') != -1) || (ua.indexOf('ipad') != -1)
+if( isIos){
     //做 ios 的兼容代码 
-}else if(是安卓){
-    //做安卓的代码
+}else {
+   
 }
+```
 
 ## 100.generator函数(迭代函数—不常用)
   ### 基本用法

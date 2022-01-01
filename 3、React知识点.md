@@ -341,7 +341,7 @@ componentDidCatch(error, info) {
 ·Context 提供了一个无需为每层组件手动添加 props，就能在组件树间进行数据传递的方法.如果你只是想避免层层传递一些属性，组件组合（component composition）有时候是一个比 context 更好的解决方案。
 ·组件组合缺点：会使高层组件变得复杂
 
-# 4、setState是同步还是异步
+# 4、**setState是同步还是异步**
 1、setState只在合成事件和钩子函数中是“异步”的，在原生事件和 setTimeout 中都是同步的。
 
 2、setState的“异步”并不是说内部由异步代码实现，其实本身执行的过程和代码都是同步的，只是合成事件和钩子函数的调用顺序在更新之前，导致在合成事件和钩子函数中没法立马拿到更新后的值，形式了所谓的“异步”，当然可以通过第二个参数 setState(partialState, callback) 中的callback拿到更新后的结果。
@@ -717,7 +717,7 @@ class CustomTextInput extends React.Component {
 
 
 
-# 9.React 生命周期（新旧对比）
+# 9.**React 生命周期**（新旧对比）
 ## 旧生命周期：
 ```js
 1.挂载过程
@@ -779,36 +779,96 @@ useCallback返回缓存的函数
 
 useEffect、useMemo、useCallback都是自带闭包的。也就是说，每一次组件的渲染，其都会捕获当前组件函数上下文中的状态(state, props)，所以每一次这三种hooks的执行，反映的也都是当前的状态，你无法使用它们来捕获上一次的状态。对于这种情况，我们应该使用ref来访问。
 
-# 11.**React15 和 React16 的架构对比**
+# 11.**React15 和 React16 的架构（Fiber）对比**
 ## React 15 时期的渲染机制
 15版本是基于**Stack Reconcilation(栈调和器)**。它是递归、同步的方式。栈的优点在于用少量的代码就可以实现diff功能。并且非常容易理解。但是它也带来了严重的性能问题。
 （“调和”又译为“协调”：通过如 ReactDOM 等类库使虚拟 DOM 与“真实的” DOM 同步这一过程叫作协调（调和）。）
 
-## React15时期架构的缺点
+### React15时期架构的缺点
 React15架构可以分为两层：
-*Reconciler（协调器）*—— 负责找出变化的组件
+*Reconciler（协调器）*—— 负责找出变化的组件(react 会采用递归对比虚拟DOM树，找出需要变动的节点，然后同步更新它们)
 *Renderer（渲染器）*—— 负责将变化的组件渲染到页面
 
-每当有更新发生时，Reconciler会做如下工作：
-  ·调用函数组件、或class组件的render方法，将返回的JSX转化为虚拟DOM
+每当有更新发生时，*Reconciler*会做如下工作：
+  ·调用组件的render方法，将返回的JSX转化为虚拟DOM
   ·将虚拟DOM和上次更新时的虚拟DOM对比
   ·通过对比找出本次更新中变化的虚拟DOM
   ·通知Renderer将变化的虚拟DOM渲染到页面上
-而React15使用的是*栈调和器*，由于递归执行，所以*更新一旦开始，中途就无法中断*。当调用层级很深时，递归更新时间超过了屏幕刷新时间间隔，用户交互就会卡顿。
+
+而React15使用的是*栈调和器*，由于递归执行，所以*更新一旦开始，中途就无法中断，中断后就不能恢复了*。当调用层级很深时，递归更新时间超过了屏幕刷新时间间隔，用户交互就会卡顿。
 
 ## React16架构概览（多了一个调度器）
-React16架构可以分为三层：
+**!!**(
+1.React希望能够彻底解决主线程长时间占用问题，于是引入了 Fiber 来改变这种不可控的现状，把渲染/更新过程拆分为一个个小块的任务，通过合理的调度机制来调控时间，指定任务执行的时机，从而降低页面卡顿的概率，提升页面交互体验。通过Fiber架构，让reconcilation过程变得可被中断。适时地让出CPU执行权，可以让浏览器及时地响应用户的交互。
+
+2.React16中使用了 Fiber，但是*Vue 是没有 Fiber* 的，为什么呢？原因是二者的优化思路不一样：
+  ·Vue 是基于 template 和 watcher 的组件级更新，把每个更新任务分割得足够小，不需要使用到 Fiber 架构，将任务进行更细粒度的拆分
+  ·React 是不管在哪里调用 setState，都是从根节点开始更新的，更新任务还是很大，需要使用到 Fiber 将大任务分割为多个小任务，可以中断和恢复，不阻塞主进程执行高优先级的任务
+
+*3.什么是Fiber?*
+Fiber 可以理解为*一个执行单元*，每次执行完一个执行单元，react 就会检查现在还剩多少时间，如果没有时间则将控制权让出去。React Fiber 与浏览器的核心交互流程如下：
+![react-Fiber](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\react-Fiber.png)
+Fiber 还可以理解为是*一种数据结构*，React Fiber 就是采用*链表*实现的。每个 Virtual DOM 都可以表示为一个 fiber。
+fiber 节点包括了以下的属性：
+（1）type & key
+fiber 的 type 和 key 与 React 元素的作用相同。fiber 的 type 描述了它对应的组件，对于复合组件，type 是函数或类组件本身。对于原生标签（div，span等），type 是一个字符串。随着 type 的不同，在 reconciliation 期间使用 key 来确定 fiber 是否可以重新使用。
+
+（2）stateNode
+stateNode 保存对组件的类实例，DOM节点或与 fiber 节点关联的其他 React 元素类型的引用。一般来说，可以认为这个属性用于保存与 fiber 相关的本地状态。
+
+（3）child & sibling & return
+child 属性指向此节点的第一个子节点（大儿子）。
+sibling 属性指向此节点的下一个兄弟节点（大儿子指向二儿子、二儿子指向三儿子）。
+return 属性指向此节点的父节点，即当前节点处理完毕后，应该向谁提交自己的成果。如果 fiber 具有多个子 fiber，则每个子 fiber 的 return fiber 是 parent 。
+
+
+4.*requestAnimationFrame*
+在 Fiber 中使用到了requestAnimationFrame，它是浏览器提供的绘制动画的 api 。它要求浏览器在下次重绘之前（即下一帧）调用指定的回调函数更新动画。
+
+5.*requestIdleCallback*
+requestIdleCallback 也是 react Fiber 实现的基础 api 。我们希望能够快速响应用户，让用户觉得够快，不能阻塞用户的交互，requestIdleCallback能使开发者在主事件循环上执行后台和低优先级的工作，而不影响延迟关键事件，如动画和输入响应。正常帧任务完成后没超过16ms，说明有多余的空闲时间，此时就会执行requestIdleCallback里注册的任务。
+具体的执行流程如下，开发者采用requestIdleCallback方法注册对应的任务，告诉浏览器我的这个任务优先级不高，如果每一帧内存在空闲时间，就可以执行注册的这个任务。另外，开发者是可以传入timeout参数去定义超时时间的，如果到了超时时间了，浏览器必须立即执行，使用方法如下：
+```js
+window.requestIdleCallback(callback, { timeout: 1000 })。
+```
+浏览器执行完这个方法后，如果没有剩余时间了，或者已经没有下一个可执行的任务了，React应该归还控制权，并同样使用requestIdleCallback去申请下一个时间片。
+window.requestIdleCallback(callback)的callback中会接收到默认参数 deadline ，其中包含了以下两个属性：
+  ·timeRamining 返回当前帧还剩多少时间供用户使用
+  ·didTimeout 返回 callback 任务是否超时
+
+
+*6.Fiber执行原理*
+从根节点开始渲染和调度的过程可以分为两个阶段：render 阶段、commit 阶段。
+  render 阶段：这个阶段是可中断的，会找出所有节点的变更
+  commit 阶段：这个阶段是不可中断的，会执行所有的变更
+*render阶段：*
+此阶段会找出所有节点的变更，如节点新增、删除、属性变更等，这些变更 react 统称为副作用（effect），此阶段会构建一棵Fiber tree，以虚拟dom节点为维度对任务进行拆分，即一个虚拟dom节点对应一个任务，最后产出的结果是effect list，从中可以知道哪些节点更新、哪些节点增加、哪些节点删除了。
+*遍历流程：*
+React Fiber首先是将虚拟DOM树转化为Fiber tree，因此每个节点都有child、sibling、return属性，遍历Fiber tree时采用的是后序遍历方法：
+收集effect list
+*收集所有节点的变更产出effect list：*
+在遍历过程中，收集所有节点的变更产出effect list，注意其中只包含了需要变更的节点。通过每个节点更新结束时向上归并effect list来收集任务结果，最后根节点的effect list里就记录了包括了所有需要变更的结果。
+收集effect list的具体步骤为：
+  ·如果当前节点需要更新，则打tag更新当前节点状态（props, state, context等）
+  ·为每个子节点创建fiber。如果没有产生child fiber，则结束该节点，把effect list归并到return，把此节点的sibling节点作为下一个遍历节点；否则把child节点作 ·为下一个遍历节点
+  ·如果有剩余时间，则开始下一个节点，否则等下一次主线程空闲再开始下一个节点
+  ·如果没有下一个节点了，进入pendingCommit状态，此时effect list收集完毕，结束。
+*commit阶段*
+commit 阶段需要将上阶段计算出来的需要处理的副作用一次性执行，此阶段不能暂停，否则会出现UI更新不连续的现象。此阶段需要根据effect list，将所有更新都 commit 到DOM树上。
+
+*最后：*
+  根据一个 fiber 的 effect list 更新视图。
+  计算完成每个 fiber 的effect list后，调用 **commitRoot** 完成视图更新
+)
+
+
+**React16架构可以分为三层：**
 *Scheduler（调度器）*—— 调度任务的优先级，高优任务优先进入Reconciler
 *Reconciler（协调器）*—— 负责找出变化的组件
 *Renderer（渲染器）*—— 负责将变化的组件渲染到页面上
 
-通过上面基础知识已经了解，当JS执行时间过长，带给用户的体验就是所谓的“卡顿”。那么我们要如何解决这个问题呢？
-答案是：在浏览器每一帧的时间中，预留一些时间给JS线程，React利用这部分时间更新组件（可以看到，在源码中，预留的初始时间是5ms）。
-当预留的时间不够用时，React将线程控制权交还给浏览器使其有时间渲染UI，React则等待下一帧时间到来，继续被中断的工作。
-既然我们以浏览器是否有剩余时间作为任务中断的标准，那么我们需要一种机制，当浏览器有剩余时间时通知我们。所以React就实现了一个Scheduler（调度器），除了在空闲时触发回调的功能外，Scheduler还提供了多种调度优先级供任务设置。
-
 **Reconciler（协调器）**
-在React15中Reconciler是递归处理虚拟DOM的。让我们看看React16的Reconciler。
+当预留的时间不够用时，React将线程控制权交还给浏览器使其有时间渲染UI，React则等待下一帧时间到来，继续被中断的工作。所以React就实现了一个Scheduler（调度器），除了在空闲时触发回调的功能外，Scheduler还提供了多种调度优先级供任务设置。*(利用每一帧的空余时隙去更新)*
 我们可以看见，更新工作从递归变成了*可以中断*的循环过程。每次循环都会调用shouldYield判断当前是否有剩余时间。
 ```js
 /** @noinline */
@@ -819,11 +879,11 @@ function workLoopConcurrent() {
   }
 }
 ```
-同时注意,*16中的更新是可中断的*，那React如何解决要是中断了，DOM渲染不完全的问题呢？
-在React16中，Reconciler与Renderer不再是严格同步的（不是一协调完一个就立刻通知Renderer去渲染）。而是当Scheduler将任务交给Reconciler后，Reconciler会为变化的虚拟DOM打上代表增/删/更新的标记。
+同时注意,16中的更新是可中断的，那React如何解决要是中断了，DOM渲染不完全的问题呢？
+在React16中，Reconciler与Renderer*不再是严格同步*的（不是一协调完一个就立刻通知Renderer去渲染）。而是当Scheduler将任务交给Reconciler后，Reconciler会为变化的虚拟DOM打上代表增/删/更新的标记（*收集所有节点的变更产出 effect list，收集完后进入 commit 阶段，根据effect list统一完成更新，这个 commit 阶段无法打断，否则会出现画面不流畅。*）。
 整个Scheduler与Reconciler的工作都在内存中进行。只有*当所有组件都完成Reconciler的工作*，才会统一*交给Renderer*。
 
-中断的原因：
+*中断的原因：*
 ·其他更高优先级任务需要先更新
 ·当前帧没有剩余时间
 由于都在内存中进行，不会更新页面上的DOM，所以即使反复中断，用户也不会看见更新不完全的DOM。
@@ -833,7 +893,7 @@ function workLoopConcurrent() {
 1.React15 使用的是栈调和器，栈调和器是递归执行调和操作的，更新一旦开始，中途就无法中断。倘若递归层级过深，则可能会造成浏览器渲染卡顿。
 2.React16 使用的是全新的"Fiber调和器"，这就依托于React16的重点了—Fiber架构。目前简要概括就是，React16能够实现*中断调和*，*分批次异步地调和*。从而达到*不因为JS执行时间过久影响浏览器渲染*。
 
-# 12.redux三大件：store、action、reducer简述
+# 12.**redux三大件**：store、action、reducer简述
 *store*
 一个对象，保存着对redux中的操作方法，包括dispatch（发送action），subscribe(订阅redux中的状态变化)和getState（获得状态）。store是只读的，Redux 应用有且只有一个单一的 store。
 
