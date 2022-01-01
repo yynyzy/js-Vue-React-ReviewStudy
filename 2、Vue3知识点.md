@@ -80,18 +80,18 @@ View的变动，自动反映在 ViewModel，反之亦然。
 额外的，这些组件经常用于衔接 的`<router-view>` 组件。
 
 示例
-```
+```js
 <router-view v-slot="{ Component }">
   <template v-if="Component">
     <transition mode="out-in">
       <keep-alive>
         <suspense>
           <component :is="Component"></component>
-          <template #fallback>
-            <div>
-              Loading...
-            </div>
-          </template>
+            <template #fallback>
+              <div>
+                Loading...
+              </div>
+            </template>
         </suspense>
       </keep-alive>
     </transition>
@@ -1668,9 +1668,9 @@ Sass,Less,Stylus --> CSS
 热更新
 定义环境变量，区分 dev 和 production 模式
 
-# 44.vue中router与route区别
+# 44.vue中  router 与route区别
 *1、$route对象*
-        $route对象表示当前的路由信息，包含了当前 URL 解析得到的信息。包含当前的路径，参数，query对象等。
+        $route对象表示*当前的路由信息*，包含了当前 URL 解析得到的信息。包含当前的路径，参数，query对象等。
 
 *·$route.path*字符串，对应当前路由的路径，总是解析为绝对路径，如"/foo/bar"。
 *·$route.params*一个 key/value 对象，包含了 动态片段 和 全匹配片段，如果没有路由参数，就是一个空对象。
@@ -1684,7 +1684,7 @@ Sass,Less,Stylus --> CSS
 router.beforeEach((to,from, next)=>{//to 和from都是 路由信息对象,后面使用路由的钩子函数就容易理解了})
 
 *2、$router对象*
-        $router对象是全局路由的实例，是router构造方法的实例
+        $router对象是*全局路由的实例*，是router构造方法的实例
         ·push
         ·go
         ·replace
@@ -1823,6 +1823,24 @@ function patchVnode(oldVnode, newVnode) {
 *4.源码体积有优化*
   与Vue2相比较，Vue3整体体积变小了，移除了一些比较冷门的feature：如 keyCode 支持作为 v-on 的修饰符、on、off 和 $once 实例方法、filter过滤、内联模板等。tree-shaking 依赖 ES2015 模块语法的静态结构（即 import 和 export），通过编译阶段的静态分析，找到没有引入的模块并打上标记。任何一个函数，如ref、reavtived、computed等，仅仅在用到的时候才打包，没用到的模块都被摇掉，打包的整体体积变小。
 
+# 48.Vue-Router keep-alive使用技巧
+```js
+//路由文件
+const routes={
+  path:'/',
+  component:Home,
+  //meta 标识符 也是路由配置里面可以写的
+  meta:{
+    isAlive:false
+  }
+}
+
+<router-view v-if="!$route.meta.isAlive"></router-view>
+<keep-alive>
+   <router-view  v-if="$route.meta.isAlive"></router-view>
+</keep-alive>
+
+```
 # 100 ·················技巧····································
 
 # 101.Vue路由组件化(运用require.context)
