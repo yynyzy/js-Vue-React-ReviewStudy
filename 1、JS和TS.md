@@ -418,7 +418,7 @@ var obj = {
 ```
 
 
-## 12.数组扁平化（ES6自带和自己实现）与数组去重
+## 12.*数组扁平化*（ES6自带和自己实现）与*数组去重*
    ### 数组扁平化
     设定一个多维数组
 ```js
@@ -910,7 +910,7 @@ Promise.reject = function(reason) {
 }
 ```
 
-## 20.手写 Promise.all 和 Promise.race
+## 20.**手写 Promise.all** 和 Promise.race
   ### Promise.all: 
   传入的所有Promise最终都转化为fulfilled态时，则会执行resolve回调，并将返回值是的所有的 Promise 的resolve的回调的value的数组。其中一个任何Promise为reject状态时，则返回的Promise的状态更改为rejected。
   ```js
@@ -1160,7 +1160,7 @@ Object.__proto__ === Function.prototype;//true
 Object.prototype.__proto__ === null;
 ```
 
-## 34.原生ajax
+## 34.**原生ajax**
 ```js
 const xhr = new XMLHttpRequest()
 xhr.open('get', url, true)
