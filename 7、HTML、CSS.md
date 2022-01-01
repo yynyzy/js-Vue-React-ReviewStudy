@@ -485,3 +485,53 @@ div {
     opacity: 0.6;
 }
 ```
+
+# 20.3.实现条纹网格的方式
+```css
+nth-child(even/odd)
+
+// odd表示基数，此时选中基数行的样式，even表示偶数行
+.row:nth-child(odd){
+    background: #eee;
+}
+```
+
+```css
+nth-of-type(odd)
+
+.row:nth-of-type(odd){
+    background: #eee;
+}
+```
+
+渐变实现linear-gradient
+```css
+.stripe-bg{
+  padding: .5em;
+  line-height: 1.5em;
+  background: beige;
+  background-size: auto 3em;
+  background-origin: content-box;
+  background-image: linear-gradient(rgba(0,0,0,.2) 50%, transparent 0);
+}
+```
+
+# 21.css禁止用户选择
+```css
+body{
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
+```
+
+
+
+
+
+
+
+
