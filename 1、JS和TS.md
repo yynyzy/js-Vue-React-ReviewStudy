@@ -2056,6 +2056,41 @@ console.log(g.next(22222))
 // { value: 3, done: true }
 ```
 
+## 1001. 2021 年在 Web 领域有哪些关键进展？
+*小程序*
+MiniApps 指混合移动应用程序，小巧、免安装、加载速度快，使用 Web 技术（尤其是 CSS 和 JavaScript）并与 Native Apps 的功能集成，也就是我们常说的小程序。
+MiniApps工作组 今年发布了多个公开草案：
+    ·5月11日发布 *MiniApp Manifest*草案：规范为应用程序 manifest 提供了额外的元数据来描述。
+    ·6月15日发布 *MiniApp Lifecycle*草案：定义了小程序生命周期的事件与管理小程序及各个小程序页面的生命周期流程。
+    ·11月30日发布 *MiniApp Packaging*草案：定义了 MiniApp 打包文件的语义和一致性要求，以及包含 MiniApp 资源文件的单个文件容器结构，包括配置文件、静态页面模版、样式表、JavaScript 文档、媒体文件以及其他资源。
+
+**音频 - Web Audio 1.0**
+Web 音频工作组 今年6月份发布 Web Audio API 1.0 为 W3C 正式推荐标准, 为 Web 平台添加了直接从 Web 浏览器操作音乐和创建音频的标准方法，包括协作和交互方式。
+
+目前所有主流浏览器已实现 Web Audio 1.0 规范，支持在浏览器中合成音频。浏览器提供一个 *AudioContext* 对象，该对象用于生成一个声音的上下文，与扬声器相连。
+```js
+const audioContext = new AudioContext();
+```
+然后，获取音源文件，将其在内存中解码，就可以播放声音了。
+```js
+const context = new AudioContext();
+fetch('code秘密花园.mp4')
+.then(response => response.arrayBuffer())
+.then(arrayBuffer => context.decodeAudioData(arrayBuffer))
+.then(audioBuffer =>{
+// 播放声音
+const source = context.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(context.destination);
+    source.start();
+});
+```
+
+*Web 文本编辑 - 虚拟键盘API*
+Web 文本编辑工作组 在今年8月提交了 虚拟键盘API 公开草案。
+VK（Virtual Keyboard）是指在没有硬件键盘的情况下，可用于输入的屏幕键盘。
+VirtualKeyboard API 为开发者提供了对虚拟键盘（VK）可见性的更好控制，以及在 VK 可见性改变时调整网页布局的更大能力。
+
 
 # TS
 typescript在编译阶段进行类型检查，当类型不合符预期结果的时候则会出现错误提示

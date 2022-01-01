@@ -1,5 +1,5 @@
 # 0.简述MVVM
-MVVM是Model-View-ViewModel的缩写。Model 代表数据层，可定义修改数据、编写业务逻辑。View 代表视图层，负责将数据渲染成页面。ViewModel 负责监听数据层数据变化，控制视图层行为交互，简单讲，就是同步数据层和视图层的对象。ViewModel 通过双向绑定把 View 和 Model 层连接起来，且同步工作无需人为干涉，使开发人员只关注业务逻辑，无需频繁操作DOM，不需关注数据状态的同步问题。
+MVVM是Model-View-ViewModel的缩写。Model 代表数据层，可定义修改数据、编写业务逻辑。View 代表视图层，负责将数据渲染成页面。ViewModel 负责监听数据层数据变化，控制视图层行为交互，简单讲，就是同步数据层和视图层的对象。*ViewModel 通过双向绑定把 View 和 Model 层连接起来，且同步工作无需人为干涉，使开发人员只关注业务逻辑，无需频繁操作DOM*，不需关注数据状态的同步问题。
 # 0.5 mvc，mvp，mvvm是什么
 
  *mvc*
@@ -114,7 +114,7 @@ Vue Router 有内置的基于动态导入的[组件懒加载](https://next.route
 
 
 
-# 2.插槽(具名插槽，作用域插槽)
+# 2.**插槽**(具名插槽，作用域插槽)
 
   ## 具名插槽
 在向具名插槽提供内容的时候，我们可以在一个 <template> 元素上使用 v-slot 指令，并以 v-slot 的参数的形式提供其名称：
@@ -171,7 +171,7 @@ Vue Router 有内置的基于动态导入的[组件懒加载](https://next.route
 </template>
 ```
 
-# 3.nextTick
+# 3.**nextTick**
     1.语法: this.$nextTick(回调函数)
     2.作用:在下一次DOM更新结束后执行其指定的回调。
     3.什么时候用:当改变数据后，要基于更新后的新DOM进行某些操作时，要在nextTick所指定的回调函数中执行。
@@ -570,7 +570,7 @@ let fullName = computed({
 ·类似于vue2.x中的mixin。
 ·自定义hook的优势:复用代码,让setup中的逻辑更清楚易懂。
 
-# 11.Vue路由的两种模式
+# 11.**Vue路由的两种模式**
 **hash**
 原理：早期的前端路由的实现就是基于location.hash来实现的，location.hash的值就是URL中#后面的内容
 其实现原理就是监听#后面的内容来发起Ajax请求来进行局部更新，而不需要刷新整个页面。
@@ -943,7 +943,7 @@ const gogo =() ={
 </script>
 ```
 
-# 20.自定义指令directive（vue3的自定义指令里的生命周期与vue2的不同）
+# 20.**自定义指令directive**（vue3的自定义指令里的生命周期与vue2的不同）
  注意：指令定义时不需要加v-, 使用时需要加 
  *指令定义函数提供如下钩子函数：*
 
@@ -1208,7 +1208,7 @@ export function nextTick (cb?: Function, ctx?: Object) {
 flushCallbacks 先拷贝再清空，为了防止nextTick嵌套nextTick导致循环不结束
 
 
-# 27.Vue3.0 里为什么要用 Proxy API 替代 defineProperty API？
+# 27.**Vue3.0 里为什么要用 Proxy API 替代 defineProperty API？**
 参考回答：
 响应式优化。
 a. *defineProperty* API 的局限性最大原因是它只能针对*单例属性*做监听。
@@ -1437,7 +1437,7 @@ keep-alive 是 Vue 内置的一个组件，可以缓存组件的状态，避免�
 思路：vuex 使用数组存储列表页名字，列表页离开结合 beforeRouteLeave 钩子判断是否需要缓存，对全局数组进行更改。
 核心源码：vue/src/core/components/keep-alive.js
  ## keep-alive 的实现
-LRU（Least Recently Used） 替换策略核心思想是替换最近最少使用。
+*LRU（Least Recently Used）* 替换策略核心思想是替换最近最少使用。
 ```js
 /**
 * 遍历 cache 将不需要的缓存的从 cache 中清除
@@ -1852,7 +1852,7 @@ function patchVnode(oldVnode, newVnode) {
 *4.源码体积有优化*
   与Vue2相比较，Vue3整体体积变小了，移除了一些比较冷门的feature：如 keyCode 支持作为 v-on 的修饰符、on、off 和 $once 实例方法、filter过滤、内联模板等。tree-shaking 依赖 ES2015 模块语法的静态结构（即 import 和 export），通过编译阶段的静态分析，找到没有引入的模块并打上标记。任何一个函数，如ref、reavtived、computed等，仅仅在用到的时候才打包，没用到的模块都被摇掉，打包的整体体积变小。
 
-# 48.Vue-Router keep-alive使用技巧
+# 48. Vue-Router keep-alive使用技巧
 ```js
 //路由文件
 const routes={
@@ -1870,6 +1870,19 @@ const routes={
 </keep-alive>
 
 ```
+
+# 49. **Vue组件通信方式**
+*1. props/$emit*
+*2.v-slot*
+*3. $refs/$parent/$children/$root:*
+  $refs： 我们通常会将 refs 绑定在子组件上，从而获取子组件实例。
+  $parent：通过 $parent 来获取当前组件的父组件实例（如果有的话）。
+  $children来获取当前组件的子组件实例的数组。但是需要注意的是，this.$children`数组中的元素下标并不一定对用父组件引  用的子组件的顺序，例如有异步加载的子组件，可能影响其在 children 数组中的顺序。所以使用时需要根据一定的条件例如子组  件的name去找到相应的子组件。
+  $root： 获取当前组件树的根 Vue 实例。如果当前实例没有父实例，此实例将会是其自己。通过 $root ，我们可以实现组件之间的跨级通信。
+*4.$attrs 和 listeners*
+  $attrs： 用来接收父作用域中不作为 prop 被识别的 attribute 属性，并且可以通过v-bind="$attrs"传入内部组件——在创建高级别的组件时非常有用。
+*5. provide/inject*
+*6. eventBus*
 
 # 100 ·················技巧····································
 

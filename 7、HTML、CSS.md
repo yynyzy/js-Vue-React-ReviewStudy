@@ -476,3 +476,12 @@ div {
     ·javascript标签之后的外联css
     ·image
     ·iframe
+
+# 19.1.css禁用鼠标事件
+```css
+.disabled {
+    pointer-events: none;
+    cursor: default;
+    opacity: 0.6;
+}
+```
