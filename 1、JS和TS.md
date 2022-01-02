@@ -286,11 +286,12 @@ let Public = {
 ```
 
 ## 7. **JS的变量提升（预编译）**
-### 1.预编译
+### 0.语法分析阶段
+    进行词法分析(编译器会先将一连串字符打断成（对于语言来说）有意义的片段)、语法分析(编译器将一个 token 的流（数组）转换为一个“抽象语法树”)。
+### 1.预编译阶段
    #### 全局预编译的3个步骤：
     1.创建GO对象（Global Object）全局对象。
-    2.进行词法分析(编译器会先将一连串字符打断成（对于语言来说）有意义的片段)、语法分析(编译器将一个 token 的流（数组）转换为一个“抽象语法树”)。
-    3.开始预编译（预编译分为全局预编译和局部预编译，全局预编译发生在页面加载完成时执行，而局部预编译发生在函数执行的前一刻。）
+    2.开始预编译（预编译分为全局预编译和局部预编译，全局预编译发生在页面加载完成时执行，而局部预编译发生在函数执行的前一刻。）
         1.查找变量声明，作为GO属性，值赋予undefined
         2.查找函数声明，作为GO属性，值赋予函数体（函数声明优先）
 ```js
@@ -727,8 +728,8 @@ function deepClone1(obj, hash = new WeakMap) {
 
 
 ## 18.**浏览器事件循环**
-1.Js在执行一段代码时候 首先会在*主进程创建一个执行栈* 然后*创建一个上下文*push到执行栈。当函数执行的时候，也创建一个上下文push到执行栈，当执行栈执行完成后，就会从栈中弹出。遇到*异步任务进入Event Table*并注册函数。当指的事情完成时，*Event Table会将这个函数移入Event Queue（事件队列）*。
-2.*同步任务*会在调用栈中*按照顺序*等待主线程依次执行，异步任务会在同步任务执行完，调用栈被清空后，从 Event Queu读取到执行栈执行。
+1.Js在执行一段代码时候 首先会在*主进程创建一个执行栈* 然后*创建一个上下文*push到执行栈。当函数执行的时候，也创建一个上下文push到执行栈，当执行栈执行完成后，就会从栈中弹出。当*遇到异步任务*时，就将其*放入任务队列*中，等待当前执行栈所有同步代码执行完成之后，就会从异步任务队列中取出已完成的异步任务的回调并将其放入执行栈中继续执行。
+2.*同步任务*会在调用栈中*按照顺序*等待主线程依次执行，异步任务会在同步任务执行完，调用栈被清空后，从 Event Queue 读取到执行栈执行。
 3.异步任务又有*宏任务和微任务*。当同步任务执行完，会查看有没有微任务，如果有，从微任务队列中读取*执行完的所有微务*。当所有微任务执行完毕后，开始*执行宏任务*，*每完成一个宏任务*，浏览器都会*重新看一下有没有新的微任务产生*，如果执行微任务，没有执行下一个宏任务。
 4.依照此循环运作
 
@@ -1946,7 +1947,7 @@ event.target 属性可以用来*实现事件委托* (event delegation)。
 require 的性能相对于 import 稍低。
 因为 require 是在运行时才引入模块并且还赋值给某个变量，而 import 只需要依据 import 中的接口在编译时引入指定模块所以性能稍高
 
-## 60.javascript 实现一个带并发限制的异步调度器，保证同时最多运行2个任务
+## 60.javascript 实现一个**带并发限制的异步调度器**，保证同时最多运行2个任务
 ```js
  class Scheduler {
         constructor(limit) {
@@ -2013,7 +2014,7 @@ if( isIos){
 }
 ```
 
-## 63.如何提高首频加载速度
+## 63.**如何提高首频加载速度**
 1.js外联文件放到body底部，css外联文件放到head内
 2.http静态资源尽量用多个子域名(http静态资源尽量用多个子域名)
 3.服务器端提供html和http静态资源时最好开启gzip
@@ -2054,7 +2055,35 @@ draggable属性：设置元素是否可拖动。
 *dragleave*   当被拖动元素没有放下就离开目的地元素时触发
 
 
-## 67.
+## 67.axios解析之cancelToken取消请求原理
+通过调用CancelToken的构造函数来实现取消请求主要分为两步：
+    1.调用CancelToken构造函数创建cancelToken实例对象，并创建一个 cancel函数
+    2.调用cancel函数，取消请求
+
+使用代码如下：
+```js
+import axios from 'axios';
+
+const CancelToken = axios.CancelToken;
+let cancel;
+
+axios.get('/user/12345', {
+  cancelToken: new CancelToken(function executor(c) {
+    // executor 函数接收一个 cancel 函数作为参数
+    cancel = c;
+  })
+});
+
+// 取消请求
+cancel('Operation canceled by the user.');
+```
+
+*执行cancel取消请求的过程如下：*
+![axios-cancelToken](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\axios-cancelToken.png)
+**小结**
+当用户调用内部对外暴露的cancel方法后，axios内部会执行resolvePromise，改变promise(CancelToken实例的promise)的状态，触发promise的then回调，然后执行onCanceled方法，在onCanceled中则调用XMLHttpRequest 的abort方法取消请求，同时调用reject让外层的promise失败。
+
+
 
 ## **100.前端性能优化 （performance，DNS预查询）**
 ### performance（在浏览器F12打开或js的 API ）

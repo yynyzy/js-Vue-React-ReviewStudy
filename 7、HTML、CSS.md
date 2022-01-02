@@ -451,7 +451,7 @@ div {
   background-color: red;
   animation-name: example;
   animation-duration: 4s;
-   animation-delay: 2s;
+animation-delay: 2s;
 }
 ```
 

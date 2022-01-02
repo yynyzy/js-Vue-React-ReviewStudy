@@ -880,7 +880,7 @@ function workLoopConcurrent() {
 }
 ```
 同时注意,16中的更新是可中断的，那React如何解决要是中断了，DOM渲染不完全的问题呢？
-在React16中，Reconciler与Renderer*不再是严格同步*的（不是一协调完一个就立刻通知Renderer去渲染）。而是当Scheduler将任务交给Reconciler后，Reconciler会为变化的虚拟DOM打上代表增/删/更新的标记（*收集所有节点的变更产出 effect list，收集完后进入 commit 阶段，根据effect list统一完成更新，这个 commit 阶段无法打断，否则会出现画面不流畅。*）。
+在React16中，Reconciler与Renderer*不再是严格同步*的（不是一协调完一个就立刻通知Renderer去渲染）。而是当Scheduler将任务交给Reconciler后，Reconciler会为变化的虚拟DOM打上代表增/删/更新的标记（*收集所有节点的变更——effect list，收集完后进入 commit 阶段，根据effect list统一完成更新，这个 commit 阶段无法打断，否则会出现画面不流畅。*）。
 整个Scheduler与Reconciler的工作都在内存中进行。只有*当所有组件都完成Reconciler的工作*，才会统一*交给Renderer*。
 
 *中断的原因：*

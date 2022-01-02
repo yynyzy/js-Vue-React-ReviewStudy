@@ -15,8 +15,6 @@ node 中也有宏任务和微任务，与浏览器中的事件循环类似，其
 
 
 ## node 的事件循环的阶段顺序为：
-输入数据阶段(incoming data)->轮询阶段(poll)->检查阶段(check)->关闭事件回调阶段(close callback)->定时器检测阶段(timers)->I/O事件回调阶段(I/O callbacks)->闲置阶段(idle, prepare)->轮询阶段...
-阶段概述
 
 ·*定时器检测阶段(timers)*：本阶段执行 timer 的回调，即 setTimeout、setInterval 里面的回调函数。
 ·*I/O事件回调阶段(I/O callbacks)*：执行延迟到下一个循环迭代的 I/O 回调，即上一轮循环中未被执行的一些I/O回调。

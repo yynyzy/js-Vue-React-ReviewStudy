@@ -61,57 +61,21 @@
     </div>
 </body>
 <script>
-    class Scheduler {
-        constructor(limit) {
-            this.limit = limit
-            this.queue = [] // 待运行的任务
-            this.count = 0  //计数
+    var findKthLargest = function (nums, k) {
+        function helper(arr) {
+            let len = arr.length
+            if (len < 2) return arr
+            let pivot = Math.floor(len / 2)
+            let target = arr.splice(pivot, 1)
+            let left = arr.filter(v => { return v <= target })
+            let right = arr.filter(v => { return v > target })
+            return helper(left).concat(target, helper(right))
         }
-        // promiseTask 是一个异步函数，return Promise
-        add(promiseTask) {
-            return new Promise((resolve, reject) => {
-                promiseTask.resolve = resolve
-                promiseTask.reject = reject
-                this.queue.push(promiseTask)
-                this.start()
-            })
-        }
+        const arr = helper(nums)
+        return arr[arr.length - k]
+    };
 
-        start() {
-            if (this.count < this.limit) {
-                this.count++
-                const task = this.queue.shift()
-                task().then((res) => {
-                    task.resolve(res)
-                })
-                    .catch(err => {
-                        task.reject(err)
-                    }).finally(() => {
-                        this.count--
-                        this.start()
-                    })
-            }
-
-        }
-    }
-
-    //测试
-    const timeout = (time) => new Promise(resolve => {
-        setTimeout(resolve, time)
-    })
-
-    const scheduler = new Scheduler(2)
-    const addTask = (time, order) => {
-        scheduler.add(() => timeout(time)).then(() => console.log(order))
-    }
-
-    addTask(1000, '1')
-    addTask(500, '2')
-    addTask(300, '3')
-    addTask(400, '4')
-
-
-// 打印顺序是：2 3 1 4
+    console.log(findKthLargest([3, 2, 1, 5, 6, 4], 2));
 </script>
 </body>
 
