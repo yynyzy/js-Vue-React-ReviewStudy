@@ -371,7 +371,7 @@ let Public = {
     4.构造函数中若有返回值，就直接返回；否则返回新对象
 ```js
     function myNew(fn){
-        let obj = Object.create(null)
+        let obj = Object.create({})
         obj.__proto__ = fn.prototype
         let args =[...arguments].slice(1)
         const res = fn.apply(obj,args)
@@ -949,7 +949,7 @@ Promise.reject = function(reason) {
 ```
 
 
-## 21.手写 filter,Map,Reduce 方法
+## 21.**手写 filter,Map,Reduce 方法**
    ### filter
 ```js
 Array.prototype.myFilter = function (fn) {
