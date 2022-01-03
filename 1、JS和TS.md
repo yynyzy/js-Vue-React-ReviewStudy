@@ -61,9 +61,17 @@ width:345/@font
 }
 ```
 
-## 2.Fetch API 基本用法
+## 2.Fetch API 基本用法（如何取消）
+fetch的*优点*：
+    1.语法简洁，更加语义化
+    2.基于标准 Promise 实现，支持 async/await
+    3.更加底层，提供的API丰富（request, response）
+    4.脱离了XHR，是ES规范里新的实现方式
+    5.fetch中可以设置mode为"no-cors"（不跨域）
+    6.fetch可以通过credentials自己控制发送请求时是否带上cookie。
 
-(注意第一个then返回promise对象)
+fetch的*缺点*：
+    fetch自身并没有提供abort的方法，需要 *AbortController* 去处理中止，实现起来会繁琐一点。并且 AbortController *兼容性不好*
 ```js
 fetch('http://localhost:3000/,
 //第二个参数是配置对象，可不写，默认GET请求
@@ -89,6 +97,30 @@ fetch('http://localhost:3000/,
 
 ```
 
+以下是取消 Fetch 请求的基本步骤：
+```js
+const controller = new AbortController();
+const { signal } = controller;
+
+fetch("http://localhost:8000", { signal }).then(response => {
+    console.log(`Request 1 is complete!`);
+}).catch(e => {
+    console.warn(`Fetch 1 error: ${e.message}`);
+});
+
+// Abort request
+controller.abort(); // 取消 fetch
+```
+
+在 abort 调用时发生 AbortError，因此你可以通过比较错误名称来侦听 catch 中的中止操作。
+```js
+}).catch(e => {
+    if(e.name === "AbortError") {
+        // We know it's been canceled!
+    }
+});
+
+```
 1.常用配置选项
 	method (String) :	HTTP请求方法，默认为GET(GET、POST、PUT、DELETE)
 	body (String) :		HTTP的请求参数
@@ -2060,7 +2092,7 @@ draggable属性：设置元素是否可拖动。
 *dragleave*   当被拖动元素没有放下就离开目的地元素时触发
 
 
-## 67.axios解析之cancelToken取消请求原理
+## 67.**axios （并发请求，cancelToken取消请求原理）**
 通过调用CancelToken的构造函数来实现取消请求主要分为两步：
     1.调用CancelToken构造函数创建cancelToken实例对象，并创建一个 cancel函数
     2.调用cancel函数，取消请求
@@ -2083,14 +2115,48 @@ axios.get('/user/12345', {
 cancel('Operation canceled by the user.');
 ```
 
+**执行多个并发请求**
+```js
+function getUserAccount() {
+  return axios.get('/user/12345');
+}
+
+function getUserPermissions() {
+  return axios.get('/user/12345/permissions');
+}
+
+axios.all([getUserAccount(), getUserPermissions()])
+  .then(axios.spread(function (acct, perms) {
+    // 两个请求现在都执行完成
+  }));
+```
+
+
 *执行cancel取消请求的过程如下：*
 ![axios-cancelToken](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\axios-cancelToken.png)
 **小结**
 当用户调用内部对外暴露的cancel方法后，axios内部会执行resolvePromise，改变promise(CancelToken实例的promise)的状态，触发promise的then回调，然后执行onCanceled方法，在onCanceled中则调用XMLHttpRequest 的abort方法取消请求，同时调用reject让外层的promise失败。
 
 
-## 68.48. 如何判断当前脚本运行在浏览器还是node环境中？（阿里）
+## 68. 如何判断当前脚本运行在浏览器还是node环境中？（阿里）
 this === window ? 'browser' : 'node';
+
+## 69.**如何防范CSRF攻击，XSS攻击**
+#### XSS（跨站脚本攻击）攻击的防范
+```
+1、HttpOnly 防止劫取 Cookie
+2、输入检查-不要相信用户的所有输入
+3、输出检查-存的时候转义或者编码
+```
+
+#### CSRF（跨站请求伪造）攻击的防范
+```
+1、验证码
+2、Referer Check
+3、添加token验证
+```
+参考出处： [juejin.im/entry/68449…](https://juejin.im/entry/6844903638532358151)
+
 
 ## **100.前端性能优化 （performance，DNS预查询）**
 ### performance（在浏览器F12打开或js的 API ）
