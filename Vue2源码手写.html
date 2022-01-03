@@ -64,22 +64,20 @@
     </div>
 </body>
 <script>
-    var btn = document.querySelector('button');
-    var div = document.querySelector('div');
+    let year = 3, pos = "前端";
+    let str = "我已经有${year}年${pos}开发经验了";
+    function replace(str) {
+        // 原理是通过正则匹配，替换原字符串中的变量
+        return str.replace(/\$\{([^}])\}/g, function (matched, key) {
+            console.log(arguments)  // arguments见下面
+            return eval(key)
+        })
+    }
 
-    btn.addEventListener('click', function () {
-        console.log('bubble', 'btn');
-    }, false);
-    btn.addEventListener('click', function () {
-        console.log('capture', 'btn');
-    }, true);
 
-    div.addEventListener('click', function () {
-        console.log('bubble', 'div');
-    }, false);
-    div.addEventListener('click', function () {
-        console.log('capture', 'div');
-    }, true);
+
+
+    console.log(replace(str)) // "我已经有3年前端开发经验了"
 </script>
 </body>
 
