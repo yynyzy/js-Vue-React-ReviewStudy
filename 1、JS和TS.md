@@ -2234,6 +2234,19 @@ html,body{
 
 ```
 
+## 73.requestAnimationFrame（实现获取每秒的帧数）
+RAF主要是按照显示器的刷新频率（60Hz 或者 75Hz）对页面进行重绘，大概按照这个刷新频率同步重绘页面，就是大概1s最多重绘60次或者75次的频次
+window.requestAnimationFrame() 告诉浏览器——你希望执行一个动画，并且要求浏览器在下次重绘之前调用指定的回调函数更新动画。该方法需要传入一个回调函数作为参数，该回调函数会在浏览器下一次重绘之前执行
+
+*注意：*若你想在浏览器下次重绘之前继续更新下一帧动画，那么回调函数自身必须再次调用window.requestAnimationFrame()
+requestAnimationFrame 会把每一帧中的所有DOM操作集中起来，在一次重绘或回流中就完成，并且重绘或回流的时间间隔紧紧跟随浏览器的刷新频率，一般来说，这个频率为每秒60帧。
+```js
+  //requestAnimationFrame效果
+    (function animloop() {
+        render();
+        window.requestAnimationFrame(animloop);
+    })();
+```
 ## **100.前端性能优化 （performance，DNS预查询）**
 ### performance（在浏览器F12打开或js的 API ）
 ![performance](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\performance(1).png)
