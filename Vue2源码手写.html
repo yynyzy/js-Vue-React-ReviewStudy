@@ -64,19 +64,25 @@
     </div>
 </body>
 <script>
-    let count = 0
-    let pretime = Date.now()
-    function animloop() {
-        let now = Date.now()
-        if (now - pretime > 1000) {
-            console.log(now - pretime);
-            return false;
-        }
-        count += 1
-        console.log(count);
-        requestAnimationFrame(animloop)
+    // // new RegExp(`{{${key}}}`, 'g')
+    // function parseString(str, obj) {    //微醺岁月的
+    //     Object.keys(obj).forEach(key => {
+    //         str = str.replace(/\$\{\{(key)\}\}/g, obj[key]);
+    //     });
+    //     return str;
+    // }
+
+    // let year = 3, pos = "前端";
+    // let str = "我已经有${year}年${pos}开发经验了";
+
+    // console.log(parseString(str, { year, pos })) // "我已经有3年前端开发经验了"
+
+    function render(template, context) {
+        return template.replace(/\$\{\{(.*?)\}\}/g, context[key]);
     }
-    requestAnimationFrame(animloop)
+    const template = "${{name}}很厉name害，才${{age}}岁";
+    const context = { name: "jawil", age: "15" };
+    console.log(render(template, context));
 </script>
 </body>
 
