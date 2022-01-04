@@ -2241,11 +2241,22 @@ window.requestAnimationFrame() 告诉浏览器——你希望执行一个动画�
 *注意：*若你想在浏览器下次重绘之前继续更新下一帧动画，那么回调函数自身必须再次调用window.requestAnimationFrame()
 requestAnimationFrame 会把每一帧中的所有DOM操作集中起来，在一次重绘或回流中就完成，并且重绘或回流的时间间隔紧紧跟随浏览器的刷新频率，一般来说，这个频率为每秒60帧。
 ```js
-  //requestAnimationFrame效果
-    (function animloop() {
-        render();
-        window.requestAnimationFrame(animloop);
-    })();
+// 实现获取每秒的帧数
+  <script>
+    let count = 0
+    let pretime = Date.now()
+    function animloop() {
+        let now = Date.now()
+        if (now - pretime > 1000) {
+            console.log(now - pretime);
+            return false;
+        }
+        count += 1
+        console.log(count);
+        requestAnimationFrame(animloop)
+    }
+    requestAnimationFrame(animloop)
+</script>
 ```
 ## **100.前端性能优化 （performance，DNS预查询）**
 ### performance（在浏览器F12打开或js的 API ）
