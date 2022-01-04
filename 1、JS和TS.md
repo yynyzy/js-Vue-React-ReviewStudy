@@ -2197,30 +2197,16 @@ JavaScript 既可以读取和修改 DOM 属性，又可以读取和修改 CSSOM 
     ·image
     ·iframe
 
-## 71.ES6模板字符串的实现原理
+## 71.*ES6模板字符串的实现原理*
 ```js
 // 定义一个字符串
+    function render(template, context) {
+        return template.replace(/\$\{\{(.*?)\}\}/g, (match, key) => context[key]);
+    }
+    const template = "${{name}}很厉name害，才${{age}}岁";
+    const context = { name: "jawil", age: "15" };
+    console.log(render(template, context));
 
-function replace(str){
-    // 原理是通过正则匹配，替换原字符串中的变量
-    return str.replace(/\$\{([^}])\}/g,function(matched,key){
-            console.log(arguments)  // arguments见下面
-            return eval(key)
-    })
-}
-
-
-let year = 3, pos = "前端";
-let str = "我已经有${year}年${pos}开发经验了";
-
-console.log(replace(str)) // "我已经有3年前端开发经验了"
-
-// 字符串repalce方法的arguments
-{ '0': '${year}',                               // 大正则匹配项
-  '1': 'year',                                  // 正则小分组匹配项        
-  '2': 4,                                       // 匹配项第一个元素在字符串中的索引    
-  '3': '我已经有${year}年${pos}开发经验了' 
-}    // 原字符串
 
 ```
 
@@ -2258,6 +2244,78 @@ requestAnimationFrame 会把每一帧中的所有DOM操作集中起来，在一�
     requestAnimationFrame(animloop)
 </script>
 ```
+
+## 74.js报错类型（6种错误类型）
+js中的控制台的报错信息主要分为两大类:
+第一类是语法错误，这一类错误在预解析的过程中如果遇到，就会导致整个js文件都无法执行。
+第二类错误统称为异常，这一类的错误会导致在错误出现的那一行之后的代码无法执行，但在那一行之前的代码不会受到影响。
+
+**1.SyntaxError 语法错误**
+```js
+// SyntaxError: 
+// 1) 变量名不符合规范
+var 1       // Uncaught SyntaxError: Unexpected number
+var 1a       // Uncaught SyntaxError: Invalid or unexpected token
+// 2) 给关键字赋值
+function = 5     // Uncaught SyntaxError: Unexpected token =
+
+```
+
+**2.ReferenceError 引用错误(要用的变量没找到)**
+```js
+// ReferenceError：引用错误(要用的变量没找到)
+// 1) 引用了不存在的变量
+a()       // Uncaught ReferenceError: a is not defined
+console.log(b)     // Uncaught ReferenceError: b is not defined
+// 2) 给一个无法被赋值的对象赋值
+console.log("abc") = 1   // Uncaught ReferenceError: Invalid left-hand side in assignment
+```
+
+**3.TypeError: 类型错误(调用不存在的方法)**
+```js
+// TypeError: 类型错误(调用不存在的方法)
+// 变量或参数不是预期类型时发生的错误。比如使用new字符串、布尔值等原始类型和调用对象不存在的方法就会抛出这种错误，因为new命令的参数应该是一个构造函数。
+// 1) 调用不存在的方法
+123()        // Uncaught TypeError: 123 is not a function
+var o = {}
+o.run()        // Uncaught TypeError: o.run is not a function
+// 2) new关键字后接基本类型
+var p = new 456      // Uncaught TypeError: 456 is not a constructor
+
+```
+
+
+**4.RangeError: 范围错误(参数超范围)**
+```js
+// RangeError: 范围错误(参数超范围)
+// 主要的有几种情况，第一是数组长度为负数，第二是Number对象的方法参数超出范围，以及函数堆栈超过最大值。
+// 1) 数组长度为负数
+[].length = -5      // Uncaught RangeError: Invalid array length
+// 2) Number对象的方法参数超出范围
+var num = new Number(12.34)
+console.log(num.toFixed(-1))   // Uncaught RangeError: toFixed() digits argument must be between 0 and 20 at Number.toFixed
+// 说明: toFixed方法的作用是将数字四舍五入为指定小数位数的数字,参数是小数点后的位数,范围为0-20.
+
+```
+
+**5.EvalError: 非法调用 eval()**
+```js
+// EvalError: 非法调用 eval()
+// 在ES5以下的JavaScript中，当eval()函数没有被正确执行时，会抛出evalError错误。例如下面的情况：
+var myEval = eval;
+myEval("alert('call eval')");
+// 需要注意的是：ES5以上的JavaScript中已经不再抛出该错误，但依然可以通过new关键字来自定义该类型的错误提示。以上的几种派生错误，连同原始的Error对象，都是构造函数。开发者可以使用它们，认为生成错误对象的实例。
+new Error([message[fileName[lineNumber]]])
+// 第一个参数表示错误提示信息，第二个是文件名，第三个是行号。
+```
+
+
+**6.URIError: URI不合法**
+```js
+// 主要是相关函数的参数不正确。
+decodeURI("%")     // Uncaught URIError: URI malformed at decodeURI
+```
+
 ## **100.前端性能优化 （performance，DNS预查询）**
 ### performance（在浏览器F12打开或js的 API ）
 ![performance](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\performance(1).png)
@@ -2347,13 +2405,13 @@ defer标记
 async无法保证顺序且下载完就会执行而defer则会等待整个HTML解析之后才会开始执行，并且按照插入的顺序执行。
 
 
-## 视窗外的内容懒加载
+### 视窗外的内容懒加载
 懒加载也是一个经常被提及的技术，视窗外的内容是不会被用户立即看到的，这时加载过多的内容反而拖慢了网站整体的渲染，我们就可以用懒加载推迟这部分内容的加载来达到加速可访问和可交互性的目的，等用户即将到达视窗内的时候再开始加载这部分内容，通常懒加载会与loading和骨架屏等技术搭配使用。
 
-## 减少无意义的回流
+### 减少无意义的回流
 回流与重绘是一个老生常谈的问题，当浏览器大小改变/滚动，DOM增删，元素尺寸或者位置发生改变时都会发生回流，回流意味着浏览器要重新计算当前页面的与之相关的所有元素，重新进行整体的布局。
 
-## 100.generator函数(迭代函数—不常用)
+## 101.generator函数(迭代函数—不常用)
   ### 基本用法
 generator函数跟普通函数在写法上的区别就是，多了一个星号*，并且只有在generator函数中才能使用yield，什么是yield呢，他相当于generator函数执行的中途暂停点，比如下方有3个暂停点。而怎么才能暂停后继续走呢？那就得使用到next方法，next方法执行后会返回一个对象，对象中有value 和 done两个属性
 
