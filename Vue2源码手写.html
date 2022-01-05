@@ -64,25 +64,29 @@
     </div>
 </body>
 <script>
-    // // new RegExp(`{{${key}}}`, 'g')
-    // function parseString(str, obj) {    //微醺岁月的
-    //     Object.keys(obj).forEach(key => {
-    //         str = str.replace(/\$\{\{(key)\}\}/g, obj[key]);
-    //     });
-    //     return str;
-    // }
+    var longestValidParentheses = function (s) {
+        if (s === '') return 0
+        let max = 0
+        let stack = []
+        let count = 0
+        let len = s.length
+        for (let i = 0; i < len; i++) {
+            if (s[i] == ')') {
+                let temp = stack.pop()
+                if (temp !== '(') {
+                    count = 0
+                } else {
+                    count += 2
+                    max = Math.max(max, count)
+                }
+            } else {
+                stack.push('(')
+            }
+        }
+        return max
+    };
 
-    // let year = 3, pos = "前端";
-    // let str = "我已经有${year}年${pos}开发经验了";
-
-    // console.log(parseString(str, { year, pos })) // "我已经有3年前端开发经验了"
-
-    function render(template, context) {
-        return template.replace(/\$\{\{(.*?)\}\}/g, context[key]);
-    }
-    const template = "${{name}}很厉name害，才${{age}}岁";
-    const context = { name: "jawil", age: "15" };
-    console.log(render(template, context));
+    console.log(longestValidParentheses("()(()"));
 </script>
 </body>
 

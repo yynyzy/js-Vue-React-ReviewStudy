@@ -590,12 +590,17 @@ function deepClone1(obj, hash = new WeakMap) {
     ·defer属性、async属性、动态创建dom方式、使用setTimeout让js最后加载。
     ·如果依赖其他脚本和 DOM 结果，使用 defer
     ·如果与 DOM 和其他脚本依赖不强时，使用 async
-   ### 一、defer属性
+
+   ### 一、defer属性<script defer src="script.js"></script>(延迟执行)
    HTML 4.01为 <script>标签定义了defer属性（延迟脚本的执行）。
-    其用途是：表明脚本在执行时不会影响页面的构造，浏览器会立即下载，但延迟执行，即脚本会被延迟到整个页面都解析完毕之后再执行。
-   ### 二、async属性
-    HTML5为 <script>标签定义了async属性。添加此属性后，脚本和HTML将一并加载（异步），代码将顺利运行。
-    浏览器遇到async脚本时不会阻塞页面渲染，而是直接下载然后运行。但这样的问题是，不同脚本运行次序就无法控制，只是脚本不会阻止剩余页面的显示。
+其用途是：表明脚本在执行时不会影响页面的构造，浏览器会立即下载，但*延迟执行*，即脚本会被延迟到整个页面都解析完毕之后再执行。
+   ### 二、async属性<script async src="script.js"></script>
+    添加此属性后，脚本和HTML将一并加载（异步），代码将顺利运行。
+    与 defer 的区别在于，如果已经加载好，就会开始执行——无论此刻是 HTML 解析阶段还是 DOMContentLoaded 触发之后。
+   
+   ### 加载顺序
+   defer 与相比普通 script，有两点区别：载入 JavaScript 文件时不阻塞 HTML 的解析，执行阶段被放到 HTML 标签解析完成之后。 在加载多个JS脚本的时候，*async是无顺序的加载*，而*defer是有顺序的加载*。
+   
    ### 三、动态创建DOM方式
    ```
     var element = document.createElement("script");
@@ -759,12 +764,31 @@ function deepClone1(obj, hash = new WeakMap) {
    ### 6·浏览器解析渲染页面(解析html以构建dom树 -> 构建render树 -> 布局render树 -> 绘制render树)
    过程：
         ·解析HTML形成*DOM树*：渲染引擎解析HTML文档，生成内容树
+        ·解析CSS会产生CSS规则树
         ·浏览器引擎通过 DOM Tree 和 CSS Rule Tree 来构建*渲染树 Rendering Tree*
         ·*布局渲染树*: render tree：从根节点递归调用
-        ·*绘制渲染树*: 遍历渲染树，使用UI层来绘制每一个节点
+        ·*绘制渲染树*: 遍历渲染树，最后通过调用操作系统Native GUI的API绘制
         ·页面在首次加载时必然会经历reflow和repain：（重绘不一定回流，回流一定会重绘）
-            回流：当Render Tree中部分或全部元素的尺寸、结构、或某些属性发生改变时，浏览器重新渲染部分或全部文档的过程。
-            重绘：当页面中元素样式的改变并不影响它在文档流中的位置时(color、background-color),浏览器会将新样式赋予给元素并重新绘制它。
+            *回流：*当Render Tree中部分或全部元素的尺寸、结构、或某些属性发生改变时，浏览器重新渲染部分或全部文档的过程。
+            *重绘：*当页面中元素样式的改变并不影响它在文档流中的位置时(color、background-color),浏览器会将新样式赋予给元素并重新绘制它。
+        （*构建DOM*：
+        1.将字符串转换成Token，例如：<html>、<body>等。Token中会标识出当前Token是“开始标签”或是“结束标签”亦或是“文本”等信息。
+        2.生成节点对象并构建DOM，一边生成Token一边消耗Token来生成节点对象
+        3.渲染树只会包括需要显示的节点和这些节点的样式信息，如果某个节点是 display: none 的，那么就不会在渲染树中显示。
+        4.渲染过程中，如果遇到<script>就停止渲染，执行 JS 代码。因为浏览器有GUI渲染线程与JS引擎线程，为了防止渲染出现不可预期的结果，这两个线程是互斥的关系。
+        5.如何减少回流、重绘
+        ·使用 transform 替代 top
+        ·使用 visibility 替换 display: none ，因为前者只会引起重绘，后者会引发回流（改变了布局）
+        ·不要把节点的属性值放在一个循环里当成循环里的变量。
+        6.性能优化策略
+        基于上面介绍的浏览器渲染原理，DOM 和 CSSOM 结构构建顺序，初始化可以对页面渲染做些优化，提升页面性能。
+        JS优化： <script> 标签加上 defer属性 和 async属性 用于在不阻塞页面文档解析的前提下，控制脚本的下载和执行。
+        defer属性： 用于开启新的线程下载脚本文件，并使脚本在文档解析完成后执行。
+        async属性： HTML5新增属性，用于异步下载脚本文件，下载完毕立即解释执行代码。
+        7.CSS优化： <link> 标签的 rel属性 中的属性值设置为 preload 能够让你在你的HTML页面中可以指明哪些资源是在页面加载完成后即刻需要的,最优的配置加载顺序，提高渲染性能
+        ）
+
+
 
    ### 7.浏览器发送请求获取嵌入在 HTML 中的资源（如图片、音频、视频、CSS、JS等等）
     其实这个步骤可以并列在步骤8中，在浏览器显示HTML时，它会注意到需要获取其他地址内容的标签。这时，浏览器会发送一个获取请求来重新获得这些文件。比如我要获取外图片，CSS，JS文件等，类似于下面的链接：
@@ -1453,7 +1477,7 @@ class LRU {
 | 比较   | for in                 | for of               |
 | ------ | ---------------------- | -------------------- |
 |        | 可以遍历普通对象       | 不能遍历普通对象     |
-|        | 遍历出数组的原型对象   | 不会遍历出原型对象   |
+|        | 遍历出数组的*原型对象*   | *不会*遍历出原型对象   |
 |        | 可以遍历出数组自身属性 | 不会遍历自身属性     |
 | 不同点 | 遍历出来的值是 key     | 遍历出来的值是 value |
 |        | 不可以遍历 map/set     | 可以遍历 map/set     |
@@ -2210,7 +2234,7 @@ JavaScript 既可以读取和修改 DOM 属性，又可以读取和修改 CSSOM 
 
 ```
 
-## 72.74. 移动端html标签几个体验优化
+## 72.移动端html标签几个体验优化
 ```css
 html,body{
     overflow: hidden;/*手机上写overflow-x:hidden;会有兼容性问题，如果子级如果是绝对定位有运动到屏幕外的话ios7系统会出现留白*/
@@ -2344,21 +2368,127 @@ const const a=1;词法分析能通过吗？是到语法分析才报错吗？
 *多页：*页面间传递数据	依赖 URL、cookie或者localstorage，实现麻烦
 	
 
+## 77.前端性能监控和埋点
+1、白屏时间：从浏览器输入地址并回车后到页面开始有内容的时间；
+2、首屏时间：从浏览器输入地址并回车后到首屏内容渲染完毕的时间；
+3、重要页面的http请求时间
+4、重要页面的渲染时间
+5、首屏加载时长
+6、用户可操作时间节点：domready触发节点，点击事件有反应；
+7、总下载时间：window.onload的触发节点。
+8、静态资源的时间计算（*window.performance.getEntries()*，用来统计静态资源相关的时间信息）
+
+### **白屏时间**
+在html文档的head中所有的静态资源以及内嵌脚本/样式之前记录一个时间点，在head最底部记录另一个时间点，两者的差值作为白屏时间
+```js
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>白屏时间</title>
+    <script>
+        // 开始时间
+        window.pageStartTime = Date.now();
+    </script>
+    <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="">
+    <script>
+        // 白屏结束时间
+        window.firstPaint = Date.now()
+    </script>
+</head>
+<body>
+    <div>123</div>
+</body>
+</html>
+
+白屏时间 = firstPaint - pageStartTime
+
+```
+
+### **首屏时间**
+首屏时间 = 白屏时间 + 首屏渲染时间
+
+```js
+//由于浏览器解析HTML是按照顺序解析的，当解析到某个元素的时候，觉得首屏完成了，就在此元素后面加入<script>计算首屏完成时间
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首屏时间</title>
+    <script>
+        // 开始时间
+        window.pageStartTime = Date.now();
+    </script>
+    <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="">
+</head>
+<body>
+    <div>123</div>
+    <div>456</div>
+    // 首屏可见内容
+    <script>
+        // 首屏结束时间
+        window.firstPaint = Date.now();
+    </script>
+    // 首屏不可见内容
+    <div class=" "></div>
+</body>
+</html>
+
+首屏时间 = firstPaint - pageStartTime
+
+```
+
+### **可操作时间**
+```js
+用户可操作的时间节点即dom ready触发的时间，使用jquery可以通过$(document).ready()获取此数据。
+// 原生JS实现dom ready
+window.addEventListener('DOMContentLoaded', (event) => {
+    console.log('DOM fully loaded and parsed');
+});
+```
+
+### **Performance**
+通过Performance 我们便能拿到DNS 解析时间、TCP 建立连接时间、首页白屏时间、DOM 渲染完成时间、页面 load 时间等，等等
+```js
+//拿到Performance并且初始化一些参数
+let timing = performance.timing,
+    start = timing.navigationStart,
+    dnsTime = 0,
+    tcpTime = 0,
+    firstPaintTime = 0,
+    domRenderTime = 0,
+    loadTime = 0;
+//根据提供的api和属性，拿到对应的时间
+dnsTime = timing.domainLookupEnd - timing.domainLookupStart;
+tcpTime = timing.connectEnd - timing.connectStart;
+firstPaintTime = timing.responseStart - start;
+domRenderTime = timing.domContentLoadedEventEnd - start;
+loadTime = timing.loadEventEnd - start;
+
+console.log('DNS解析时间:', dnsTime, 
+            '\nTCP建立时间:', tcpTime, 
+            '\n首屏时间:', firstPaintTime,
+            '\ndom渲染完成时间:', domRenderTime, 
+            '\n页面onload时间:', loadTime);
+```
+
 
 ## **100.前端性能优化 （performance，DNS预查询）**
-### performance（在浏览器F12打开或js的 API ）
+  ### performance（在浏览器F12打开或js的 API ）
 ![performance](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\performance(1).png)
 ![performance2](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\performance(2).png)
-可以使用Navigation，timing 统计到的时间数据来计算一些页面性能指标，比如DNS查询耗时、白屏时间、domready等等。如下:
-. DNS查询耗时= domainLookupEnd - domainLookupStart
-. TCP链接耗时= connectEnd - connectStart
+可以使用 *window.performance.Navigation.timing* 统计到的时间数据来计算一些页面性能指标，比如DNS查询耗时、白屏时间、domready等等。如下:
+. *DNS查询耗时*= domainLookupEnd - domainLookupStart
+. *TCP链接耗时*= connectEnd - connectStart
 . request请求耗时= responseEnd - responseStart
-· 解析dom树耗时= domComplete - domInteractive
+· *解析dom树耗时*= domComplete - domInteractive
 · 白屏时间= domloadng - fetchStart
 . domready时间= domContentLoadedEventEnd - fetchStart 
 . onload时间= loadEventEnd - fetchStart
-
-### DNS预查询（<link rel="dns-prefetch"）
+  
+  ### DNS预查询（<link rel="dns-prefetch" href=''）
 
 DNS查询
 与服务器交互首先要进行DNS查询，得到服务器的IP地址，浏览器会首先查询自己的缓存，之后会查询本地HOSTS，如果仍然没找到会发起向DNS服务器查询的请求。
@@ -2367,16 +2497,16 @@ DNS查询
 在文档顶部我们可以将我们即将要请求的地址的DNS预先查询，通过插入一个link标签
 <link rel="dns-prefetch" href="https://fonts.googleapis.com/">
 来告知浏览器我们将要从这个地址(通常会是存放静态资源的CDN的地址，)拉取数据了，你先查询一下，当用到的时候就可以直接拿到对应的IP。
-
-### 建立HTTP(TCP)连接（缓存）
+  
+  ### 建立HTTP(TCP)连接（缓存）
 得到服务器IP之后，首先进行三次握手，之后会进行SSL握手(HTTPS)，SSL握手时会向服务器端确认HTTP的版本。
 
 *·keep-alive*
 由于TCP的可靠性，每条独立的TCP连接都会进行一次三次握手，从上面的Network的分析中可以得到握手往往会消耗大部分时间，真正的数据传输反而会少一些(当然取决于内容多少)。HTTP1.0和HTTP1.1为了解决这个问题在header中加入了*Connection: Keep-Alive*，keep-alive的连接会保持一段时间不断开，后续的请求都会复用这一条TCP，不过由于管道化的原因也会发生队头阻塞的问题。
 HTTP1.1默认开启Keep-Alive，HTTP1.0可能现在不多见了，如果你还在用，可以升级一下版本，或者带上这个header。
 
-
-### 使用HTTP2
+  
+  ### 使用HTTP2
 HTTP2相对于HTTP1.1的一个主要升级是多路复用，多路复用通过更小的二进制帧构成多条数据流，交错的请求和响应可以并行传输而不被阻塞，这样就解决了HTTP1.1时复用会产生的队头阻塞的问题，同时HTTP2有首部压缩的功能，如果两个请求首部(headers)相同，那么会省去这一部分，只传输不同的首部字段，进一步减少请求的体积。
 
 HTTP缓存主要分为两种，一种是强缓存，另一种是协商缓存，都通过Headers控制。
@@ -2385,11 +2515,11 @@ HTTP缓存主要分为两种，一种是强缓存，另一种是协商缓存，�
 强缓存根据请求头的*Expires*和*Cache-Control*判断是否命中强缓存，命中强缓存的资源直接从本地加载，不会发起任何网络请求。
 ·协商缓存
 协商缓存一般会在强缓存过期后发起，向服务器确认是否需要更新本地的缓存文件，如果不需要更新，服务器会返回304否则会重新返回整个文件。
-
-### CDN
+  
+  ### CDN
 CDN会把源站的资源缓存到CDN服务器，当用户访问的时候就会从最近的CDN服务器拿取资源而不是从源站拿取，这样做的好处是分散了压力，同时也会提升返回访问速度和稳定性。
-
-###  其他
+  
+  ###  其他
 （1）减少http请求次数：CSS Sprites, JS、CSS源码压缩、图片大小控制合适；网页Gzip，CDN托管，data缓存，图片服务器。
 （2） 前端模板 JS+数据，减少由于HTML标签导致的带宽浪费，前端用变量保存AJAX请求结果，每次操作本地变量，不用请求，减少请求次数
 （3） 用innerHTML代替DOM操作，减少DOM操作次数，优化javascript性能。
@@ -2399,8 +2529,8 @@ CDN会把源站的资源缓存到CDN服务器，当用户访问的时候就会�
 （7） 图片预加载，将样式表放在顶部，将脚本放在底部  加上时间戳。
 （8） 避免在页面的主体布局中使用table，table要等其中的内容完全下载之后才会显示出来，显示比div+css布局慢。
 
-
-### 进行页面渲染（预加载/预连接内容）
+  
+  ### 进行页面渲染（css预加载/预连接内容）
 可以将即将要用到的资源或者即将要握手的地址提前告知浏览器让浏览器利用还在解析HTML计算样式的时间去提前准备好。
 
 #### preload
@@ -2433,11 +2563,11 @@ defer标记
 两个标记都是为了让script标签实现异步下载，主要的区别在于：
 async无法保证顺序且下载完就会执行而defer则会等待整个HTML解析之后才会开始执行，并且按照插入的顺序执行。
 
-
-### 视窗外的内容懒加载
+  
+  ### 视窗外的内容懒加载
 懒加载也是一个经常被提及的技术，视窗外的内容是不会被用户立即看到的，这时加载过多的内容反而拖慢了网站整体的渲染，我们就可以用懒加载推迟这部分内容的加载来达到加速可访问和可交互性的目的，等用户即将到达视窗内的时候再开始加载这部分内容，通常懒加载会与loading和骨架屏等技术搭配使用。
-
-### 减少无意义的回流
+  
+  ### 减少无意义的回流
 回流与重绘是一个老生常谈的问题，当浏览器大小改变/滚动，DOM增删，元素尺寸或者位置发生改变时都会发生回流，回流意味着浏览器要重新计算当前页面的与之相关的所有元素，重新进行整体的布局。
 
 ## 101.generator函数(迭代函数—不常用)

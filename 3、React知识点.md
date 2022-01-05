@@ -926,6 +926,51 @@ Wiki的解释是：edit distance is a way of quantifying how dissimilar two stri
 
 # 14.React Diff算法详解
 
+# 15.React 函数式组件进行优化
+React 性能优化思路
+主要方向就是这两个：
+1.减少重新 render 的次数。因为在 React 里最重(花时间最长)的一块就是 reconciliation(简单的可以理解为 diff)，如果不 render，就不会 reconciliation。
+2.减少计算的量。主要是减少重复计算，对于函数式组件来说，每次 render 都会重新从头开始执行函数调用。
+
+**1.React.memo**
+React.memo 高级用法
+默认情况下其只会对 props 的复杂对象做浅层对比(浅层对比就是只会对比前后两次 props 对象引用是否相同，不会对比对象里面的内容是否相同)，如果你想要控制对比过程，那么请将自定义的比较函数通过第二个参数传入来实现。
+```js
+function MyComponent(props) {
+  /* 使用 props 渲染 */
+}
+function areEqual(prevProps, nextProps) {
+  /*
+  如果把 nextProps 传入 render 方法的返回结果与
+  将 prevProps 传入 render 方法的返回结果一致则返回 true，
+  否则返回 false
+  */
+}
+export default React.memo(MyComponent, areEqual);
+
+```
+**2.useCallback**
+```js
+const callback = () => {
+  doSomething(a, b);
+}
+
+const memoizedCallback = useCallback(callback, [a, b])
+```
+把函数以及依赖项作为参数传入 useCallback，它将返回该回调函数的 memoized 版本，这个 memoizedCallback 只有在依赖项有变化的时候才会更新。
+
+**3.useMemo**
+```js
+function computeExpensiveValue() {
+  // 计算量很大的代码
+  return xxx
+}
+
+const memoizedValue = useMemo(computeExpensiveValue, [a, b]);
+```
+复制代码useMemo 的第一个参数就是一个函数，这个函数*返回的值*会被缓存起来，同时这个值会作为 useMemo 的返回值，第二个参数是一个数组依赖，如果数组里面的值有变化，那么就会重新去执行第一个参数里面的函数，并将函数返回的值缓存起来并作为 useMemo 的返回值 。
+
+
 
 # 100.React面试题（setState修改数据）
 ```js
