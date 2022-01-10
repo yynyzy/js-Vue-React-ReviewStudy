@@ -63,34 +63,78 @@
         <button>23</button>
     </div>
 </body>
-<!-- <script>
-    var longestValidParentheses = function (s) {
-        if (s === '') return 0
-        let max = 0
-        let stack = []
-        let count = 0
-        let len = s.length
-        for (let i = 0; i < len; i++) {
-            if (s[i] == ')') {
-                let temp = stack.pop()
-                if (temp !== '(') {
-                    count = 0
-                } else {
-                    count += 2
-                    max = Math.max(max, count)
+
+<script>
+    function Observer(target) {
+
+        if (typeof target !== "object") { return target }
+        Object.keys(target).forEach(k => {
+            defineReactive(target, k, target[k])
+        })
+    }
+    function defineReactive(obj, key, value) {
+        Observer(value)
+
+        const dep = new Dep()
+
+        Object.defineProperty(obj, key, {
+            get(obj, key) {
+                if (Dep.target) {
+                    dep.depend
                 }
-            } else {
-                stack.push('(')
+                return obj[key]
+            },
+            set(newValue) {
+                if (value !== newValue) {
+                    value = newValue
+                    observer(value)
+                    dep.notify
+                }
+            }
+        })
+    }
+
+    class watcher {
+        constructor() {
+            this.get()
+        }
+        get() {
+            Dep.target = this
+        }
+
+        addDep(dep) {
+            dep.addsub(this)
+        }
+
+        update() {
+            console.log(`${this.key}属性更新了`)
+        }
+    }
+
+    class Dep {
+        static target
+        constructor() {
+            this.subs = []
+        }
+
+        depend() {
+            if (Dep.target) {
+                Dep.target.addDep(this)
             }
         }
-        return max
-    };
 
-    console.log(longestValidParentheses("()(()"));
-</script> -->
-<script>
+        addsub(watcher) {
+            this.subs.push(watcher)
+        }
 
+        notify() {
+            this.subs.forEach(sub => {
+                sub.update()
+            })
+        }
+    }
 </script>
+
 </body>
 
 </html>

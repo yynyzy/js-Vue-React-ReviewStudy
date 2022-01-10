@@ -259,7 +259,7 @@ test('an async feature', async () => {
 ![vue2响应式](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\vue2响应式.png)
 
 
-  ## 4.核心实现
+  ## **4.核心实现**
   /**
  * @name Vue数据双向绑定（响应式系统）的实现原理
  */
@@ -305,10 +305,11 @@ test('an async feature', async () => {
         }
         depend() {
             if (Dep.target) {
+              // Dep.target 是 watcher实例，调用wtacher实例的 addDep 方法，将当前的Dep实例传过去
                 Dep.target.addDep(this)
             }
         }
-         // 为当前收集器添加Watcher
+         // 为当前收集器添加 Watcher实例
         addSub(watcher) {
           this.subs.push(watcher);
         }
@@ -328,9 +329,8 @@ test('an async feature', async () => {
           get(){
             // 将当前Dep.target指向自己
               Dep.target = this;
-  
           }
-          // 向添加当前Wathcer 到 dep subs数组中
+          // 运用传过来的 dep的addsub方法将当前 wathcer实例传到dep的subs数组中
           addDep(dep){
               dep.addSub(this);
           }
