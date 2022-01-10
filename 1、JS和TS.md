@@ -483,6 +483,23 @@ function flatten(arr) {
       }, []);
 }
 ```
+   #### 三、toString
+```js
+const arr = [1, 2, 3, [4, 5, [6, 7]]];
+const flatten = arr.toString().split(',');
+```
+优点：简单，方便，对原数据没有影响 
+缺点：最好数组元素全是数字或字符，不会跳过空位
+
+
+
+   #### 四、join
+```js
+const arr = [1, 2, 3, [4, 5, [6, 7]]];
+const flatten = arr.join(',').split(',');
+```
+
+
 
    #### 三、递归
 ```js
@@ -572,6 +589,7 @@ function deepClone1(obj, hash = new WeakMap) {
             if (obj instanceof RegExp) return new RegExp(obj)
             if (obj instanceof Date) return new Date(obj)
             if (hash.get(obj)) return hash.get(obj)
+
             // let res = Array.isArray(obj) ? [] : {}
             let res = new obj.constructor();
             hash.set(obj, res)
@@ -2529,14 +2547,17 @@ DNS查询
 HTTP1.1默认开启Keep-Alive，HTTP1.0可能现在不多见了，如果你还在用，可以升级一下版本，或者带上这个header。
 
   
-  ### 使用HTTP2
+  ### 使用HTTP2(*Expires*和*Cache-Control*)
 HTTP2相对于HTTP1.1的一个主要升级是多路复用，多路复用通过更小的二进制帧构成多条数据流，交错的请求和响应可以并行传输而不被阻塞，这样就解决了HTTP1.1时复用会产生的队头阻塞的问题，同时HTTP2有首部压缩的功能，如果两个请求首部(headers)相同，那么会省去这一部分，只传输不同的首部字段，进一步减少请求的体积。
 
 HTTP缓存主要分为两种，一种是强缓存，另一种是协商缓存，都通过Headers控制。
 ![http缓存](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\http缓存.png)
 *·强缓存*
-强缓存根据请求头的*Expires*和*Cache-Control*判断是否命中强缓存，命中强缓存的资源直接从本地加载，不会发起任何网络请求。
-·协商缓存
+强缓存根据请求头的*Expires*和*Cache-Control:max-age=100000*判断是否命中强缓存，命中强缓存的资源直接从本地加载，不会发起任何网络请求。
+*Expires*和*Cache-Control*的不同之处：
+Expires是http1.0特性，比Cache-control（1.1）要早，因此有些缺陷。由于失效时间是一个绝对时间，所以当客户端本地时间被修改以后，服务器与客户端时间偏差变大以后，就会导致缓存混乱。比如说，服务器时间是2018年4月19号，客户端本来时间是2018年4月10号，但是我手动修改客户端时间为2018年4月20，因此服务器时间和客户端时间有偏差之后，缓存失效，这是不对的。
+
+*·协商缓存*
 协商缓存一般会在强缓存过期后发起，向服务器确认是否需要更新本地的缓存文件，如果不需要更新，服务器会返回304否则会重新返回整个文件。
   
   ### CDN
