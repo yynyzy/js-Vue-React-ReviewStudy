@@ -2474,6 +2474,29 @@ console.log('DNS解析时间:', dnsTime,
             '\n页面onload时间:', loadTime);
 ```
 
+## 78.toLocaleString(可以给数字做每三位加一个逗号)
+```js
+/*
+    toLocaleString( locale, opt ions )妙用
+        locale: 字符串，用于指定本地环境中存在的语言类型
+        options:对象， 附加选项，用来指定字符串的显示格式
+    */
+   
+    // 1. toLocaleString() 数字分割// 123, 456.123
+    const numOne = 123456.123;
+    console.log(numOne.toLocaleString());
+
+
+    // 2. toLocaleString()数字转为百分比// 12%
+    const numTwo = 0.12;
+    console.log(numTwo.toLocaleString('zh', { style: 'percent' }));
+
+    // 3. toLocaleString() 数字转为货币表示法//￥1,000, 000.00 CNY 1, 000,000.00 1, 000 , 000.00人民币
+    const numThree = 1000000;
+    console.log(numThree.toLocaleString('zh', { style: 'currency', currency: 'cny' }))
+    console.log(numThree.toLocaleString('zh', { style: 'currency', currency: 'cny', currencyDisplay: 'code' }))
+    console.log(numThree.toLocaleString('zh', { style: 'currency', currency: 'cny', currencyDisplay: "name" }))
+```
 
 ## **100.前端性能优化 （performance，DNS预查询）**
   ### performance（在浏览器F12打开或js的 API ）
