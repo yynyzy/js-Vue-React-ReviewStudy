@@ -1,6 +1,40 @@
 # JS
 ES6 箭头函数时的this在定义时就绑定了
 
+## **堆内存和栈内存**
+*栈内存:*主要用于存储各种基本类型的变量，包括Boolean、Number、String、Undefined、Null，**以及对象变量的指针，这时候栈内存给人的感觉就像一个线性排列的空间，每个小单元大小基本相等。
+*堆内存:*主要负责像对象Object这种变量类型的存储
+
+## **Node.js 全局对象**
+JavaScript 中有一个特殊的对象，称为全局对象（Global Object），它及其所有属性都可以在程序的任何地方访问，即全局变量。
+在浏览器 JavaScript 中，通常 window 是全局对象， 而 Node.js 中的全局对象是 global，所有全局变量（除了 global 本身以外）都是 global 对象的属性。
+
+## **快排的实现**
+var quickSort = function(arr) {
+  if (arr.length <= 1) {
+    return arr;
+  }
+  var pivotIndex = Math.floor(arr.length / 2);
+  var pivot = arr.splice(pivotIndex, 1)[0];
+  var left = [];
+  var right = [];
+
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] < pivot) {
+      left.push(arr[i]);
+    } else {
+      right.push(arr[i]);
+    }
+  }
+  return quickSort(left).concat([pivot], quickSort(right));
+};
+
+## **进程和线程**
+主要差别在于它们是不同的操作系统资源管理方式。
+进程有独立的地址空间，一个进程崩溃后，在保护模式下不会对其它进程产生影响，而线程只是一个进程中的不同执行路径。
+进程是资源分配的最小单位，操作系统能够进行运算调度的最小单位，它被包含在进程之中，是进程中的实际运作单位。 
+线程有自己的堆栈和局部变量，但线程之间没有单独的地址空间，一个线程死掉就等于整个进程死掉，所以多进程的程序要比多线程的程序健壮，但在*进程切换时，耗费资源较大*，*效率要差一些*。但对于一些要求同时进行并且又要共享某些变量的并发操作，只能用线程，不能用进程。、
+
 ## 0.ES6
 ·新增symbol类型 表示独一无二的值，用来定义独一无二的对象属性名;
 ·const/let  都是用来声明变量,不可重复声明，具有块级作用域。存在暂时性死区，也就是不存在变量提升。(const一般用于声明常量)

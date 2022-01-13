@@ -115,7 +115,23 @@
 2.border-box（IE盒模型），默写地方也称怪异盒模型。元素设置为IE盒模型时，设置的宽高包含内边距（padding）和边框（border），实际盒子的宽高就是设置的宽高。实际内容区的大小为设置的宽高-内边距（padding）-边框（border）
 
 
-# 3.什么是BFC？BFC的布局规则是什么？如何创建BFC？BFC应用？
+# 2.5 **position**
+在CSS中，提供了三种定位机制：普通流、定位（position）、浮动（float）。
+position属性 ：可以将元素从页面流中偏移或分离出来，然后设定其具体位置，从而实现更精确的定位。
+position属性值：static | relative | absolute | fixed 。
+position*定位方式*
+1、position:static，正常流（默认值），元素在页面流中正常出现，并作为页面流的一部分，不能通过z-index进行层次分级。
+2、position:relative ,相对定位，不脱离文档流，参考自身静态位置通过 top,bottom,left,right 定位
+3、position:absolute ，绝对定位，脱离文档流的布局，遗留下来的空间由后面的元素填充。通过 top,bottom,left,right 定位，定位的起始位置为最近的父元素(postion不为static)，否则为Body坐标原点。
+4、position:fixed ,固定定位，脱离文档流，相对于浏览器窗口进行定位，在拖拽页面滚动条时，该元素不会随其一起滚动，可以通过z-index进行层次分级。
+
+脱离文档流导致的问题
+我们知道如果使用position:absolute和position:fixed都会导致元素脱离文档流，由此就会产生相应的问题：子元素脱离文档流，父元素无法被撑开。
+
+
+
+
+# **3.什么是BFC？BFC的布局规则是什么？如何创建BFC？BFC应用？**
 W3C官方解释为：BFC它决定了元素如何对其内容进行定位，以及与其它元素的关系和相互作用，当涉及到可视化布局时，Block Formatting Context提供了一个环境，HTML在这个环境中按照一定的规则进行布局。
 简单来说就是，BFC是一个*完全独立的空间*（布局环境），让*空间里*的子元素*不会影响*到*外面的布局*。那么怎么使用BFC呢，BFC可以看做是一个CSS元素属性
 
