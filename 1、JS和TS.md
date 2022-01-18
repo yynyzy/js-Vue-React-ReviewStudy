@@ -2550,6 +2550,8 @@ console.log('DNS解析时间:', dnsTime,
     console.log(numThree.toLocaleString('zh', { style: 'currency', currency: 'cny', currencyDisplay: "name" }))
 ```
 
+## 79<a>标签添加属性 download ，点击链接之后会下载资源，而不是打开新网页
+
 ## **100.前端性能优化 （performance，DNS预查询）**
   ### performance（在浏览器F12打开或js的 API ）
 ![performance](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\performance(1).png)
