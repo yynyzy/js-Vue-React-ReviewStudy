@@ -2055,14 +2055,13 @@ event.target 属性可以用来*实现事件委托* (event delegation)。
 返回绑定事件的元素
 当事件遍历DOM时，接口的currentTarget只读属性Event标识事件的当前目标。它*始终引用事件处理程序附加到的元素*，而不是Event.target标识事件发生的元素。
 
-## 59.require（运行时才执行） 和 import（编译时执行）的区别？
-1.导入require 导出 exports/module.exports *是 CommonJS 的标准*，通常适用范围如 Node.js
-2.import/export 是 *ES6 的标准*，通常适用范围如 React
-3.require 是*赋值过程*并且是**运行时才执行**，也就是**同步加载**
-4.require 可以理解为一个*全局方法*，因为它是一个方法所以意味着*可以在任何地方执行*。
-5.import 是*解构过程*并且是**编译时执行，输出接口**，理解为**异步加载**
-6.import *会提升*到整个模块的*头部*，具有置顶性，但是建议写在文件的顶部。
-7.commonjs 输出的，是一个**值的拷贝**，而es6输出的是**值的引用**；
+## **59.CommonJs(require)和es6的Module( import)的区别？**
+1. 两者的模块导入导出语法不同，*CommonJS 的标准* 是 module.exports/exports导出，require导入；ES6则是 export 导出，import导入。
+2. commonjs是运行时加载模块（require 是*赋值过程*并且是**运行时才执行**，也就是同步加载）。ES6是在静态编译期间就确定模块的依赖（import 是*解构过程*并且是**编译时执行，输出接口**，理解为异步加载）。
+3.import/export 是 *ES6 的标准*，通常适用范围如 React
+5.ES6在编译期间会将所有*import提升到顶部*，commonjs不会提升require。
+6.commonjs导出的是一个*值拷贝*，会对加载结果进行缓存，一旦内部再修改这个值，则不会同步到外部。ES6是导出的一个*值引用*，内部修改可以同步到外部。
+7. commonjs中顶层的this指向这个模块本身，而ES6中顶层this指向undefined。
 
 *require和import的性能*
 require 的性能相对于 import 稍低。
@@ -2622,6 +2621,8 @@ parseInt('-99', null); // -99
 parseInt('-99', undefined); // -99
 parseInt('-99', 0); // -99
 ```
+
+## 81.
 
 ## *六种数据类型转Number规则：*
 1、Number转Number，本来多少就是多少；
