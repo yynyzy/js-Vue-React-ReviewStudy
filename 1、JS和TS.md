@@ -2623,6 +2623,24 @@ parseInt('-99', undefined); // -99
 parseInt('-99', 0); // -99
 ```
 
+## *六种数据类型转Number规则：*
+1、Number转Number，本来多少就是多少；
+2、String转Number：数字字符串转成对应数字，空字符串转为0，其他均为NaN；
+3、Boolean转Number：true为1，false为0；
+*4*、null为 0，undefined为 NaN；
+*5*、Object（包括对象、函数、数组、正则等）转Number调用其 valueOf() 方法，如果为NaN，调用toString（）方法，如果还是NaN，则结果为NaN。
+*valueOf() 方法可返回 String 对象的原始值。*
+```js
+string.valueOf()
+注意： valueOf() 方法通常由 JavaScript 在后台自动进行调用，而不是显式地处于代码中。
+```
+
+null与undefined在与其他数相等运算时不进行类型转换，
+null与undefine单独与别的值比较都为false,但undefined为null的衍生对象，所以两个比较为true
+```js
+console.log(null==false) //false
+console.log(null==undefined)//true
+```
 
 ## **100.前端性能优化 （performance，DNS预查询）**
   ### performance（在浏览器F12打开或js的 API ）
