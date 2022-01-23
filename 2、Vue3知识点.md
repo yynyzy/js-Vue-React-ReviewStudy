@@ -651,8 +651,14 @@ let fullName = computed({
 | vue.use                                          | app.use                     |
 | vue.prototype   //挂载全局对象，在任意处可以调用    | app.config.globalProperties |
 
+# 13.5 vuex的组成部分：
+1.state:是存储的基本数据。
+2.mutations:提交更改数据。
+3.getter:对state加工，和computed计算属性一样。
+4.actions：处理异步，通过store.commit方法触发mutations中的方法，从而改变state值。
+5.module：是store分割的模块，每个模块拥有自己的state、mutations、getters、actions。
 
-# 14. VUEX 模块化+命名空间 与 mapstate 等辅助函数的使用 
+# 14. **Vuex** 模块化+命名空间 与 mapstate 等辅助函数的使用 
 ## 1.目的:让代码更好维护，让多种数据分类更加明确。
 ## 2.修改store.js
 ```js
@@ -714,6 +720,7 @@ const store = createStore({
   //方式二:借助 mapMutations:
   ...mapMutations( 'countAbout' ,{increment: '"IA' , decrement : ' JIAN'}),
   ```
+*
 
 # 15.ref 和 toRef 的区别
 ref是对原始数据的拷贝，当修改ref数据时，模板中的视图会发生改变，但是原始数据并不会改变。

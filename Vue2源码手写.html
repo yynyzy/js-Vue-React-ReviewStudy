@@ -64,7 +64,7 @@
     </div>
 </body>
 
-<script>
+<!-- <script>
     function Observer(target) {
 
         if (typeof target !== "object") { return target }
@@ -133,8 +133,28 @@
             })
         }
     }
-</script>
+</script> -->
 
+<script>
+    //加法函数
+    const add = x => x + 6
+    //乘法函数
+    const multiply = x => x * 6
+
+    function compose(...fns) {
+        return arg => fns.reduceRight((prev, cur) => {
+            return cur(prev)
+        }, arg)
+    }
+    function pipe(...fns) {
+        return arg => fns.reduce((prev, cur) => {
+            return cur(prev)
+        }, arg)
+    }
+    //从右往左迭代
+    console.log(compose(multiply, add)(10)); //96
+    console.log(pipe(multiply, add)(10)); //96
+</script>
 </body>
 
 </html>

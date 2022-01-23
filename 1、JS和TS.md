@@ -2622,7 +2622,50 @@ parseInt('-99', undefined); // -99
 parseInt('-99', 0); // -99
 ```
 
-## 81.
+## 81.美团前端笔试题、**实现一个compose高阶函数**
+### 1．什么是compose函数?
+compose函数可以将嵌套执行的函数平铺，嵌套执行就是一个函数的返回值将作为另一个函数的参数。例如: fn2(fn1(10))2．典型应用场景:
+*1. Redux的中间件就是用compose实现的*
+```js
+export default function applyMiddleware( . ..middlewares) {
+const chain = middlewares.map(middleware => middleware(middlewareAPI))
+    //接着 compose 将 chain 中的所有匿名函数，组装成一个新的函数，即新的 dispatch
+    dispatch = compose(...chain)(store.dispatch)
+}
+```
+
+*2. Webpack中loader的加载顺序也是从右往左，也是compose实现的。*
+```js
+//编译less文件
+[ 'style-loader ' , ' css-loader ' , 'less-loader ']
+const contentStr = compose(...loaders)(源文件)
+```
+
+### 实现compose和pipe
+```js
+    //从右往左迭代
+    function compose(...fns) {
+        return arg => fns.reduceRight((prev, cur) => {
+            return cur(prev)
+        }, arg)
+    }
+   //从左往右迭代
+    function pipe(...fns){
+        return arg=>fns.reduce((prev,cur)=>{
+            return cur(prev)
+        },arg)
+    }
+```
+*案例*
+```js
+    //加法函数
+    const add = x => x + 6
+    //乘法函数
+    const multiply = x => x * 6
+
+    console.log(compose(multiply, add)(10)); //96
+    console.log(pipe(multiply, add)(10)); //66
+```
 
 ## *六种数据类型转Number规则：*
 1、Number转Number，本来多少就是多少；
