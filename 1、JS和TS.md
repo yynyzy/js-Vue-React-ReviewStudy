@@ -857,7 +857,7 @@ MessageChannel
 setImmediate(Node.js 环境)
 
 
-## 19.手写 Promise(then与catch的返回值问题)
+## 19.**手写 Promise(then与catch的返回值问题)**
 catch为then的语法糖，它是then(null,rejection)的别名，也就是说catch也是then,它用于捕获错误，它的参数也就是then的第二个参数，所以，假设catch中如果return值的话，新的promise对象也会是接受状态（即resolve）。
 
 ```js
@@ -1682,7 +1682,7 @@ e.stopPropagation();
 e.preventDefault();
 ```
 
-## 43.实现promise retry重试
+## **43.实现promise retry重试**
 ```js
 function myGetData(promiseFunc, times) {//retry函数
     return new Promise(function (resolve, reject) {
