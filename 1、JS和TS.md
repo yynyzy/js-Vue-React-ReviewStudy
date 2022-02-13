@@ -916,7 +916,7 @@ class promise {
         const resolve = (value) => {
             // 保证状态为pending时才执行下去，已经更改过状态(RESOLVE,REJECT)，就无法再改变状态，具有唯一性。
             if (this.status === PENDING) {
-                this.status === RESOLVE
+                this.status = RESOLVE
                 this.value = value
                 //调用resolve时遍历函数
                 this.onFulfilledCallback.forEach(cb => cb)
@@ -924,7 +924,7 @@ class promise {
         }
         const reject = (reason) => {
             if (this.status === PENDING) {
-                this.status === REJECT
+                this.status = REJECT
                 this.reason = reason
                 this.onRejectedCallback.forEach(cb => cb)
             }
