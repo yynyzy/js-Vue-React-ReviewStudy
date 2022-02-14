@@ -1,6 +1,17 @@
-# JS
-
 ## **ES6(包括ES7、8、9...)**
+·新增symbol类型 表示独一无二的值，用来定义独一无二的对象属性名;
+·const/let  都是用来声明变量,不可重复声明，具有块级作用域。存在暂时性死区，也就是不存在变量提升。(const一般用于声明常量)
+·变量的解构赋值(包含数组、对象、字符串、数字及布尔值,函数参数),剩余运算符(...rest);
+·模板字符串(`${data}`);
+·扩展运算符(数组、对象);;
+·箭头函数;
+·Set和Map数据结构;
+·Proxy/Reflect;
+·Promise;
+·async函数;
+·Class;
+·Module语法(import/export)。
+
 ### **ES2016(ES7)**
 ### Array.prototype.includes()
 includes() 方法用来判断一个数组是否包含一个指定的值，如果包含则返回 true，否则返回 false。
@@ -370,7 +381,7 @@ loading关闭
 放松对标签模板里字符串转义的限制, 遇到不合法的字符串转义会返回undefined，并且从raw上可获取原字符串。
 
 下面是一个es6 的标签模板 如果对这个语法感到陌生，请参考 标签模板[2]
-
+```js
 const foo = (a, b, c) => {
     console.log(a)
     console.log(b)
@@ -379,13 +390,10 @@ const foo = (a, b, c) => {
 const name = 'jimmy'
 const age = 18
 foo `这是${name},他的年龄是${age}岁` 
-
-
-复制代码
-参数打印如下：图片
+```
 
 ES9开始，模板字符串允许嵌套支持常见转义序列，移除对ECMAScript在带标签的模版字符串中转义序列的语法限制。
-
+```js
 function foo(a, b, c) {
     console.log(a, b, c)
 }
@@ -395,26 +403,27 @@ function foo(a, b, c) {
 // \unicode 是一个无效的unicode字符
 foo `\u{61} and \u{62}` 
 foo `\u{61} and \unicode`  
-复制代码
-图片
-1640441321(1).png
-注意点
+```
+*注意点*
 在模板字符串中，如果输入无效的unicode字符，还是会报错。只有在便签模板中 从es9开始才不会报错。
-
+```js
  let string = `\u{61} and \unicode`;
  console.log(string); // Uncaught SyntaxError: Invalid Unicode escape sequence
-复制代码
-ES2019(ES10)
-Object.fromEntries()
-方法 Object.fromEntries() 把键值对列表转换为一个对象，这个方法是和 Object.entries() 相对的。
+```
 
+### **ES2019(ES10)**
+### Object.fromEntries()
+方法 Object.fromEntries() 把键值对列表转换为一个对象，这个方法是和 Object.entries() 相对的。
+```js
 Object.fromEntries([
     ['foo', 1],
     ['bar', 2]
 ])
 // {foo: 1, bar: 2}
-复制代码
+```
+
 案例1：Object 转换操作
+```js
 const obj = {
     name: 'jimmy',
     age: 18
@@ -427,8 +436,10 @@ console.log(entries)
 const fromEntries = Object.fromEntries(entries)
 console.log(fromEntries)
 // {name: "jimmy", age: 18}
-复制代码
+```
+
 案例2：Map 转 Object
+```js
 const map = new Map()
 map.set('name', 'jimmy')
 map.set('age', 18)
@@ -437,10 +448,11 @@ console.log(map) // {'name' => 'jimmy', 'age' => 18}
 const obj = Object.fromEntries(map)
 console.log(obj)
 // {name: "jimmy", age: 18}
-复制代码
+```
+
 案例3：过滤
 course表示所有课程，想请求课程分数大于80的课程组成的对象：
-
+```js
 const course = {
     math: 80,
     english: 85,
@@ -449,25 +461,29 @@ const course = {
 const res = Object.entries(course).filter(([key, val]) => val > 80)
 console.log(res) // [ [ 'english', 85 ], [ 'chinese', 90 ] ]
 console.log(Object.fromEntries(res)) // { english: 85, chinese: 90 }
-复制代码
+```
+
 案例4：url的search参数转换
+```js
 // let url = "https://www.baidu.com?name=jimmy&age=18&height=1.88"
 // queryString 为 window.location.search
 const queryString = "?name=jimmy&age=18&height=1.88";
 const queryParams = new URLSearchParams(queryString);
 const paramObj = Object.fromEntries(queryParams);
 console.log(paramObj); // { name: 'jimmy', age: '18', height: '1.88' }
-复制代码
-Array.prototype.flat()
+```
+
+### Array.prototype.flat()
+flat()  方法会按照一个可指定的深度递归遍历数组，并将所有元素与遍历到的子数组中的元素合并为一个新数组返回。
 语法
+```js
 let newArray = arr.flat([depth])
-复制代码
+```
 depth 可选
 指定要提取嵌套数组的结构深度，默认值为 1。
 
 示例
-flat()  方法会按照一个可指定的深度递归遍历数组，并将所有元素与遍历到的子数组中的元素合并为一个新数组返回。
-
+```js
 const arr1 = [0, 1, 2, [3, 4]];
 console.log(arr1.flat());  //  [0, 1, 2, 3, 4]
 const arr2 = [0, 1, 2, [[[3, 4]]]];
@@ -480,86 +496,69 @@ arr4.flat(Infinity); // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 // `flat()` 方法会移除数组中的空项:
 var arr5 = [1, 2, , 4, 5];
 arr5.flat(); // [1, 2, 4, 5]
-复制代码
-Array.prototype.flatMap()
+```
+
+### Array.prototype.flatMap()
 flatMap() 方法首先使用映射函数映射每个元素，然后将结果压缩成一个新数组。从方法的名字上也可以看出来它包含两部分功能一个是 map，一个是 flat（深度为1）。
 
 语法
+```js
 var new_array = arr.flatMap(function callback(currentValue[, index[, array]]) {
     // 返回新数组的元素
 }[, thisArg])
-复制代码
-callback
-可以生成一个新数组中的元素的函数，可以传入三个参数：
-
-currentValue
-
-当前正在数组中处理的元素
-
-index
-
-可选 数组中正在处理的当前元素的索引。
-
-array
-
-可选 被调用的 map 数组
-
-thisArg可选
-执行 callback 函数时 使用的this 值。
+```
+callback:可以生成一个新数组中的元素的函数，可以传入三个参数：
+currentValue:当前正在数组中处理的元素
+index:可选 数组中正在处理的当前元素的索引。
+array:可选 被调用的 map 数组
+thisArg可选:执行 callback 函数时 使用的this 值。
 
 示例
+```js
 const numbers = [1, 2, 3]
 numbers.map(x => [x * 2]) // [[2], [4], [6]]
 numbers.flatMap(x => [x * 2]) // [2, 4, 6]
-复制代码
-这个示例可以简单对比下 map 和 flatMap 的区别。当然还可以看下下面的示例：
+```
 
-let arr = ['今天天气不错', '', '早上好']
-arr.map(s => s.split(''))
-// [["今", "天", "天", "气", "不", "错"],[""],["早", "上", "好"]]
-arr.flatMap(s => s.split(''))
-// ["今", "天", "天", "气", "不", "错", "", "早", "上", "好"]
-复制代码
-flatMap 方法与 map 方法和深度depth为1的 flat 几乎相同.
 
-String.prototype.trimStart()
+### String.prototype.trimStart()
 trimStart() 方法从字符串的开头删除空格，trimLeft()是此方法的别名。
-
+```js
 let str = '   foo  '
 console.log(str.length) // 8
 str = str.trimStart() // 或str.trimLeft()
 console.log(str.length) // 5
-复制代码
-String.prototype.trimEnd()
-trimEnd() 方法从一个字符串的右端移除空白字符，trimRight 是 trimEnd 的别名。
+```
 
+### String.prototype.trimEnd()
+trimEnd() 方法从一个字符串的右端移除空白字符，trimRight 是 trimEnd 的别名。
+```js
 let str = '   foo  '
 console.log(str.length) // 8
 str = str.trimEnd() // 或str.trimRight()
 console.log(str.length) // 6
-复制代码
-可选的Catch Binding
-在 ES10 之前我们都是这样捕获异常的：
+```
 
+### 可选的Catch Binding
+在 ES10 之前我们都是这样捕获异常的：
+```js
 try {
     // tryCode
 } catch (err) {
     // catchCode
 }
-复制代码
+```
 在这里 err 是必须的参数，在 ES10 可以省略这个参数：
-
+```js
 try {
     console.log('Foobar')
 } catch {
     console.error('Bar')
 }
-复制代码
+```
 应用
-验证参数是否为json格式
-
-这个需求我们只需要返回true或false，并不关心catch的参数。
-
+验证参数是否为json格式:这个需求我们只需要返回true或false，并不关心catch的参数。
+```js
 const validJSON = json => {
     try {
         JSON.parse(json)
@@ -568,18 +567,19 @@ const validJSON = json => {
         return false
     }
 }
-复制代码
-Symbol.prototype.description
-我们知道，Symbol 的描述只被存储在内部的 Description ，没有直接对外暴露，我们只有调用 Symbol 的 toString() 时才可以读取这个属性：
+```
 
+### Symbol.prototype.description
+我们知道，Symbol 的描述只被存储在内部的 Description ，没有直接对外暴露，我们只有调用 Symbol 的 toString() 时才可以读取这个属性：
+```js
 const name = Symbol('es')
 console.log(name.toString()) // Symbol(es)
 console.log(name) // Symbol(es)
 console.log(name === 'Symbol(es)') // false
 console.log(name.toString() === 'Symbol(es)') // true
-复制代码
+```
 现在可以通过 description 方法获取 Symbol 的描述:
-
+```js
 const name = Symbol('es')
 console.log(name.description) // es
 name.description = "es2" // 只读属性 并不能修改描述符
@@ -587,21 +587,22 @@ console.log(name.description === 'es') // true
 // 如果没有描述符 输入undefined
 const s2 = Symbol()
 console.log(s2.description) // undefined
+```
 
-复制代码
-JSON.stringify() 增强能力
+### JSON.stringify() 增强能力
 JSON.stringify 在 ES10 修复了对于一些超出范围的 Unicode 展示错误的问题。因为 JSON 都是被编码成 UTF-8，所以遇到 0xD800–0xDFFF 之内的字符会因为无法编码成 UTF-8 进而导致显示错误。在 ES10 它会用转义字符的方式来处理这部分字符而非编码的方式，这样就会正常显示了。
-
+```js
 // \uD83D\uDE0E  emoji 多字节的一个字符
 console.log(JSON.stringify('\uD83D\uDE0E')) // 打印出笑脸
 
 // 如果我们只去其中的一部分  \uD83D 这其实是个无效的字符串
 // 之前的版本 ，这些字符将替换为特殊字符，而现在将未配对的代理代码点表示为JSON转义序列
 console.log(JSON.stringify('\uD83D')) // "\ud83d"
-复制代码
-修订 Function.prototype.toString()
-以前函数的toString方法来自Object.prototype.toString(),现在的 Function.prototype.toString() 方法返回一个表示当前函数源代码的字符串。以前只会返回这个函数，不包含注释、空格等。
+```
 
+### 修订 Function.prototype.toString()
+以前函数的toString方法来自Object.prototype.toString(),现在的 Function.prototype.toString() 方法返回一个表示当前函数源代码的字符串。以前只会返回这个函数，不包含注释、空格等。
+```js
 function foo() {
     // es10新特性
     console.log('imooc')
@@ -612,20 +613,20 @@ console.log(foo.toString())
 //  // es10新特性
 //  console.log("imooc");
 // }
-复制代码
+```
 将返回注释、空格和语法等详细信息。
 
-ES2020(ES11)
-空值合并运算符（Nullish coalescing Operator）
+### **ES2020(ES11)**
+### 空值合并运算符（Nullish coalescing Operator）
 空值合并操作符（ ?? ）是一个逻辑操作符，当左侧的操作数为 null或者undefined时，返回其右侧操作数，否则返回左侧操作数。
-
+```js
 const foo = undefined ?? "foo"
 const bar = null ?? "bar"
 console.log(foo) // foo
 console.log(bar) // bar
-复制代码
+```
 与逻辑或操作符（||）不同，逻辑或操作符会在左侧操作数为假值时返回右侧操作数。也就是说，如果使用 || 来为某些变量设置默认值，可能会遇到意料之外的行为。比如为假值（例如'',0,NaN,false）时。见下面的例子。
-
+```js
 const foo = "" ?? 'default string';
 const foo2 = "" || 'default string';
 console.log(foo); // ""
@@ -636,19 +637,20 @@ const baz2 = 0 || 42;
 console.log(baz); // 0
 console.log(baz2); // 42
 
-复制代码
-注意点
+```
+*注意点*
 将 ?? 直接与 AND（&&）和 OR（||）操作符组合使用是不可取的。
-
+```js
 null || undefined ?? "foo"; // 抛出 SyntaxError
 true || undefined ?? "foo"; // 抛出 SyntaxError
-复制代码
-可选链 Optional chaining
+```
+
+### 可选链 Optional chaining
 介绍
 可选链操作符( ?. )允许读取位于连接对象链深处的属性的值，而不必明确验证链中的每个引用是否有效。?. 操作符的功能类似于 . 链式操作符，不同之处在于，在引用为 null 或者 undefined 的情况下不会引起错误，该表达式短路返回值是 undefined。与函数调用一起使用时，如果给定的函数不存在，则返回 undefined。
 
 当尝试访问可能不存在的对象属性时，可选链操作符将会使表达式更短、更简明。在探索一个对象的内容时，如果不能确定哪些属性必定存在，可选链操作符也是很有帮助的。
-
+```js
 const user = {
     address: {
         street: 'xx街道',
@@ -657,71 +659,41 @@ const user = {
         }
     }
 }
-
-复制代码
+```
 在之前的语法中，想获取到深层属性或方法，不得不做前置校验，否则很容易命中 Uncaught TypeError: Cannot read property... 这种错误，这极有可能让你整个应用挂掉。
-
+```js
 const street = user && user.address && user.address.street
 const num = user && user.address && user.address.getNum && user.address.getNum()
 console.log(street, num)
-复制代码
+```
 用了 Optional Chaining ，上面代码会变成
-
+```js
 const street2 = user?.address?.street
 const num2 = user?.address?.getNum?.()
 console.log(street2, num2)
-复制代码
-可选链中的 ? 表示如果问号左边表达式有值, 就会继续查询问号后面的字段。根据上面可以看出，用可选链可以大量简化类似繁琐的前置校验操作，而且更安全。
-
-常见用法
-  // 对象中使用
-  let obj = {
-    name: "jimmy",
-    age: "18",
-  };
-  let property = "age";
-  let name = obj?.name;
-  let age = obj?.age;
-  let ages = obj?.[property];
-  let sex = obj?.sex;
-  console.log(name); // jimmy
-  console.log(age); // 18
-  console.log(ages); // 18
-  console.log(sex); // undefined
-  
-  // 数组中使用
-  let arr = [1,2,2];
-  let arrayItem = arr?.[42]; // undefined
-  
-  // 函数中使用
-  let obj = {
-   func: function () {
-     console.log("I am func");
-   },
-  };
-  obj?.func(); // I am func
-复制代码
-与空值合并操作符一起使用
+```
+```js
 let customer = {
   name: "jimmy",
   details: { age: 18 }
 };
 let customerCity = customer?.city ?? "成都";
 console.log(customerCity); // "成都"
-复制代码
-注意点
+```
+*注意点*
 可选链不能用于赋值
-
+```js
 let object = {};
 object?.property = 1; // Uncaught SyntaxError: Invalid left-hand side in assignment
-复制代码
-globalThis
+```
+
+### globalThis
 在以前，从不同的 JavaScript 环境中获取全局对象需要不同的语句。在 Web 中，可以通过 window、self 取到全局对象，在 Node.js 中，它们都无法获取，必须使用 global。
 
 在松散模式下，可以在函数中返回 this 来获取全局对象，但是在严格模式和模块环境下，this 会返回 undefined。
 
 以前想要获取全局对象，可通过一个全局函数
-
+```js
 const getGlobal = () => {
     if (typeof self !== 'undefined') {
         return self
@@ -737,16 +709,16 @@ const getGlobal = () => {
 
 const globals = getGlobal()
 console.log(globals)
-复制代码
+```
 现在globalThis 提供了一个标准的方式来获取不同环境下的全局 this  对象（也就是全局对象自身）。不像 window 或者 self 这些属性，它确保可以在有无窗口的各种环境下正常工作。所以，你可以安心的使用 globalThis，不必担心它的运行环境。
 
 为便于记忆，你只需要记住，全局作用域中的 this 就是globalThis。以后就用globalThis就行了。
 
-BigInt
+### BigInt
 BigInt 是一种内置对象，它提供了一种方法来表示大于 2的53次方 \- 1 的整数。这原本是 Javascript中可以用 Number 表示的最大数字。BigInt 可以表示任意大的整数。
 
 使用 BigInt 有两种方式：
-
+```js
 方式一：数字后面增加n
 const bigInt = 9007199254740993n
 console.log(bigInt)
@@ -759,13 +731,16 @@ console.log(1n === 1) // false
 // `Number` 和 `BigInt` 可以进行比较。
 1n < 2 // ↪ true
 2n > 1 // ↪ true
+```
 
-复制代码
+```js
 方式二：使用 BigInt 函数
 const bigIntNum = BigInt(9007199254740993n)
 console.log(bigIntNum)
-复制代码
+```
+
 运算
+```js
 let number = BigInt(2);
 let a = number + 2n; // 4n
 let b = number * 10n; // 20n
@@ -773,61 +748,29 @@ let c = number - 10n; // -8n
 console.log(a);
 console.log(b);
 console.log(c);
-复制代码
-注意点
+```
+
+*注意点*
 BigInt不能用于 [Math] 对象中的方法；不能和任何 [Number] 实例混合运算，两者必须转换成同一种类型。在两种类型来回转换时要小心，因为 BigInt 变量在转换成 [Number] 变量时可能会丢失精度。
 
-String.prototype.matchAll()
+### String.prototype.matchAll()
 matchAll()  方法返回一个包含所有匹配正则表达式的结果及分组捕获组的迭代器。
-
+```js
 const regexp = /t(e)(st(\d?))/g;
 const str = 'test1test2';
 
 const array = [...str.matchAll(regexp)];
 console.log(array[0]);  // ["test1", "e", "st1", "1"]
 console.log(array[1]); // ["test2", "e", "st2", "2"]
-复制代码
-Promise.allSettled()
+```
+
+### Promise.allSettled()
 我们都知道 Promise.all() 具有并发执行异步任务的能力。但它的最大问题就是如果其中某个任务出现异常(reject)，所有任务都会挂掉，Promise直接进入reject 状态。
 
 场景：现在页面上有三个请求，分别请求不同的数据，如果一个接口服务异常，整个都是失败的，都无法渲染出数据
 
 我们需要一种机制，如果并发任务中，无论一个任务正常或者异常，都会返回对应的的状态，这就是Promise.allSettled的作用
-
-const promise1 = () => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve("promise1");
-      //   reject("error promise1 ");
-    }, 3000);
-  });
-};
-const promise2 = () => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve("promise2");
-      //   reject("error promise2 ");
-    }, 1000);
-  });
-};
-const promise3 = () => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      //   resolve("promise3");
-      reject("error promise3 ");
-    }, 2000);
-  });
-};
-
-//  Promise.all 会走到catch里面
-Promise.all([promise1(), promise2(), promise3()])
-  .then((res) => {
-    console.log(res); 
-  })
-  .catch((error) => {
-    console.log("error", error); // error promise3 
-  });
-  
+```js
 // Promise.allSettled 不管有没有错误，三个的状态都会返回
 Promise.allSettled([promise1(), promise2(), promise3()])
   .then((res) => {
@@ -842,10 +785,11 @@ Promise.allSettled([promise1(), promise2(), promise3()])
   .catch((error) => {
     console.log("error", error); 
   });
-复制代码
-Dynamic Import（按需 import）
-import()可以在需要的时候，再加载某个模块。
+```
 
+### Dynamic Import（按需 import）
+import()可以在需要的时候，再加载某个模块。
+```js
 button.addEventListener('click', event => {
   import('./dialogBox.js')
   .then(dialogBox => {
@@ -855,153 +799,62 @@ button.addEventListener('click', event => {
     /* Error handling */
   })
 });
-复制代码
+```
 上面代码中，import()方法放在click事件的监听函数之中，只有用户点击了按钮，才会加载这个模块。
 
-ES2021(ES12)
+### **ES2021(ES12)**
 逻辑运算符和赋值表达式（&&=，||=，??=）
-&&=
+```js
+1.&&=
 逻辑与赋值 x &&= y等效于：
-
 x && (x = y);
-复制代码
-上面的意思是，当x为真时，x=y。具体请看下面的示例:
+//上面的意思是，当x为真时，x=y。
 
-let a = 1;
-let b = 0;
-
-a &&= 2;
-console.log(a); // 2
-
-b &&= 2;
-console.log(b);  // 0
-复制代码
-||=
+2.||=
 逻辑或赋值（x ||= y）运算仅在 x 为false时赋值。
-
 x ||= y 等同于：x || (x = y);
 
-const a = { duration: 50, title: '' };
-
-a.duration ||= 10;
-console.log(a.duration); // 50
-
-a.title ||= 'title is empty.';
-console.log(a.title); // "title is empty"
-
-复制代码
-??=
+3.??=
 逻辑空赋值运算符 (x ??= y) 仅在 x 是 nullish[3] (null 或 undefined) 时对其赋值。
 
 x ??= y 等价于：x ?? (x = y);
+```
 
-示例一
-
-const a = { duration: 50 };
-
-a.duration ??= 10;
-console.log(a.duration); // 50
-
-a.speed ??= 25;
-console.log(a.speed); // 25
-复制代码
-示例二
-
-function config(options) {
-  options.duration ??= 100;
-  options.speed ??= 25;
-  return options;
-}
-
-config({ duration: 125 }); // { duration: 125, speed: 25 }
-config({}); // { duration: 100, speed: 25 }
-复制代码
-String.prototype.replaceAll()
+### String.prototype.replaceAll()
 介绍
 replaceAll()  方法返回一个新字符串，新字符串中所有满足 pattern 的部分都会被replacement 替换。pattern可以是一个字符串或一个RegExp，replacement可以是一个字符串或一个在每次匹配被调用的函数。
 
 原始字符串保持不变。
 
 示例
+```js
 'aabbcc'.replaceAll('b', '.'); // 'aa..cc'
-复制代码
+```
 使用正则表达式搜索值时，它必须是全局的。
-
+```js
 'aabbcc'.replaceAll(/b/, '.');
 TypeError: replaceAll must be called with a global RegExp
-复制代码
+```
 这将可以正常运行:
-
+```js
 'aabbcc'.replaceAll(/b/g, '.');
 "aa..cc"
-复制代码
-数字分隔符
+```
+
+### 数字分隔符
 欧美语言中，较长的数值允许每三位添加一个分隔符（通常是一个逗号），增加数值的可读性。比如，1000可以写作1,000。
 
 ES2021中允许 JavaScript 的数值使用下划线（_）作为分隔符。
-
+```js
 let budget = 1_000_000_000_000;
 budget === 10 ** 12 // true
-复制代码
+```
 这个数值分隔符没有指定间隔的位数，也就是说，可以每三位添加一个分隔符，也可以每一位、每两位、每四位添加一个。
 
-123_00 === 12_300 // true
 
-12345_00 === 123_4500 // true
-12345_00 === 1_234_500 // true
-复制代码
-小数和科学计数法也可以使用数值分隔符。
-
-// 小数
-0.000_001
-
-// 科学计数法
-1e10_000
-复制代码
-数值分隔符有几个使用注意点。
-
-不能放在数值的最前面（leading）或最后面（trailing）。
-不能两个或两个以上的分隔符连在一起。
-小数点的前后不能有分隔符。
-科学计数法里面，表示指数的e或E前后不能有分隔符。
-下面的写法都会报错。
-
-// 全部报错
-3_.141
-3._141
-1_e12
-1e_12
-123__456
-_1464301
-1464301_
-复制代码
-Promise.any
+### Promise.any
 方法接受一组 Promise 实例作为参数，包装成一个新的 Promise 实例返回。
-
-const promise1 = () => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve("promise1");
-      //  reject("error promise1 ");
-    }, 3000);
-  });
-};
-const promise2 = () => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve("promise2");
-      // reject("error promise2 ");
-    }, 1000);
-  });
-};
-const promise3 = () => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve("promise3");
-      // reject("error promise3 ");
-    }, 2000);
-  });
-};
+```js
 Promise.any([promise1(), promise2(), promise3()])
   .then((first) => {
     // 只要有一个请求成功 就会返回第一个请求成功的
@@ -1011,7 +864,7 @@ Promise.any([promise1(), promise2(), promise3()])
     // 所有三个全部请求失败 才会来到这里
     console.log("error", error);
   });
-复制代码
+```
 只要参数实例有一个变成fulfilled状态，包装实例就会变成fulfilled状态；如果所有参数实例都变成rejected状态，包装实例就会变成rejected状态。
 
 Promise.any()跟Promise.race()方法很像，只有一点不同，就是Promise.any()不会因为某个 Promise 变成rejected状态而结束，必须等到所有参数 Promise 变成rejected状态才会结束。
@@ -1033,19 +886,6 @@ JavaScript 中有一个特殊的对象，称为全局对象（Global Object）�
 进程是资源分配的最小单位，操作系统能够进行运算调度的最小单位，它被包含在进程之中，是进程中的实际运作单位。 
 线程有自己的堆栈和局部变量，但线程之间没有单独的地址空间，一个线程死掉就等于整个进程死掉，所以多进程的程序要比多线程的程序健壮，但在*进程切换时，耗费资源较大*，*效率要差一些*。但对于一些要求同时进行并且又要共享某些变量的并发操作，只能用线程，不能用进程。、
 
-## 0.ES6
-·新增symbol类型 表示独一无二的值，用来定义独一无二的对象属性名;
-·const/let  都是用来声明变量,不可重复声明，具有块级作用域。存在暂时性死区，也就是不存在变量提升。(const一般用于声明常量)
-·变量的解构赋值(包含数组、对象、字符串、数字及布尔值,函数参数),剩余运算符(...rest);
-·模板字符串(`${data}`);
-·扩展运算符(数组、对象);;
-·箭头函数;
-·Set和Map数据结构;
-·Proxy/Reflect;
-·Promise;
-·async函数;
-·Class;
-·Module语法(import/export)。
 
 
 ## 1.REM适配方案
