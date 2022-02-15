@@ -1901,7 +1901,7 @@ const routes={
 *6. eventBus*
 
 # 50.*Vue3 相比于 Vue2 的有哪些 “与众不同” ？（补充）*
-## **1.生命周期的变化**
+## 生命周期的变化
 整体来看，变化不大，只是名字大部分需要 + on，功能上类似。
 使用上 Vue3 组合式 API 需要先引入；Vue2 选项 API 则可直接调用。
 常用生命周期表格如下所示:
@@ -1918,7 +1918,7 @@ const routes={
           ```
 Tips： setup是围绕beforeCreate和created生命周期钩子运行的，所以不需要显式地去定义。
 
-## **2.多根节点**
+## 多根节点
 Vue3 支持了多根节点组件，也就是fragment。
 Vue2中，编写页面的时候，我们需要去将组件包裹在<div>中，否则报错警告。
 ```js
@@ -1940,78 +1940,14 @@ Vue3，我们可以组件包含多个根节点，可以少写一层，niceeee �
 ```
 
 
-## **3.组合式API**
+## 组合式API
 Vue2 是 选项式API（Option API），一个逻辑会散乱在文件不同位置（data、props、computed、watch、生命周期函数等），导致代码的可读性变差，需要上下来回跳转文件位置。Vue3 组合式API（Composition API）则很好地解决了这个问题，可将同一逻辑的内容写到一起。
 
-除了增强了代码的可读性、内聚性，组合式API 还提供了较为完美的逻辑复用性方案，举个🌰，如下所示公用鼠标坐标案例。
-
-// main.vue
-<template>
-  <span>mouse position {{x}} {{y}}</span>
-</template>
-
-<script setup>
-import { ref } from 'vue'
-import useMousePosition from './useMousePosition'
-
-const {x, y} = useMousePosition()
-
-}
-</script>
-复制代码
-// useMousePosition.js
-import { ref, onMounted, onUnmounted } from 'vue'
-
-function useMousePosition() {
-  let x = ref(0)
-  let y = ref(0)
-  
-  function update(e) {
-    x.value = e.pageX
-    y.value = e.pageY
-  }
-  
-  onMounted(() => {
-    window.addEventListener('mousemove', update)
-  })
-  
-  onUnmounted(() => {
-    window.removeEventListener('mousemove', update)
-  })
-  
-  return {
-    x,
-    y
-  }
-}
-</script>
-复制代码
-解决了 Vue2 Mixin的存在的命名冲突隐患，依赖关系不明确，不同组件间配置化使用不够灵活。
-
-响应式原理
+## 响应式原理
 Vue2 响应式原理基础是Object.defineProperty；Vue3 响应式原理基础是Proxy。
 
-Object.defineProperty
-基本用法：直接在一个对象上定义新的属性或修改现有的属性，并返回对象。
-Tips： writable 和 value 与 getter 和 setter 不共存。
-
-let obj = {}
-let name = '瑾行'
-Object.defineProperty(obj, 'name', {
-  enumerable: true, // 可枚举（是否可通过for...in 或 Object.keys()进行访问）
-  configurable: true, // 可配置（是否可使用delete删除，是否可再次设置属性）
-  // value: '', // 任意类型的值，默认undefined
-  // writable: true, // 可重写
-  get: function() {
-    return name
-  },
-  set: function(value) {
-    name = value
-  }
-})
-复制代码
 搬运 Vue2 核心源码，略删减。
-
+```js
 function defineReactive(obj, key, val) {
   // 一 key 一个 dep
   const dep = new Dep()
@@ -2063,24 +1999,23 @@ function defineReactive(obj, key, val) {
     dep.notify()
   }
 }
-复制代码
+```
 那 Vue3 为何会抛弃它呢？那肯定是有一些缺陷的。
 
 主要原因：无法监听对象或数组新增、删除的元素。
 Vue2 方案：针对常用数组原型方法push、pop、shift、unshift、splice、sort、reverse进行了hack处理；提供Vue.set监听对象/数组新增属性。对象的新增/删除响应，还可以new个新对象，新增则合并新属性和旧对象；删除则将删除属性后的对象深拷贝给新对象。
 
-Tips： Object.defineOProperty是可以监听数组已有元素，但 Vue2 没有提供的原因是性能问题，具体可看见参考第二篇 ~。
+Tips： Object.defineOProperty是可以监听数组已有元素，但 Vue2 没有提供的原因是性能问题。
 
 Proxy
 Proxy是ES6新特性，通过第2个参数handler拦截目标对象的行为。相较于Object.defineProperty提供语言全范围的响应能力，消除了局限性。但在兼容性上放弃了（IE11以下）
 
 局限性
-
 对象/数组的新增、删除。
 监测.length修改。
 Map、Set、WeakMap、WeakSet的支持。
 基本用法：创建对象的代理，从而实现基本操作的拦截和自定义操作。
-
+```js
 const handler = {
   get: function(obj, prop) {
     return prop in obj ? obj[prop] : ''
@@ -2088,9 +2023,9 @@ const handler = {
   set: function() {},
   ...
 }
-复制代码
+```
 搬运 Vue3 的源码 reactive.ts 文件
-
+```js
 function createReactiveObject(target, isReadOnly, baseHandlers, collectionHandlers, proxyMap) {
   ...
   // collectionHandlers: 处理Map、Set、WeakMap、WeakSet
@@ -2102,9 +2037,9 @@ function createReactiveObject(target, isReadOnly, baseHandlers, collectionHandle
   proxyMap.set(target, proxy)
   return proxy
 }
-复制代码
+```
 以 baseHandlers.ts 为例，使用Reflect.get而不是target[key]的原因是receiver参数可以把this指向getter调用时，而非Proxy构造时的对象。
-
+```js
 // 依赖收集
 function createGetter(isReadonly = false, shallow = false) {
   return function get(target: Target, key: string | symbol, receiver: object) {
@@ -2150,35 +2085,13 @@ function createSetter() {
     return result
   }
 }
-复制代码
-虚拟DOM
-Vue3 相比于 Vue2 虚拟DOM 上增加patchFlag字段。我们借助Vue3 Template Explorer来看。
+```
 
-<div id=app>
-  <h1>技术摸鱼</h1>
-  <p>今天天气真不错</p>
-  <div>{{name}}</div>
-</div>
-复制代码
-渲染函数如下。
+## 虚拟DOM
+Vue3 相比于 Vue2 虚拟DOM 上增加patchFlag字段。
 
-import { createElementVNode as _createElementVNode, toDisplayString as _toDisplayString, openBlock as _openBlock, createElementBlock as _createElementBlock, pushScopeId as _pushScopeId, popScopeId as _popScopeId } from vue
-
-const _withScopeId = n => (_pushScopeId(scope-id),n=n(),_popScopeId(),n)
-const _hoisted_1 = { id: app }
-const _hoisted_2 = /*#__PURE__*/ _withScopeId(() => /*#__PURE__*/_createElementVNode(h1, null, 技术摸鱼, -1 /* HOISTED */))
-const _hoisted_3 = /*#__PURE__*/ _withScopeId(() => /*#__PURE__*/_createElementVNode(p, null, 今天天气真不错, -1 /* HOISTED */))
-
-export function render(_ctx, _cache, $props, $setup, $data, $options) {
-  return (_openBlock(), _createElementBlock(div, _hoisted_1, [
-    _hoisted_2,
-    _hoisted_3,
-    _createElementVNode(div, null, _toDisplayString(_ctx.name), 1 /* TEXT */)
-  ]))
-}
-复制代码
 注意第 3 个_createElementVNode的第 4 个参数即patchFlag字段类型，字段类型情况如下所示。1 代表节点为动态文本节点，那在 diff 过程中，只需比对文本对容，无需关注 class、style等。除此之外，发现所有的静态节点，都保存为一个变量进行静态提升，可在重新渲染时直接引用，无需重新创建。
-
+```js
 export const enum PatchFlags { 
   TEXT = 1, // 动态文本内容
   CLASS = 1 << 1, // 动态类名
@@ -2194,298 +2107,35 @@ export const enum PatchFlags {
   HOISTED = -1,  // 静态节点，diff阶段忽略其子节点
   BAIL = -2 // 代表 diff 应该结束
 }
-复制代码
-事件缓存
+```
+
+## 事件缓存
 Vue3 的 cacheHandler可在第一次渲染后缓存我们的事件。相比于 Vue2 无需每次渲染都传递一个新函数。加一个click事件。
 
-<div id=app>
-  <h1>技术摸鱼</h1>
-  <p>今天天气真不错</p>
-  <div>{{name}}</div>
-  <span onCLick=() => {}><span>
-</div>
-复制代码
-渲染函数如下
-
-import { createElementVNode as _createElementVNode, toDisplayString as _toDisplayString, openBlock as _openBlock, createElementBlock as _createElementBlock, pushScopeId as _pushScopeId, popScopeId as _popScopeId } from vue
-
-const _withScopeId = n => (_pushScopeId(scope-id),n=n(),_popScopeId(),n)
-const _hoisted_1 = { id: app }
-const _hoisted_2 = /*#__PURE__*/ _withScopeId(() => /*#__PURE__*/_createElementVNode(h1, null, 技术摸鱼, -1 /* HOISTED */))
-const _hoisted_3 = /*#__PURE__*/ _withScopeId(() => /*#__PURE__*/_createElementVNode(p, null, 今天天气真不错, -1 /* HOISTED */))
-const _hoisted_4 = /*#__PURE__*/ _withScopeId(() => /*#__PURE__*/_createElementVNode(span, { onCLick: () => {} }, [
-  /*#__PURE__*/_createElementVNode(span)
-], -1 /* HOISTED */))
-
-export function render(_ctx, _cache, $props, $setup, $data, $options) {
-  return (_openBlock(), _createElementBlock(div, _hoisted_1, [
-    _hoisted_2,
-    _hoisted_3,
-    _createElementVNode(div, null, _toDisplayString(_ctx.name), 1 /* TEXT */),
-    _hoisted_4
-  ]))
-}
-复制代码
-Diff 优化
+## Diff 优化
 搬运 Vue3 patchChildren 源码。结合上文与源码，patchFlag帮助 diff 时区分静态节点，以及不同类型的动态节点。一定程度地减少节点本身及其属性的比对。
 
-function patchChildren(n1, n2, container, parentAnchor, parentComponent, parentSuspense, isSVG, optimized) {
-  // 获取新老孩子节点
-  const c1 = n1 && n1.children
-  const c2 = n2.children
-  const prevShapeFlag = n1 ? n1.shapeFlag : 0
-  const { patchFlag, shapeFlag } = n2
-  
-  // 处理 patchFlag 大于 0 
-  if(patchFlag > 0) {
-    if(patchFlag && PatchFlags.KEYED_FRAGMENT) {
-      // 存在 key
-      patchKeyedChildren()
-      return
-    } els if(patchFlag && PatchFlags.UNKEYED_FRAGMENT) {
-      // 不存在 key
-      patchUnkeyedChildren()
-      return
-    }
-  }
-  
-  // 匹配是文本节点（静态）：移除老节点，设置文本节点
-  if(shapeFlag && ShapeFlags.TEXT_CHILDREN) {
-    if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-      unmountChildren(c1 as VNode[], parentComponent, parentSuspense)
-    }
-    if (c2 !== c1) {
-      hostSetElementText(container, c2 as string)
-    }
-  } else {
-    // 匹配新老 Vnode 是数组，则全量比较；否则移除当前所有的节点
-    if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-      if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-        patchKeyedChildren(c1, c2, container, anchor, parentComponent, parentSuspense,...)
-      } else {
-        unmountChildren(c1 as VNode[], parentComponent, parentSuspense, true)
-      }
-    } else {
-      
-      if(prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
-        hostSetElementText(container, '')
-      } 
-      if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-        mountChildren(c2 as VNodeArrayChildren, container,anchor,parentComponent,...)
-      }
-    }
-  }
-}
-复制代码
-patchUnkeyedChildren 源码如下。
-
-function patchUnkeyedChildren(c1, c2, container, parentAnchor, parentComponent, parentSuspense, isSVG, optimized) {
-  c1 = c1 || EMPTY_ARR
-  c2 = c2 || EMPTY_ARR
-  const oldLength = c1.length
-  const newLength = c2.length
-  const commonLength = Math.min(oldLength, newLength)
-  let i
-  for(i = 0; i < commonLength; i++) {
-    // 如果新 Vnode 已经挂载，则直接 clone 一份，否则新建一个节点
-    const nextChild = (c2[i] = optimized ? cloneIfMounted(c2[i] as Vnode)) : normalizeVnode(c2[i])
-    patch()
-  }
-  if(oldLength > newLength) {
-    // 移除多余的节点
-    unmountedChildren()
-  } else {
-    // 创建新的节点
-    mountChildren()
-  }
-  
-}
-复制代码
-patchKeyedChildren源码如下，有运用最长递增序列的算法思想。
-
-function patchKeyedChildren(c1, c2, container, parentAnchor, parentComponent, parentSuspense, isSVG, optimized) {
-  let i = 0;
-  const e1 = c1.length - 1
-  const e2 = c2.length - 1
-  const l2 = c2.length
-  
-  // 从头开始遍历，若新老节点是同一节点，执行 patch 更新差异；否则，跳出循环 
-  while(i <= e1 && i <= e2) {
-    const n1 = c1[i]
-    const n2 = c2[i]
-    
-    if(isSameVnodeType) {
-      patch(n1, n2, container, parentAnchor, parentComponent, parentSuspense, isSvg, optimized)
-    } else {
-      break
-    }
-    i++
-  }
-  
-  // 从尾开始遍历，若新老节点是同一节点，执行 patch 更新差异；否则，跳出循环 
-  while(i <= e1 && i <= e2) {
-    const n1 = c1[e1]
-    const n2 = c2[e2]
-    if(isSameVnodeType) {
-      patch(n1, n2, container, parentAnchor, parentComponent, parentSuspense, isSvg, optimized)
-    } else {
-      break
-    }
-    e1--
-    e2--
-  }
-  
-  // 仅存在需要新增的节点
-  if(i > e1) {    
-    if(i <= e2) {
-      const nextPos = e2 + 1
-      const anchor = nextPos < l2 ? c2[nextPos] : parentAnchor
-      while(i <= e2) {
-        patch(null, c2[i], container, parentAnchor, parentComponent, parentSuspense, isSvg, optimized)
-      }
-    }
-  }
-  
-  // 仅存在需要删除的节点
-  else if(i > e2) {
-    while(i <= e1) {
-      unmount(c1[i], parentComponent, parentSuspense, true)    
-    }
-  }
-  
-  // 新旧节点均未遍历完
-  // [i ... e1 + 1]: a b [c d e] f g
-  // [i ... e2 + 1]: a b [e d c h] f g
-  // i = 2, e1 = 4, e2 = 5
-  else {
-    const s1 = i
-    const s2 = i
-    // 缓存新 Vnode 剩余节点 上例即{e: 2, d: 3, c: 4, h: 5}
-    const keyToNewIndexMap = new Map()
-    for (i = s2; i <= e2; i++) {
-      const nextChild = (c2[i] = optimized
-          ? cloneIfMounted(c2[i] as VNode)
-          : normalizeVNode(c2[i]))
-      
-      if (nextChild.key != null) {
-        if (__DEV__ && keyToNewIndexMap.has(nextChild.key)) {
-          warn(
-            `Duplicate keys found during update:`,
-             JSON.stringify(nextChild.key),
-            `Make sure keys are unique.`
-          )
-        }
-        keyToNewIndexMap.set(nextChild.key, i)
-      }
-    }
-  }
-  
-  let j = 0
-  // 记录即将 patch 的 新 Vnode 数量
-  let patched = 0
-  // 新 Vnode 剩余节点长度
-  const toBePatched = e2 - s2 + 1
-  // 是否移动标识
-  let moved = false
-  let maxNewindexSoFar = 0
-  
-  // 初始化 新老节点的对应关系（用于后续最大递增序列算法）
-  const newIndexToOldIndexMap = new Array(toBePatched)
-  for (i = 0; i < toBePatched; i++) newIndexToOldIndexMap[i] = 0
-  
-  // 遍历老 Vnode 剩余节点
-  for (i = s1; i <= e1; i++) {
-    const prevChild = c1[i]
-    
-    // 代表当前新 Vnode 都已patch，剩余旧 Vnode 移除即可
-    if (patched >= toBePatched) {
-      unmount(prevChild, parentComponent, parentSuspense, true)
-      continue
-    }
-    
-    let newIndex
-    // 旧 Vnode 存在 key，则从 keyToNewIndexMap 获取
-    if (prevChild.key != null) {
-      newIndex = keyToNewIndexMap.get(prevChild.key)
-    // 旧 Vnode 不存在 key，则遍历新 Vnode 获取
-    } else {
-      for (j = s2; j <= e2; j++) {
-        if (newIndexToOldIndexMap[j - s2] === 0 && isSameVNodeType(prevChild, c2[j] as VNode)){
-           newIndex = j
-           break
-        }
-      }           
-   }
-   
-   // 删除、更新节点
-   // 新 Vnode 没有 当前节点，移除
-   if (newIndex === undefined) {
-     unmount(prevChild, parentComponent, parentSuspense, true)
-   } else {
-     // 旧 Vnode 的下标位置 + 1，存储到对应 新 Vnode 的 Map 中
-     // + 1 处理是为了防止数组首位下标是 0 的情况，因为这里的 0 代表需创建新节点
-     newIndexToOldIndexMap[newIndex - s2] = i + 1
-     
-     // 若不是连续递增，则代表需要移动
-     if (newIndex >= maxNewIndexSoFar) {
-       maxNewIndexSoFar = newIndex
-     } else {
-       moved = true
-     }
-     
-     patch(prevChild,c2[newIndex],...)
-     patched++
-   }
-  }
-  
-  // 遍历结束，newIndexToOldIndexMap = {0:5, 1:4, 2:3, 3:0}
-  // 新建、移动节点
-  const increasingNewIndexSequence = moved
-  // 获取最长递增序列
-  ? getSequence(newIndexToOldIndexMap)
-  : EMPTY_ARR
-  
-  j = increasingNewIndexSequence.length - 1
-
-  for (i = toBePatched - 1; i >= 0; i--) {
-    const nextIndex = s2 + i
-    const nextChild = c2[nextIndex] as VNode
-    const anchor = extIndex + 1 < l2 ? (c2[nextIndex + 1] as VNode).el : parentAnchor
-    // 0 新建 Vnode
-    if (newIndexToOldIndexMap[i] === 0) {
-      patch(null,nextChild,...)
-    } else if (moved) {
-      // 移动节点
-      if (j < 0 || i !== increasingNewIndexSequence[j]) {
-        move(nextChild, container, anchor, MoveType.REORDER)
-      } else {
-        j--
-      }
-    }
-  }
-}
-复制代码
-打包优化
+## 打包优化(tree-shaking)
 tree-shaking：模块打包webpack、rollup等中的概念。移除 JavaScript 上下文中未引用的代码。主要依赖于import和export语句，用来检测代码模块是否被导出、导入，且被 JavaScript 文件使用。
 
 以nextTick为例子，在 Vue2 中，全局 API 暴露在 Vue 实例上，即使未使用，也无法通过tree-shaking进行消除。
-
+```js
 import Vue from 'vue'
 
 Vue.nextTick(() => {
   // 一些和DOM有关的东西
 })
-复制代码
+```
 Vue3 中针对全局 和内部的API进行了重构，并考虑到tree-shaking的支持。因此，全局 API 现在只能作为ES模块构建的命名导出进行访问。
-
+```js
 import { nextTick } from 'vue'
 
 nextTick(() => {
   // 一些和DOM有关的东西
 })
-复制代码
+```
 通过这一更改，只要模块绑定器支持tree-shaking，则 Vue 应用程序中未使用的api将从最终的捆绑包中消除，获得最佳文件大小。受此更改影响的全局API有如下。
-
+```js
 Vue.nextTick
 Vue.observable （用 Vue.reactive 替换）
 Vue.version
@@ -2495,23 +2145,47 @@ Vue.delete （仅兼容构建）
 内部 API 也有诸如 transition、v-model等标签或者指令被命名导出。只有在程序真正使用才会被捆绑打包。
 
 根据 尤大 直播可以知道如今 Vue3 将所有运行功能打包也只有22.5kb，比 Vue2 轻量很多。
+```
 
-自定义渲染API
+## 自定义渲染API
 Vue3 提供的createApp默认是将 template 映射成 html。但若想生成canvas时，就需要使用custom renderer api自定义render生成函数。
-
+```js
 // 自定义runtime-render函数
 import { createApp } from './runtime-render'
 import App from './src/App'
 
 createApp(App).mount('#app')
-复制代码
-TypeScript 支持
+```
+
+## TypeScript 支持
 Vue3 由TS重写，相对于 Vue2 有更好地TypeScript支持。
 
 Vue2 Option API中 option 是个简单对象，而TS是一种类型系统，面向对象的语法，不是特别匹配。
 Vue2 需要vue-class-component强化vue原生组件，也需要vue-property-decorator增加更多结合Vue特性的装饰器，写法比较繁琐。
 
 # **200 性能优化!!!**
+## 0.Vue3 虚拟DOM增加 patchFlag 字段
+Vue3 相比于 Vue2 虚拟DOM 上增加 patchFlag 字段。
+
+注意第 3 个_createElementVNode的第 4 个参数即patchFlag字段类型，字段类型情况如下所示。1 代表节点为动态文本节点，那在 diff 过程中，只需比对文本对容，无需关注 class、style等。除此之外，发现所有的静态节点，都保存为一个变量进行静态提升，可在重新渲染时直接引用，无需重新创建。
+```js
+export const enum PatchFlags { 
+  TEXT = 1, // 动态文本内容
+  CLASS = 1 << 1, // 动态类名
+  STYLE = 1 << 2, // 动态样式
+  PROPS = 1 << 3, // 动态属性，不包含类名和样式
+  FULL_PROPS = 1 << 4, // 具有动态 key 属性，当 key 改变，需要进行完整的 diff 比较
+  HYDRATE_EVENTS = 1 << 5, // 带有监听事件的节点
+  STABLE_FRAGMENT = 1 << 6, // 不会改变子节点顺序的 fragment
+  KEYED_FRAGMENT = 1 << 7, // 带有 key 属性的 fragment 或部分子节点
+  UNKEYED_FRAGMENT = 1 << 8,  // 子节点没有 key 的fragment
+  NEED_PATCH = 1 << 9, // 只会进行非 props 的比较
+  DYNAMIC_SLOTS = 1 << 10, // 动态的插槽
+  HOISTED = -1,  // 静态节点，diff阶段忽略其子节点
+  BAIL = -2 // 代表 diff 应该结束
+}
+```
+
 ## 1.合理的选择 v-if 和 v-show
 
 ## 2. v-for 和 v-if 不要一起使用（仅限于Vue2，Vue3已经自动优化）
