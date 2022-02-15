@@ -28,9 +28,12 @@ View的变动，自动反映在 ViewModel，反之亦然。
 ![img](https://user-gold-cdn.xitu.io/2019/12/10/16eeed0206ee71a2?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
 
-# 1.VUE3新特性：suspense
+# 1.VUE3新特性：Suspense 与 Teleport
+### Suspense
 在正确渲染组件之前进行一些异步请求是很常见的事。组件通常会在本地处理这种逻辑，绝大多数情况下这是非常完美的做法。该 `<suspense>` 组件提供了另一个方案，允许将等待过程提升到组件树中处理，而不是在单个组件中。
 
+*!!!* 真实的项目中踩过坑，若想在 setup 中调用异步请求，需在 setup 前加async关键字。这时，会受到警告async setup() is used without a suspense boundary。
+解决方案：在父页面调用当前组件外包裹一层Suspense组件。
 ```html
 <template>
   <suspense>
@@ -54,11 +57,18 @@ View的变动，自动反映在 ViewModel，反之亦然。
   </Suspense>
 ```
 
-`<suspense>` 组件有两个插槽。它们都只接收一个直接子节点。`default` 插槽里的节点会尽可能展示出来。如果不能，则展示 `fallback` 插槽里的节点。
 
-重要的是，异步组件不需要作为 `<suspense>` 的直接子节点。它可以出现在组件树任意深度的位置，且不需要出现在和 `<suspense>` 自身相同的模板中。只有所有的后代组件都准备就绪，该内容才会被认为解析完毕。
 
-另一个触发 `fallback` 的方式是让后代组件从 `setup` 函数中返回一个 Promise。通常这是通过 `async` 实现的，而不是显式地返回一个 Promise：
+### Teleport
+Vue3 提供Teleport组件可将部分DOM移动到 Vue app之外的位置。比如项目中常见的Dialog组件。
+```js
+<button @click=dialogVisible = true>点击</button>
+<teleport to=body>
+   <div class=dialog v-if=dialogVisible>
+   </div>
+</teleport>
+```
+
 
 ## 1.子组件更新
 
@@ -1890,187 +1900,616 @@ const routes={
 *5. provide/inject*
 *6. eventBus*
 
-# 100 ·················技巧····································
+# 50.*Vue3 相比于 Vue2 的有哪些 “与众不同” ？（补充）*
+## **1.生命周期的变化**
+整体来看，变化不大，只是名字大部分需要 + on，功能上类似。
+使用上 Vue3 组合式 API 需要先引入；Vue2 选项 API 则可直接调用。
+常用生命周期表格如下所示:
+          ```js
+          Vue2.x	        Vue3
+          beforeCreate	  Not needed*
+          created	        Not needed*
+          beforeMount	    onBeforeMount
+          mounted	        onMounted
+          beforeUpdate	  onBeforeUpdate
+          updated	        onUpdated
+          beforeDestroy	  onBeforeUnmount
+          destroyed	      onUnmounted
+          ```
+Tips： setup是围绕beforeCreate和created生命周期钩子运行的，所以不需要显式地去定义。
 
-# 101.Vue路由组件化(运用require.context)
+## **2.多根节点**
+Vue3 支持了多根节点组件，也就是fragment。
+Vue2中，编写页面的时候，我们需要去将组件包裹在<div>中，否则报错警告。
 ```js
-require.context(directory, useSubdirectories = false, regExp = /^.//)
-第一个参数目标文件夹
-是否查找子集 true | false
-正则匹配
+<template>
+  <div>
+    <header>...</header>
+    <main>...</main>
+    <footer>...</footer>
+  </div>
+</template>
 ```
-  ## 主路由文件中代码
+Vue3，我们可以组件包含多个根节点，可以少写一层，niceeee ！
 ```js
-import Vue from "vue";
-import VueRouter from "vue-router";
-Vue.use(VueRouter);
+<template>
+  <header>...</header>
+  <main>...</main>
+  <footer>...</footer>
+</template>
+```
 
-const routerList = [];
-function importAll(r) {
-    r.keys().forEach((key) => {
-        routerList.push(r(key).default);
-    });
+
+## **3.组合式API**
+Vue2 是 选项式API（Option API），一个逻辑会散乱在文件不同位置（data、props、computed、watch、生命周期函数等），导致代码的可读性变差，需要上下来回跳转文件位置。Vue3 组合式API（Composition API）则很好地解决了这个问题，可将同一逻辑的内容写到一起。
+
+除了增强了代码的可读性、内聚性，组合式API 还提供了较为完美的逻辑复用性方案，举个🌰，如下所示公用鼠标坐标案例。
+
+// main.vue
+<template>
+  <span>mouse position {{x}} {{y}}</span>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import useMousePosition from './useMousePosition'
+
+const {x, y} = useMousePosition()
+
 }
-、
-importAll(require.context("./", true, /\.routes\.js/));//这里的目录和规则可以看自己习惯，这里获取的是当前同一个文件夹下的所有以 .routes.js 结尾的各个不同功能路由模块文件
+</script>
+复制代码
+// useMousePosition.js
+import { ref, onMounted, onUnmounted } from 'vue'
 
-const routes = [
-    ...routerList,
-    {
-      path: './',
-      name: 'Home',
-      component: Home
-    }
-];
-
-const router = new VueRouter({
-    routes,
-});
-
-export default router;
-```
-  ## 各个模块路由文件
-```js
-export default {
-  path:'./login',
-  name:'./login',
-  component
-  children:[
-
-  ]
-}
-```
-
-# 102.Vue 权限控制技巧
-1.单独一个文件保存权限判断函数
-```js
-export function checkArray (key){
-  //权限数组
-  let arr = [1, 2, 3 ,4]
-  let index = arr.indexOf(key)
-  if( index > -1 ){
-    return true
-  }else{
-    return false
+function useMousePosition() {
+  let x = ref(0)
+  let y = ref(0)
+  
+  function update(e) {
+    x.value = e.pageX
+    y.value = e.pageY
+  }
+  
+  onMounted(() => {
+    window.addEventListener('mousemove', update)
+  })
+  
+  onUnmounted(() => {
+    window.removeEventListener('mousemove', update)
+  })
+  
+  return {
+    x,
+    y
   }
 }
-```
+</script>
+复制代码
+解决了 Vue2 Mixin的存在的命名冲突隐患，依赖关系不明确，不同组件间配置化使用不够灵活。
 
-2.在 main.js 中定义一个自定义指令
-```js
-import {checkArray} from '../..'
-Vue.directive('display-key',{
-  inserted(el, binding){
-    let displayKey = binding.value
-    if( displayKey ){
-      //使用函数判断是否有权限，返回 true 或 false
-      let hasPermissin = checkArray(displayKey)
-      if(!hasPermissin){
-        el.parentNode && el.parentNode.removeChild(el)
-      }
-    } else {
-      throw new Error(`need v-display-key`)
-    }
+响应式原理
+Vue2 响应式原理基础是Object.defineProperty；Vue3 响应式原理基础是Proxy。
+
+Object.defineProperty
+基本用法：直接在一个对象上定义新的属性或修改现有的属性，并返回对象。
+Tips： writable 和 value 与 getter 和 setter 不共存。
+
+let obj = {}
+let name = '瑾行'
+Object.defineProperty(obj, 'name', {
+  enumerable: true, // 可枚举（是否可通过for...in 或 Object.keys()进行访问）
+  configurable: true, // 可配置（是否可使用delete删除，是否可再次设置属性）
+  // value: '', // 任意类型的值，默认undefined
+  // writable: true, // 可重写
+  get: function() {
+    return name
+  },
+  set: function(value) {
+    name = value
   }
 })
-```
-3. 在各个组件中可以在组件标签上使用指令
-```js
-//有1,2,3,4的都是有权限的，超过4的没有权限会删除
-<button v-display-key='1'>按钮一</button>
-<button v-display-key='2'>按钮一</button>
-```
+复制代码
+搬运 Vue2 核心源码，略删减。
 
-# 103.webpack 面试题
-## webpack 的构建流程是什么
-*·初始化参数：*解析webpack配置参数，合并shell传入和webpack.config.js文件配置的参数,形成最后的配置结果；
-*·开始编译：*上一步得到的参数初始化compiler对象，注册所有配置的插件，插件 监听webpack构建生命周期的事件节点，做出相应的反应，执行对象的run方法开始执行编译；
-*·确定入口：*从配置的entry入口，开始解析文件构建AST语法树，找出依赖，递归下去；
-*·编译模块：*递归中根据文件类型和loader配置，调用所有配置的loader对文件进行转换，再找出该模块依赖的模块，再递归本步骤·直到所有入口依赖的文件都经过了本步骤的处理；
-*·完成模块编译并输出：*递归完事后，得到每个文件结果，包含每个模块以及他们之间的依赖关系，根据entry或分包配置生成代码块chunk;
-*·输出完成：*输出所有的chunk到文件系统；
+function defineReactive(obj, key, val) {
+  // 一 key 一个 dep
+  const dep = new Dep()
+  
+  // 获取 key 的属性描述符，发现它是不可配置对象的话直接 return
+  const property = Object.getOwnPropertyDescriptor(obj, key)
+  if (property && property.configurable === false) { return }
+  
+  // 获取 getter 和 setter，并获取 val 值
+  const getter = property && property.get
+  const setter = property && property.set
+  if((!getter || setter) && arguments.length === 2) { val = obj[key] }
+  
+  // 递归处理，保证对象中所有 key 被观察
+  let childOb = observe(val)
+  
+  Object.defineProperty(obj, key, {
+    enumerable: true,
+    configurable: true,
+    // get 劫持 obj[key] 的 进行依赖收集
+    get: function reactiveGetter() {
+      const value = getter ? getter.call(obj) : val
+      if(Dep.target) {
+        // 依赖收集
+        dep.depend()
+        if(childOb) {
+          // 针对嵌套对象，依赖收集
+          childOb.dep.depend()
+          // 触发数组响应式
+          if(Array.isArray(value)) {
+            dependArray(value)
+          }
+        }
+      }
+    }
+    return value
+  })
+  // set 派发更新 obj[key]
+  set: function reactiveSetter(newVal) {
+    ...
+    if(setter) {
+      setter.call(obj, newVal)
+    } else {
+      val = newVal
+    }
+    // 新值设置响应式
+    childOb = observe(val)
+    // 依赖通知更新
+    dep.notify()
+  }
+}
+复制代码
+那 Vue3 为何会抛弃它呢？那肯定是有一些缺陷的。
 
-## webpack 的热更新原理
-其实是自己开启了express应用，添加了对webpack编译的监听，添加了和浏览器的websocket长连接，当文件变化触发webpack进行编译并完成后，会通过sokcet消息告诉浏览器准备刷新。而为了减少刷新的代价，就是不用刷新网页，而是刷新某个模块，webpack-dev-server可以支持热更新，通过生成 文件的hash值来比对需要更新的模块，浏览器再进行热替换
+主要原因：无法监听对象或数组新增、删除的元素。
+Vue2 方案：针对常用数组原型方法push、pop、shift、unshift、splice、sort、reverse进行了hack处理；提供Vue.set监听对象/数组新增属性。对象的新增/删除响应，还可以new个新对象，新增则合并新属性和旧对象；删除则将删除属性后的对象深拷贝给新对象。
 
-*服务端*
-·启动 webpack-dev-server服务器
-·创建webpack实例
-·创建server服务器
-·添加webpack的done事件回调
-·编译完成向客户端发送消息
-·创建express应用app
-·设置文件系统为内存文件系统
-·添加 webpack-dev-middleware 中间件
-·中间件负责返回生成的文件
-·启动webpack编译
-·创建http服务器并启动服务
-·使用sockjs在浏览器端和服务端之间建立一个websocket长连接
-·创建socket服务器
+Tips： Object.defineOProperty是可以监听数组已有元素，但 Vue2 没有提供的原因是性能问题，具体可看见参考第二篇 ~。
 
-*客户端*
-·webpack-dev-server/client端会监听到此hash消息
-·客户端收到ok消息后会执行reloadApp方法进行更新
-·在reloadApp中会进行判断，是否支持热更新，如果支持的话发生 webpackHotUpdate事件，如果不支持就直接刷新浏览器
-·在 webpack/hot/dev-server.js 会监听 webpackHotUpdate 事件
-·在check方法里会调用module.hot.check方法
-·HotModuleReplacement.runtime请求Manifest
-·通过调用 JsonpMainTemplate.runtime 的 hotDownloadManifest方法
-·调用JsonpMainTemplate.runtime的hotDownloadUpdateChunk方法通过JSONP请求获取最新的模块代码
-·补丁js取回来或会调用 JsonpMainTemplate.runtime.js 的 webpackHotUpdate 方法
-·然后会调用 HotModuleReplacement.runtime.js 的 hotAddUpdateChunk方法动态更新 模块代码
-·然后调用hotApply方法进行热更
+Proxy
+Proxy是ES6新特性，通过第2个参数handler拦截目标对象的行为。相较于Object.defineProperty提供语言全范围的响应能力，消除了局限性。但在兼容性上放弃了（IE11以下）
 
- 
-## webpack 打包是hash码是如何生成的
-1.webpack生态中存在多种计算hash的方式
-  ·hash
-  ·chunkhash
-  ·contenthash 
-hash代表每次webpack编译中生成的hash值，所有使用这种方式的文件hash都相同。每次构建都会使webpack计算新的hash。chunkhash基于入口文件及其关联的chunk形成，某个文件的改动只会影响与它有关联的chunk的hash值，不会影响其他文件contenthash根据文件内容创建。当文件内容发生变化时，contenthash发生变化
+局限性
 
-## webpack 离线缓存静态资源如何实现
+对象/数组的新增、删除。
+监测.length修改。
+Map、Set、WeakMap、WeakSet的支持。
+基本用法：创建对象的代理，从而实现基本操作的拦截和自定义操作。
 
-·在配置webpack时，我们可以使用html-webpack-plugin来注入到和html一段脚本来实现将第三方或者共用资源进行 静态化存储在html中注入一段标识，例如 <% HtmlWebpackPlugin.options.loading.html %> ,在 html-webpack-plugin 中即可通过配置html属性，将script注入进去
-·利用 webpack-manifest-plugin 并通过配置 webpack-manifest-plugin ,生成 manifestjson 文件，用来对比js资源的差异，做到是否替换，当然，也要写缓存script
-·在我们做Cl以及CD的时候，也可以通过编辑文件流来实现静态化脚本的注入，来降低服务器的压力，提高性能
-·可以通过自定义plugin或者html-webpack-plugin等周期函数，动态注入前端静态化存储script
+const handler = {
+  get: function(obj, prop) {
+    return prop in obj ? obj[prop] : ''
+  },
+  set: function() {},
+  ...
+}
+复制代码
+搬运 Vue3 的源码 reactive.ts 文件
 
-## webpack 常见的plugin有哪些
-*·ProvidePlugin：*自动加载模块，代替require和import
-*·html-webpack-plugin*可以根据模板自动生成html代码，并自动引用css和js文件
-*·extract-text-webpack-plugin* 将js文件中引用的样式单独抽离成css文件
-*·DefinePlugin* 编译时配置全局变量，这对开发模式和发布模式的构建允许不同的行为非常有用。
-*·HotModuleReplacementPlugin* 热更新
-*·optimize-css-assets-webpack-plugin* 不同组件中重复的css可以快速去重
-*·webpack-bundle-analyzer* 一个webpack的bundle文件分析工具，将bundle文件以可交互缩放的treemap的形式展示。
-*·compression-webpack-plugin*生产环境可采用gzip压缩JS和CSS
-*·happypack：*通过多进程模型，来加速代码构建
-*·clean-wenpack-plugin* 清理每次打包下没有使用的文件
-*·speed-measure-webpack-plugin:*可以看至U每个Loader和Plugin执行耗时（整个扌丁包耗时、每个Plugin和 Loader 耗时）
-*·webpack-bundle-analyzer:*可视化Webpack输出文件的体积（业务组件、依赖第三方模块
-*·SplitChunksPlugin：* 公共模块抽取 
+function createReactiveObject(target, isReadOnly, baseHandlers, collectionHandlers, proxyMap) {
+  ...
+  // collectionHandlers: 处理Map、Set、WeakMap、WeakSet
+  // baseHandlers: 处理数组、对象
+  const proxy = new Proxy(
+    target,
+    targetType === TargetType.COLLECTION ? collectionHandlers : baseHandlers
+  )
+  proxyMap.set(target, proxy)
+  return proxy
+}
+复制代码
+以 baseHandlers.ts 为例，使用Reflect.get而不是target[key]的原因是receiver参数可以把this指向getter调用时，而非Proxy构造时的对象。
 
-## webpack有哪些常⻅的Loader
-*·file-loader：*把⽂件输出到⼀个⽂件夹中，在代码中通过相对 URL 去引⽤输出的⽂件
-*·url-loader：*和 file-loader 类似，但是能在⽂件很⼩的情况下以 base64 的⽅式把⽂件内容注⼊到代码中去
-*·source-map-loader：*加载额外的 Source Map ⽂件，以⽅便断点调试
-*·image-loader：*加载并且压缩图⽚⽂件
-*·babel-loader：*把 ES6 转换成 ES5
-*·css-loader：*加载 CSS，⽀持模块化、压缩、⽂件导⼊等特性
-*·style-loader：*把 CSS 代码注⼊到 JavaScript 中，通过 DOM 操作去加载 CSS。
-*·eslint-loader：*通过 ESLint 检查 JavaScript 代码
+// 依赖收集
+function createGetter(isReadonly = false, shallow = false) {
+  return function get(target: Target, key: string | symbol, receiver: object) {
+    ...
+    // 数组类型
+    const targetIsArray = isArray(target)
+    if (!isReadonly && targetIsArray && hasOwn(arrayInstrumentations, key)) {
+      return Reflect.get(arrayInstrumentations, key, receiver)
+    }
+    // 非数组类型
+    const res = Reflect.get(target, key, receiver);
+    
+    // 对象递归调用
+    if (isObject(res)) {
+      return isReadonly ? readonly(res) : reactive(res)
+    }
 
-## 如何⽤webpack来优化前端性能？
-⽤webpack优化前端性能是指优化webpack的输出结果，让打包的最终结果在浏览器运⾏快速⾼效。
+    return res
+  }
+}
+// 派发更新
+function createSetter() {
+  return function set(target: Target, key: string | symbol, value: unknown, receiver: Object) {
+    value = toRaw(value)
+    oldValue = target[key]
+    // 因 ref 数据在 set value 时就已 trigger 依赖了，所以直接赋值 return 即可
+    if (!isArray(target) && isRef(oldValue) && !isRef(value)) {
+      oldValue.value = value
+      return true
+    }
 
-*·压缩代码：*删除多余的代码、注释、简化代码的写法等等⽅式。可以利⽤webpack的 UglifyJsPlugin 和 ParallelUglifyPlugin 来压缩JS⽂件， 利⽤ cssnano （css-loader?minimize）来压缩css
-*·利⽤CDN加速:*在构建过程中，将引⽤的静态资源路径修改为CDN上对应的路径。可以利⽤webpack对于 output 参数和各loader的 publicPath 参数来修改资源路径
-*·Tree Shaking:* 将代码中永远不会⾛到的⽚段删除掉。可以通过在启动webpack时追加参数 --optimize-minimize 来实现
-*·Code Splitting:* 将代码按路由维度或者组件分块(chunk),这样做到按需加载,同时可以充分利⽤浏览器缓存
-*·提取公共第三⽅库:* *SplitChunksPlugin* 插件来进⾏公共模块抽取,利⽤浏览器缓存可以⻓期缓存这些⽆需频繁变动的公共代码
+    // 对象是否有 key 有 key set，无 key add
+    const hadKey = hasOwn(target, key)
+    const result = Reflect.set(target, key, value, receiver)
+    
+    if (target === toRaw(receiver)) {
+      if (!hadKey) {
+        trigger(target, TriggerOpTypes.ADD, key, value)
+      } else if (hasChanged(value, oldValue)) {
+        trigger(target, TriggerOpTypes.SET, key, value, oldValue)
+      }
+    }
+    return result
+  }
+}
+复制代码
+虚拟DOM
+Vue3 相比于 Vue2 虚拟DOM 上增加patchFlag字段。我们借助Vue3 Template Explorer来看。
 
+<div id=app>
+  <h1>技术摸鱼</h1>
+  <p>今天天气真不错</p>
+  <div>{{name}}</div>
+</div>
+复制代码
+渲染函数如下。
 
+import { createElementVNode as _createElementVNode, toDisplayString as _toDisplayString, openBlock as _openBlock, createElementBlock as _createElementBlock, pushScopeId as _pushScopeId, popScopeId as _popScopeId } from vue
+
+const _withScopeId = n => (_pushScopeId(scope-id),n=n(),_popScopeId(),n)
+const _hoisted_1 = { id: app }
+const _hoisted_2 = /*#__PURE__*/ _withScopeId(() => /*#__PURE__*/_createElementVNode(h1, null, 技术摸鱼, -1 /* HOISTED */))
+const _hoisted_3 = /*#__PURE__*/ _withScopeId(() => /*#__PURE__*/_createElementVNode(p, null, 今天天气真不错, -1 /* HOISTED */))
+
+export function render(_ctx, _cache, $props, $setup, $data, $options) {
+  return (_openBlock(), _createElementBlock(div, _hoisted_1, [
+    _hoisted_2,
+    _hoisted_3,
+    _createElementVNode(div, null, _toDisplayString(_ctx.name), 1 /* TEXT */)
+  ]))
+}
+复制代码
+注意第 3 个_createElementVNode的第 4 个参数即patchFlag字段类型，字段类型情况如下所示。1 代表节点为动态文本节点，那在 diff 过程中，只需比对文本对容，无需关注 class、style等。除此之外，发现所有的静态节点，都保存为一个变量进行静态提升，可在重新渲染时直接引用，无需重新创建。
+
+export const enum PatchFlags { 
+  TEXT = 1, // 动态文本内容
+  CLASS = 1 << 1, // 动态类名
+  STYLE = 1 << 2, // 动态样式
+  PROPS = 1 << 3, // 动态属性，不包含类名和样式
+  FULL_PROPS = 1 << 4, // 具有动态 key 属性，当 key 改变，需要进行完整的 diff 比较
+  HYDRATE_EVENTS = 1 << 5, // 带有监听事件的节点
+  STABLE_FRAGMENT = 1 << 6, // 不会改变子节点顺序的 fragment
+  KEYED_FRAGMENT = 1 << 7, // 带有 key 属性的 fragment 或部分子节点
+  UNKEYED_FRAGMENT = 1 << 8,  // 子节点没有 key 的fragment
+  NEED_PATCH = 1 << 9, // 只会进行非 props 的比较
+  DYNAMIC_SLOTS = 1 << 10, // 动态的插槽
+  HOISTED = -1,  // 静态节点，diff阶段忽略其子节点
+  BAIL = -2 // 代表 diff 应该结束
+}
+复制代码
+事件缓存
+Vue3 的 cacheHandler可在第一次渲染后缓存我们的事件。相比于 Vue2 无需每次渲染都传递一个新函数。加一个click事件。
+
+<div id=app>
+  <h1>技术摸鱼</h1>
+  <p>今天天气真不错</p>
+  <div>{{name}}</div>
+  <span onCLick=() => {}><span>
+</div>
+复制代码
+渲染函数如下
+
+import { createElementVNode as _createElementVNode, toDisplayString as _toDisplayString, openBlock as _openBlock, createElementBlock as _createElementBlock, pushScopeId as _pushScopeId, popScopeId as _popScopeId } from vue
+
+const _withScopeId = n => (_pushScopeId(scope-id),n=n(),_popScopeId(),n)
+const _hoisted_1 = { id: app }
+const _hoisted_2 = /*#__PURE__*/ _withScopeId(() => /*#__PURE__*/_createElementVNode(h1, null, 技术摸鱼, -1 /* HOISTED */))
+const _hoisted_3 = /*#__PURE__*/ _withScopeId(() => /*#__PURE__*/_createElementVNode(p, null, 今天天气真不错, -1 /* HOISTED */))
+const _hoisted_4 = /*#__PURE__*/ _withScopeId(() => /*#__PURE__*/_createElementVNode(span, { onCLick: () => {} }, [
+  /*#__PURE__*/_createElementVNode(span)
+], -1 /* HOISTED */))
+
+export function render(_ctx, _cache, $props, $setup, $data, $options) {
+  return (_openBlock(), _createElementBlock(div, _hoisted_1, [
+    _hoisted_2,
+    _hoisted_3,
+    _createElementVNode(div, null, _toDisplayString(_ctx.name), 1 /* TEXT */),
+    _hoisted_4
+  ]))
+}
+复制代码
+Diff 优化
+搬运 Vue3 patchChildren 源码。结合上文与源码，patchFlag帮助 diff 时区分静态节点，以及不同类型的动态节点。一定程度地减少节点本身及其属性的比对。
+
+function patchChildren(n1, n2, container, parentAnchor, parentComponent, parentSuspense, isSVG, optimized) {
+  // 获取新老孩子节点
+  const c1 = n1 && n1.children
+  const c2 = n2.children
+  const prevShapeFlag = n1 ? n1.shapeFlag : 0
+  const { patchFlag, shapeFlag } = n2
+  
+  // 处理 patchFlag 大于 0 
+  if(patchFlag > 0) {
+    if(patchFlag && PatchFlags.KEYED_FRAGMENT) {
+      // 存在 key
+      patchKeyedChildren()
+      return
+    } els if(patchFlag && PatchFlags.UNKEYED_FRAGMENT) {
+      // 不存在 key
+      patchUnkeyedChildren()
+      return
+    }
+  }
+  
+  // 匹配是文本节点（静态）：移除老节点，设置文本节点
+  if(shapeFlag && ShapeFlags.TEXT_CHILDREN) {
+    if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+      unmountChildren(c1 as VNode[], parentComponent, parentSuspense)
+    }
+    if (c2 !== c1) {
+      hostSetElementText(container, c2 as string)
+    }
+  } else {
+    // 匹配新老 Vnode 是数组，则全量比较；否则移除当前所有的节点
+    if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+      if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        patchKeyedChildren(c1, c2, container, anchor, parentComponent, parentSuspense,...)
+      } else {
+        unmountChildren(c1 as VNode[], parentComponent, parentSuspense, true)
+      }
+    } else {
+      
+      if(prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+        hostSetElementText(container, '')
+      } 
+      if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        mountChildren(c2 as VNodeArrayChildren, container,anchor,parentComponent,...)
+      }
+    }
+  }
+}
+复制代码
+patchUnkeyedChildren 源码如下。
+
+function patchUnkeyedChildren(c1, c2, container, parentAnchor, parentComponent, parentSuspense, isSVG, optimized) {
+  c1 = c1 || EMPTY_ARR
+  c2 = c2 || EMPTY_ARR
+  const oldLength = c1.length
+  const newLength = c2.length
+  const commonLength = Math.min(oldLength, newLength)
+  let i
+  for(i = 0; i < commonLength; i++) {
+    // 如果新 Vnode 已经挂载，则直接 clone 一份，否则新建一个节点
+    const nextChild = (c2[i] = optimized ? cloneIfMounted(c2[i] as Vnode)) : normalizeVnode(c2[i])
+    patch()
+  }
+  if(oldLength > newLength) {
+    // 移除多余的节点
+    unmountedChildren()
+  } else {
+    // 创建新的节点
+    mountChildren()
+  }
+  
+}
+复制代码
+patchKeyedChildren源码如下，有运用最长递增序列的算法思想。
+
+function patchKeyedChildren(c1, c2, container, parentAnchor, parentComponent, parentSuspense, isSVG, optimized) {
+  let i = 0;
+  const e1 = c1.length - 1
+  const e2 = c2.length - 1
+  const l2 = c2.length
+  
+  // 从头开始遍历，若新老节点是同一节点，执行 patch 更新差异；否则，跳出循环 
+  while(i <= e1 && i <= e2) {
+    const n1 = c1[i]
+    const n2 = c2[i]
+    
+    if(isSameVnodeType) {
+      patch(n1, n2, container, parentAnchor, parentComponent, parentSuspense, isSvg, optimized)
+    } else {
+      break
+    }
+    i++
+  }
+  
+  // 从尾开始遍历，若新老节点是同一节点，执行 patch 更新差异；否则，跳出循环 
+  while(i <= e1 && i <= e2) {
+    const n1 = c1[e1]
+    const n2 = c2[e2]
+    if(isSameVnodeType) {
+      patch(n1, n2, container, parentAnchor, parentComponent, parentSuspense, isSvg, optimized)
+    } else {
+      break
+    }
+    e1--
+    e2--
+  }
+  
+  // 仅存在需要新增的节点
+  if(i > e1) {    
+    if(i <= e2) {
+      const nextPos = e2 + 1
+      const anchor = nextPos < l2 ? c2[nextPos] : parentAnchor
+      while(i <= e2) {
+        patch(null, c2[i], container, parentAnchor, parentComponent, parentSuspense, isSvg, optimized)
+      }
+    }
+  }
+  
+  // 仅存在需要删除的节点
+  else if(i > e2) {
+    while(i <= e1) {
+      unmount(c1[i], parentComponent, parentSuspense, true)    
+    }
+  }
+  
+  // 新旧节点均未遍历完
+  // [i ... e1 + 1]: a b [c d e] f g
+  // [i ... e2 + 1]: a b [e d c h] f g
+  // i = 2, e1 = 4, e2 = 5
+  else {
+    const s1 = i
+    const s2 = i
+    // 缓存新 Vnode 剩余节点 上例即{e: 2, d: 3, c: 4, h: 5}
+    const keyToNewIndexMap = new Map()
+    for (i = s2; i <= e2; i++) {
+      const nextChild = (c2[i] = optimized
+          ? cloneIfMounted(c2[i] as VNode)
+          : normalizeVNode(c2[i]))
+      
+      if (nextChild.key != null) {
+        if (__DEV__ && keyToNewIndexMap.has(nextChild.key)) {
+          warn(
+            `Duplicate keys found during update:`,
+             JSON.stringify(nextChild.key),
+            `Make sure keys are unique.`
+          )
+        }
+        keyToNewIndexMap.set(nextChild.key, i)
+      }
+    }
+  }
+  
+  let j = 0
+  // 记录即将 patch 的 新 Vnode 数量
+  let patched = 0
+  // 新 Vnode 剩余节点长度
+  const toBePatched = e2 - s2 + 1
+  // 是否移动标识
+  let moved = false
+  let maxNewindexSoFar = 0
+  
+  // 初始化 新老节点的对应关系（用于后续最大递增序列算法）
+  const newIndexToOldIndexMap = new Array(toBePatched)
+  for (i = 0; i < toBePatched; i++) newIndexToOldIndexMap[i] = 0
+  
+  // 遍历老 Vnode 剩余节点
+  for (i = s1; i <= e1; i++) {
+    const prevChild = c1[i]
+    
+    // 代表当前新 Vnode 都已patch，剩余旧 Vnode 移除即可
+    if (patched >= toBePatched) {
+      unmount(prevChild, parentComponent, parentSuspense, true)
+      continue
+    }
+    
+    let newIndex
+    // 旧 Vnode 存在 key，则从 keyToNewIndexMap 获取
+    if (prevChild.key != null) {
+      newIndex = keyToNewIndexMap.get(prevChild.key)
+    // 旧 Vnode 不存在 key，则遍历新 Vnode 获取
+    } else {
+      for (j = s2; j <= e2; j++) {
+        if (newIndexToOldIndexMap[j - s2] === 0 && isSameVNodeType(prevChild, c2[j] as VNode)){
+           newIndex = j
+           break
+        }
+      }           
+   }
+   
+   // 删除、更新节点
+   // 新 Vnode 没有 当前节点，移除
+   if (newIndex === undefined) {
+     unmount(prevChild, parentComponent, parentSuspense, true)
+   } else {
+     // 旧 Vnode 的下标位置 + 1，存储到对应 新 Vnode 的 Map 中
+     // + 1 处理是为了防止数组首位下标是 0 的情况，因为这里的 0 代表需创建新节点
+     newIndexToOldIndexMap[newIndex - s2] = i + 1
+     
+     // 若不是连续递增，则代表需要移动
+     if (newIndex >= maxNewIndexSoFar) {
+       maxNewIndexSoFar = newIndex
+     } else {
+       moved = true
+     }
+     
+     patch(prevChild,c2[newIndex],...)
+     patched++
+   }
+  }
+  
+  // 遍历结束，newIndexToOldIndexMap = {0:5, 1:4, 2:3, 3:0}
+  // 新建、移动节点
+  const increasingNewIndexSequence = moved
+  // 获取最长递增序列
+  ? getSequence(newIndexToOldIndexMap)
+  : EMPTY_ARR
+  
+  j = increasingNewIndexSequence.length - 1
+
+  for (i = toBePatched - 1; i >= 0; i--) {
+    const nextIndex = s2 + i
+    const nextChild = c2[nextIndex] as VNode
+    const anchor = extIndex + 1 < l2 ? (c2[nextIndex + 1] as VNode).el : parentAnchor
+    // 0 新建 Vnode
+    if (newIndexToOldIndexMap[i] === 0) {
+      patch(null,nextChild,...)
+    } else if (moved) {
+      // 移动节点
+      if (j < 0 || i !== increasingNewIndexSequence[j]) {
+        move(nextChild, container, anchor, MoveType.REORDER)
+      } else {
+        j--
+      }
+    }
+  }
+}
+复制代码
+打包优化
+tree-shaking：模块打包webpack、rollup等中的概念。移除 JavaScript 上下文中未引用的代码。主要依赖于import和export语句，用来检测代码模块是否被导出、导入，且被 JavaScript 文件使用。
+
+以nextTick为例子，在 Vue2 中，全局 API 暴露在 Vue 实例上，即使未使用，也无法通过tree-shaking进行消除。
+
+import Vue from 'vue'
+
+Vue.nextTick(() => {
+  // 一些和DOM有关的东西
+})
+复制代码
+Vue3 中针对全局 和内部的API进行了重构，并考虑到tree-shaking的支持。因此，全局 API 现在只能作为ES模块构建的命名导出进行访问。
+
+import { nextTick } from 'vue'
+
+nextTick(() => {
+  // 一些和DOM有关的东西
+})
+复制代码
+通过这一更改，只要模块绑定器支持tree-shaking，则 Vue 应用程序中未使用的api将从最终的捆绑包中消除，获得最佳文件大小。受此更改影响的全局API有如下。
+
+Vue.nextTick
+Vue.observable （用 Vue.reactive 替换）
+Vue.version
+Vue.compile （仅全构建）
+Vue.set （仅兼容构建）
+Vue.delete （仅兼容构建）
+内部 API 也有诸如 transition、v-model等标签或者指令被命名导出。只有在程序真正使用才会被捆绑打包。
+
+根据 尤大 直播可以知道如今 Vue3 将所有运行功能打包也只有22.5kb，比 Vue2 轻量很多。
+
+自定义渲染API
+Vue3 提供的createApp默认是将 template 映射成 html。但若想生成canvas时，就需要使用custom renderer api自定义render生成函数。
+
+// 自定义runtime-render函数
+import { createApp } from './runtime-render'
+import App from './src/App'
+
+createApp(App).mount('#app')
+复制代码
+TypeScript 支持
+Vue3 由TS重写，相对于 Vue2 有更好地TypeScript支持。
+
+Vue2 Option API中 option 是个简单对象，而TS是一种类型系统，面向对象的语法，不是特别匹配。
+Vue2 需要vue-class-component强化vue原生组件，也需要vue-property-decorator增加更多结合Vue特性的装饰器，写法比较繁琐。
 
 # **200 性能优化!!!**
 ## 1.合理的选择 v-if 和 v-show
@@ -2161,12 +2600,12 @@ export default {
 
 *注意*： 滥用 keep-alive 只会让你的应用变得更加卡顿，因为他会长期占用较大的内存
 
-## 7. 路由懒加载
+## 7.1.路由懒加载
 
-## 7. 组件懒加载
+## 7.2.组件懒加载
 在单页应用中，如果没有应用懒加载，运用 webpack 打包后的文件将会异常的大，造成进入首页时，需要加载的内容过多，延时过长，不利于用户体验，而运用懒加载则可以将页面进行划分，需要的时候加载页面，可以有效的分担首页所承担的加载压力，减少首页加载用时。
 
-## 图片加载
+## 7.3.图片懒加载
 图片懒加载：适用于页面上有较多图片且并不是所有图片都在一屏中展示的情况，vue-lazyload 插件给我们提供了一个很方便的图片懒加载指令 v-lazy
 
 但是并不是所有图片都适合使用懒加载，例如 banner、相册等 更加推荐使用图片预加载技术，将当前展示图片的前一张和后一张优先下载。
@@ -2440,3 +2879,95 @@ chainWebpack(config) {
 
 
 ## 五、 打包去除console.log
+
+# ·················技巧····································
+
+# 101.Vue路由组件化(运用require.context)
+```js
+require.context(directory, useSubdirectories = false, regExp = /^.//)
+第一个参数目标文件夹
+是否查找子集 true | false
+正则匹配
+```
+  ## 主路由文件中代码
+```js
+import Vue from "vue";
+import VueRouter from "vue-router";
+Vue.use(VueRouter);
+
+const routerList = [];
+function importAll(r) {
+    r.keys().forEach((key) => {
+        routerList.push(r(key).default);
+    });
+}
+、
+importAll(require.context("./", true, /\.routes\.js/));//这里的目录和规则可以看自己习惯，这里获取的是当前同一个文件夹下的所有以 .routes.js 结尾的各个不同功能路由模块文件
+
+const routes = [
+    ...routerList,
+    {
+      path: './',
+      name: 'Home',
+      component: Home
+    }
+];
+
+const router = new VueRouter({
+    routes,
+});
+
+export default router;
+```
+  ## 各个模块路由文件
+```js
+export default {
+  path:'./login',
+  name:'./login',
+  component
+  children:[
+
+  ]
+}
+```
+
+# 102.Vue 权限控制技巧
+1.单独一个文件保存权限判断函数
+```js
+export function checkArray (key){
+  //权限数组
+  let arr = [1, 2, 3 ,4]
+  let index = arr.indexOf(key)
+  if( index > -1 ){
+    return true
+  }else{
+    return false
+  }
+}
+```
+
+2.在 main.js 中定义一个自定义指令
+```js
+import {checkArray} from '../..'
+Vue.directive('display-key',{
+  inserted(el, binding){
+    let displayKey = binding.value
+    if( displayKey ){
+      //使用函数判断是否有权限，返回 true 或 false
+      let hasPermissin = checkArray(displayKey)
+      if(!hasPermissin){
+        el.parentNode && el.parentNode.removeChild(el)
+      }
+    } else {
+      throw new Error(`need v-display-key`)
+    }
+  }
+})
+```
+3. 在各个组件中可以在组件标签上使用指令
+```js
+//有1,2,3,4的都是有权限的，超过4的没有权限会删除
+<button v-display-key='1'>按钮一</button>
+<button v-display-key='2'>按钮一</button>
+```
+
