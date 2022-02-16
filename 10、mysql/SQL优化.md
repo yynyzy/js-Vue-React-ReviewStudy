@@ -1,3 +1,14 @@
+
+*Explain关键字段*
+extra中出现以下2项意味着MYSQL根本不能使用索引,效率会受到重大影响。应尽可能对此进行优化。
+extra 项               说明
+Using filesort       表示 MySQL 会对结果使用一个外部索引排序,而不是从表里按索引次序读到相关内容。可能在内存或者磁盘上进行排序。MySQL中无法利用索引完成的排序操作称为"文件排序”。
+Using temporary      表示MySQL在对查询结果排序时使用临时表。常见于排序order by和分组查询group by
+
+
+
+
+
 # 15个小技巧，拿捏 SQL 优化！
 ![SQl优化](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\mysql.jpg)
 
