@@ -1,4 +1,7 @@
-
+# **如何定位并优化慢查询Sql**
+1.根据慢日志定位慢查询sql
+2.使用explain等工具分析sql
+3.修改sql或者尽量让sql走索引
 *Explain关键字段*
 extra中出现以下2项意味着MYSQL根本不能使用索引,效率会受到重大影响。应尽可能对此进行优化。
 extra 项               说明
@@ -9,7 +12,7 @@ Using temporary      表示MySQL在对查询结果排序时使用临时表。常
 
 
 
-# 15个小技巧，拿捏 SQL 优化！
+# 15个小技巧， SQL 优化！
 ![SQl优化](C:\Users\Lenovo\Desktop\JsVueReact复习\photo\mysql.jpg)
 
 ## 1 避免使用select *
