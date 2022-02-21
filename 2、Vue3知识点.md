@@ -593,6 +593,8 @@ let fullName = computed({
 **history**
 原理：history 提供了 pushState 和 replaceState 两个方法来记录路由状态，这两个方法改变 URL 不会引起页面刷新。pushState(state, title, url) 和 replaceState(state, title, url)都可以接受三个相同的参数。
 
+通过$(window).on('popstate', function () {}） 监听history 实体 变化。
+
 *优点：*
 ·使用简单，比较美观
 ·pushState()设置新的URL可以是任意与当前URL同源的URL，而hash只能改变#后面的内容，因此只能设置与当前URL同文档的URL
