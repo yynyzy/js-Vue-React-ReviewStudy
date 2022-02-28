@@ -1,8 +1,12 @@
 ## **0.ES6(包括ES7、8、9...)**
 ·新增symbol类型 表示独一无二的值，用来定义独一无二的对象属性名;
-·const/let  都是用来声明变量,不可重复声明，具有块级作用域。存在暂时性死区，也就是不存在变量提升。(const一般用于声明常量)
+
+·const/let  都是用来声明变量,不可重复声明，具有块级作用域。存在暂时性死区，也就是不存在变量提升。(const一般用于声明常量);
+
 ·变量的解构赋值(包含数组、对象、字符串、数字及布尔值,函数参数),剩余运算符(...rest);
+
 ·模板字符串(`${data}`);
+
 ·扩展运算符(数组、对象);;
 ·箭头函数;
 ·Set和Map数据结构;
@@ -29,7 +33,7 @@ const arr = ['es6', 'es7', 'es8']
 console.log(arr.includes('es7')) // true
 console.log(arr.includes('es7', 1)) // true
 console.log(arr.includes('es7', 2)) // false
-console.log(arr.includes("es7", -1)); // fsle
+console.log(arr.includes("es7", -1)); // fasle
 console.log(arr.includes("es7", -2)); // true
 ```
 *注意点*
@@ -1040,7 +1044,7 @@ Function.prototype.myBind = function (context = window) {
 防抖：在delay时间后执行，如果在 delay 内再次触发，则重新计时。（取消定时器）
 ```js
 function debounce (fn, delay) {
-            const timer = null
+            let timer = null
             return function () {
                 if(timer) clearTimeout(timer)
                 let context = this
@@ -1220,7 +1224,7 @@ let Public = {
     null == undefined; //true
     null === undefined; //false
     Object.prototype.toString(undefined) => '[object Undefined]'
-    Object.prototype.toString(null) => '[object Undefined]' 
+    Object.prototype.toString(null) => '[object null]' 
  ```
  Undefined ：
  1.定义变量但没有赋值
