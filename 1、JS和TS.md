@@ -1970,6 +1970,7 @@ function Mytypeof(obj) {
         return map.get(type) ? type : 'Object'
     }
 ```
+   
    ### instanceof
 ```js
 function _instanceof(A, B) {
