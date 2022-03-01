@@ -2167,6 +2167,7 @@ function SubType (){
 }
 // 将父类的实例 赋给继承者的原型
 SubType.prototype = new SuperType();
+
 //会覆盖之前的相同名字原型
 SuperType.prototype.getSubValue= function (){
     return this.Subproperty;
@@ -2270,8 +2271,8 @@ function createAnother(original){
 
 
    ### 6.寄生组合式继承 
-   结合借用构造函数传递参数和寄生模式实现继承，这是最成熟的方法，也是现在库实现的方法
-   这个例子的高效率体现在它只调用了一次SuperType构造函数，并且因此避免了在SubType.prototype上创建不必要的、多余的属性。于此同时，原型链还能保持不变；因此，还能够正常使用instanceof和isPrototypeOf()
+   结合 借用构造函数 传递参数和 寄生模式 实现继承，这是最成熟的方法，也是现在库实现的方法
+   这个例子的高效率体现在它只调用了一次 SuperType构造函数，并且因此避免了在SubType.prototype上创建不必要的、多余的属性。于此同时，原型链还能保持不变；因此，还能够正常使用instanceof和isPrototypeOf()
 ```js
 
 // 父类初始化实例属性和原型属性
