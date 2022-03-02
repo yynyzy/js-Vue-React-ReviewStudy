@@ -2610,7 +2610,7 @@ sleepGenerator(5000).next().value.then(()=>{
 ## 45.使用setTimeout实现setInterval方法
 ```js
 function mysetinterval(fn,time){
-    console.log("利用steTimeout实现setInterval");
+    console.log("利用setTimeout实现setInterval");
     function interval(){//执行该函数，异步被挂起time时间后在执行，一上来就执行fn
         setTimeout(interval,time);//异步
         //好，time时间过去，这个异步被执行，而内部执行的函数正是interval，就相当于进了一个循环，递归
@@ -2755,13 +2755,17 @@ function trim(str){
     let len = str.length
     let start = 0,end=0
     for(let i =0; i <len; i++){
-        if(str[i]==""){
+        if(str[i]==" "){
             start=i
+        }else{
+            break
         }
     }
     for(let i =len-1; i>0; i--){
-        if(str[i]==""){
+        if(str[i]==" "){
            end=i+1
+        }else{
+            break
         }
     }
     return str.slice(start,end);
@@ -2987,9 +2991,9 @@ if( isIos){
 
 
 ## 65.WeakMap
-WeakMap与Map的区别有两点：
+WeakMap 与 Map的区别有两点：
     WeakMap 对象是键/值对的集合，*键*被*弱引用*。*键必须是对象*。
-    WeakMap的键名所指向的对象，不计入垃圾回收机制
+    WeakMap 的键名所指向的对象，不计入垃圾回收机制
 
 ·WeakMap的设计目的在于，有时我们想在某个对象上面存放一些数据，但是这会形成对于这个对象的引用。
 ·WeakMap 就是为了解决这个问题而诞生的，它的键名所引用的对象都是弱引用，即*垃圾回收机制不将该引用考虑在内*
@@ -3012,7 +3016,7 @@ draggable属性：设置元素是否可拖动。
 *dragleave*   当被拖动元素没有放下就离开目的地元素时触发
 
 
-## 67.**axios （并发请求，cancelToken取消请求原理）**
+## 67.**axios（并发请求，cancelToken取消请求原理）**
 通过调用CancelToken的构造函数来实现取消请求主要分为两步：
     1.调用CancelToken构造函数创建cancelToken实例对象，并创建一个 cancel函数
     2.调用cancel函数，取消请求
@@ -3107,13 +3111,11 @@ JavaScript 既可以读取和修改 DOM 属性，又可以读取和修改 CSSOM 
 ```js
 // 定义一个字符串
     function render(template, context) {
-        return template.replace(/\$\{\{(.*?)\}\}/g, (match, key) => context[key]);
+        return template.replace(/$\{\{(.*?)\}\}/g, (match, key) => context[key]);
     }
     const template = "${{name}}很厉name害，才${{age}}岁";
     const context = { name: "jawil", age: "15" };
     console.log(render(template, context));
-
-
 ```
 
 ## 72.移动端html标签几个体验优化
@@ -3236,13 +3238,6 @@ babel 是 source-to-source 的转换，整体编译流程分为三步：
     在transform阶段实现的是对ast代码节点的替换和重组，接下来进入generat阶段，@babel/generator模块是代码生成器，把最终（经过一系列转换之后）的 AST 转换成目标代码和创建 sourcemap 源码映射。
 
 
-
-a=1;会进行词法分析吗？
-怎么进行词法分析的？（关键字）
-
-
-词法和语法谁先执行？
-哪些算是词法哪些算是语法？
 const const a=1;词法分析能通过吗？是到语法分析才报错吗？
 
 ## 76.单页和多页应用怎么通讯
@@ -3446,7 +3441,7 @@ b.如果第二个参数不是数值，会被自动转为一个整数。这个整
 ```js
 parseInt(“19”, 10); // 19 (10+9)
 parseInt(“11”, 2); // 3 (2+1)
-parseInt(“1f”, 16); // 31 (16+15)
+parseInt(“1f”, 16); // 31 (1*16^1+f*16^0)
  
 parseInt('-99', null); // -99
 parseInt('-99', undefined); // -99
