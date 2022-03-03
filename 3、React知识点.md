@@ -979,7 +979,7 @@ const memoizedValue = useMemo(computeExpensiveValue, [a, b]);
 *useLayoutEffect*（同步，会在DOM变更后，但在浏览器重新绘制之前执行，阻塞绘制)
 这个是用在处理DOM的时候,当你的useEffect里面的操作需要处理DOM,并且会改变页面的样式,就需要用这个,否则可能会出现出现闪屏问题, useLayoutEffect里面的callback函数会在DOM更新完成后立即执行,但是会在浏览器进行任何绘制之前运行完成,阻塞了浏览器的绘制.
 
-# 17.React：理解函数组件与类组件
+# 17.理解函数组件与类组件的区别优劣
 ## 1）状态同步问题，函数组件会捕获当前渲染时所用的值。但往往这被忽略了。
 
 ## 2）生命周期
@@ -1003,9 +1003,34 @@ const FunctionalComponent = () => {
     但是当父组件将自己定义的引用类型的值传递给子组件时，即使值没有改变。但是由于每次渲染的时候都会生成新的变量，导致引用发生了改变，所以子组件仍然会渲染
     针对上面这个现象，通常考虑使用useCallback，useMemo来实现优化，看下面这个例子，useCallback,useMemo，现在我们发现即使我们不停的点击按钮，也不会重新触发子组件的渲染，并且useEffect也不会执行。这是因为useCallback，useMemo在依赖数组没变的情况下，都读取了缓存，没有重新生成函数或者对象。
 
-## 4）自定义hook
+## 4）自定义hook实现 *代码复用*
+    函数组件：自定义hook
+    原本我们需要在B和D组件中都进行状态的定义和数据的获取，B和D组件如下：
+组件B/D：
 ```js
+import React, {useState, useEffect} from 'react'
+import axios from 'axios'
+function B() {
+	const [lists, setLists] = useState([])
+	useEffect(() => {
+		const getLists = async () => {
+			const data = await axios.get('xxx/xxxx') //数据请求地址
+			setLists(data)
+		}
+		getLists()
+	}, [])
+	return(
+		//渲染
+		<>
+			{lists.map(item) => ()}
+		</>
+	)
+}
+export default B
+```
+现在可以自定义一个hook，将同样的代码只写一次，如下：
 useAxios.js：
+```js
 import {useState, useEffect} from 'react'
 import axios from 'axios'
 function useAxios(name) {
@@ -1020,8 +1045,9 @@ function useAxios(name) {
 	return lists
 }
 export default useAxios
-
+```
 组件B/D：
+```js
 import React from 'react'
 import useAxios from '../customHooks/useAxios'
 function B() {
@@ -1034,8 +1060,81 @@ function B() {
 	)
 }
 export default B
-
 ```
+
+下面对比用类组件实现：
+类组件：HOC(高阶组件)与Render Props
+```js
+组件B/D:
+import React, {Component} from 'react'
+import axios from 'axios'
+class B extends Component {
+	constructor () {
+		super()
+    	this.state = { lists: [] }
+	}
+
+    componentWillMount () {
+		const data = await axios.get('xxx/xxxx')//数据请求地址
+		this.setState({ lists: data })
+    }
+
+    render () {
+		//渲染
+		return (
+			<>
+				{this.state.lists.map(item) => ()}
+			</>
+		)
+    }
+}
+export default B
+```
+利用HOC（高阶组件写法如下）：
+wrapWithAjax.js(这是一个HOC):
+```js
+import React, {Component} from 'react'
+import axios from 'axios'
+const wrapWithAjax = (WrappedComponent, name) => {
+	return class extends Component {
+		constructor() {
+			super()
+			this.state = { lists: [] }
+		}
+		
+		componentWillMount() {
+			const data = await axios.get(name)//数据请求地址
+			this.setState({ lists: data })
+    	}
+		
+		render() {
+			return (
+				<WrappedComponent lists={this.state.lists} />
+			)
+		}
+	}
+}
+```
+B/D组件:
+```js
+import React from 'react'
+import wrapWithAjax from './wrapWithAjax'
+class B extends Component {
+    render() {
+		//渲染
+		return (
+			<>
+				{this.props.lists.map(item) => ()}
+			</>
+		)
+    }
+}
+B = wrapWithAjax(B, 'xxx/xxxx')
+export default B
+```
+    通过上面这个例子，可以清除的发现函数式组件自定义hook的方式使用的代码量更少，而且相比HOC更加直观，代码可读性更高也更易于理解。而且通过观察HOC的代码，一个HOC相当于对原来的组件做了一层代理，那么就避免不了‘嵌套地狱’的出现。
+
+
 
 ## *总结：*
 ·函数组件语法更短、更简单，这使得它更容易开发、理解和测试。
