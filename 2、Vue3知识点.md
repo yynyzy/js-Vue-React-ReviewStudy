@@ -1,7 +1,6 @@
 # 0.简述MVVM
 MVVM是Model-View-ViewModel的缩写。Model 代表数据层，可定义修改数据、编写业务逻辑。View 代表视图层，负责将数据渲染成页面。ViewModel 负责监听数据层数据变化，控制视图层行为交互，简单讲，就是同步数据层和视图层的对象。*ViewModel 通过双向绑定把 View 和 Model 层连接起来，且同步工作无需人为干涉，使开发人员只关注业务逻辑，无需频繁操作DOM*，不需关注数据状态的同步问题。
 # 0.5 mvc，mvp，mvvm是什么
-
  *mvc*
 模型（Model）：数据保存
 视图（View）：用户界面。
@@ -36,7 +35,7 @@ View的变动，自动反映在 ViewModel，反之亦然。
 解决方案：在父页面调用当前组件外包裹一层Suspense组件。
 ```html
 <template>
-  <suspense>
+  <Suspense>
     <template #default>
       <todo-list />
     </template>
@@ -45,7 +44,7 @@ View的变动，自动反映在 ViewModel，反之亦然。
         Loading...
       </div>
     </template>
-  </suspense>
+  </Suspense>
 </template>
 ```
 ```js
@@ -212,7 +211,7 @@ test('an async feature', async () => {
 ·数组类型:通过重写更新数组的一系列方法来实现拦截。(对数组的变更方法进行了包裹)。
 ```js
 //Object.defineProperty(obj, prop, descriptor)
-//·obj-要定义属性的对象。 
+  ·obj-要定义属性的对象。 
   ·prop-要定义或修改的属性的名称或 Symbol。  
   ·descriptor-要定义或修改的属性描述符:
           ·value：属性的值(不用多说了)

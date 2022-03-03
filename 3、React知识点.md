@@ -971,6 +971,14 @@ const memoizedValue = useMemo(computeExpensiveValue, [a, b]);
 复制代码useMemo 的第一个参数就是一个函数，这个函数*返回的值*会被缓存起来，同时这个值会作为 useMemo 的返回值，第二个参数是一个数组依赖，如果数组里面的值有变化，那么就会重新去执行第一个参数里面的函数，并将函数返回的值缓存起来并作为 useMemo 的返回值 。
 
 
+# 16.useEffect 和 useLayoutEffect
+
+*useEffect*(异步，可能会在DOM变更后，且浏览器重新绘制之后完成执行)
+基本上90%的情况下,都应该用这个,这个是在render结束后,你的callback函数执行,但是不会block browser painting,算是某种异步的方式吧,但是class的componentDidMount 和componentDidUpdate是同步的,在render结束后就运行,useEffect在大部分场景下都比class的方式性能更好.
+
+*useLayoutEffect*（同步，会在DOM变更后，但在浏览器重新绘制之前执行，阻塞绘制)
+这个是用在处理DOM的时候,当你的useEffect里面的操作需要处理DOM,并且会改变页面的样式,就需要用这个,否则可能会出现出现闪屏问题, useLayoutEffect里面的callback函数会在DOM更新完成后立即执行,但是会在浏览器进行任何绘制之前运行完成,阻塞了浏览器的绘制.
+
 
 # 100.React面试题（setState修改数据）
 ```js
