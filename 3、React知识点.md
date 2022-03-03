@@ -979,6 +979,104 @@ const memoizedValue = useMemo(computeExpensiveValue, [a, b]);
 *useLayoutEffect*（同步，会在DOM变更后，但在浏览器重新绘制之前执行，阻塞绘制)
 这个是用在处理DOM的时候,当你的useEffect里面的操作需要处理DOM,并且会改变页面的样式,就需要用这个,否则可能会出现出现闪屏问题, useLayoutEffect里面的callback函数会在DOM更新完成后立即执行,但是会在浏览器进行任何绘制之前运行完成,阻塞了浏览器的绘制.
 
+# 17.React：理解函数组件与类组件
+## 1）状态同步问题，函数组件会捕获当前渲染时所用的值。但往往这被忽略了。
+
+## 2）生命周期
+On Mounting(componentDidMount)
+生命周期函数 componentDidMount 在第一次渲染完成后就会被调用。
+```js
+const FunctionalComponent = () => {
+ React.useEffect(() => {
+   console.log("Hello");
+ }, []);
+ return <h1>Hello, World</h1>;
+};
+```
+在函数组件中，我们使用 useEffect hook 来替代componentDidMount。第二个参数通常是一个包含变化的state的数组，而 useEffect 将只在这些选定的state变化时被调用。但是当它是一个空数组时，它只在挂载时被调用一次。这是componentDidMount 的完美替代。
+
+我们也可以使用 useState hook 进行unmount。但是要注意，语法有点不同。我们需要做的是在 useEffect 函数里面返回一个在unmount时运行的函数。当你需要清理 clearInterval 等函数时，这一点特别有用。使用 useEffect 的一个好处是，我们可以在同一个地方同时写挂载和卸载的函数。
+
+## 3）性能优化
+    类组件 shouldComponentUpdate 这个生命周期，通常我们在这个生命周期中进行组件的优化，通过判断前一个props和当前的props是否有变化来判断组件是否需要渲染，或者通过PureComponent实现；
+    在函数组件中我们通过 React.memo() 来实现。
+    但是当父组件将自己定义的引用类型的值传递给子组件时，即使值没有改变。但是由于每次渲染的时候都会生成新的变量，导致引用发生了改变，所以子组件仍然会渲染
+    针对上面这个现象，通常考虑使用useCallback，useMemo来实现优化，看下面这个例子，useCallback,useMemo，现在我们发现即使我们不停的点击按钮，也不会重新触发子组件的渲染，并且useEffect也不会执行。这是因为useCallback，useMemo在依赖数组没变的情况下，都读取了缓存，没有重新生成函数或者对象。
+
+## 4）自定义hook
+```js
+useAxios.js：
+import {useState, useEffect} from 'react'
+import axios from 'axios'
+function useAxios(name) {
+	const [lists, setLists] = useState([])
+	useEffect(() => {
+		const getLists = async () => {
+			const data = await axios.get(name)
+			setLists(data)
+		}
+		getLists()
+	}, [name])
+	return lists
+}
+export default useAxios
+
+组件B/D：
+import React from 'react'
+import useAxios from '../customHooks/useAxios'
+function B() {
+	const lists = useAxios('xxx/xxxx')//数据请求地址
+	return(
+		//渲染
+		<>
+			{lists.map(item) => ()}
+		</>
+	)
+}
+export default B
+
+```
+
+## *总结：*
+·函数组件语法更短、更简单，这使得它更容易开发、理解和测试。
+·类组件也会因大量使用 this 而让人感到困惑。函数式组件可以避免复杂的this
+
+
+   
+
+# 18. 自定义hook
+```js
+useAxios.js：
+import {useState, useEffect} from 'react'
+import axios from 'axios'
+function useAxios(name) {
+	const [lists, setLists] = useState([])
+	useEffect(() => {
+		const getLists = async () => {
+			const data = await axios.get(name)
+			setLists(data)
+		}
+		getLists()
+	}, [name])
+	return lists
+}
+export default useAxios
+
+组件B/D：
+import React from 'react'
+import useAxios from '../customHooks/useAxios'
+function B() {
+	const lists = useAxios('xxx/xxxx')//数据请求地址
+	return(
+		//渲染
+		<>
+			{lists.map(item) => ()}
+		</>
+	)
+}
+export default B
+
+```
 
 # 100.React面试题（setState修改数据）
 ```js
