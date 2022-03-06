@@ -18,7 +18,7 @@
     HashRouter使用的是URL的哈希值。
 2.ur1表现形式不一样
     BrowserRouter的路径中没有#,例如: localhost: 30e0/demo/test
-    HashRouter的路径包含#,例如: 1ocalhost:3000/#/demo/test
+    HashRouter的路径包含#,例如: localhost:3000/#/demo/test
 3.刷新后对路由state参数的影响
     (1).BrowserRouter没有任何影响，因为state保存在history对象中。
     (2).HashRouter刷新后会导致路由state参数的丢失。！！！！！！！！！！！！！！！
@@ -47,7 +47,7 @@
                     match:
                         params: {}
                         path: "/about"
-                        ur1: "/ about"
+                        url: "/ about"
 
 ## 4.NavLink 与封装 NavLink
     1.NavLink 可以实现路由链接的高亮，通过 activeclassName 指定样式名
@@ -60,11 +60,11 @@
 
 ## 6.解决多级路径刷新页面样式丢失的问题
     1.public/index.html 中引入样式时不写./ 写/（常用)
-    2.public/index.html 中引入样式时不写﹒/写%PUBLIC_URL%（常用)
+    2.public/index.html 中引入样式时不写./写%PUBLIC_URL%（常用)
     3.使用HashRouter
 
 ## 7.路由的严格匹配与模糊匹配
-    1.默认使用的是模柳匹配（简单记:【输入的路径】必须包含要【匹配的路径】，且顺序要一致
+    1.默认使用的是模糊匹配（简单记:【输入的路径】必须包含要【匹配的路径】，且顺序要一致
     2.开启严格匹配:<Route exact={true} path="/about" component={About}/>
     3.严格匹配不要随便开启，需要再开，有些时候开启会导致无法继续匹配二级路由
 
@@ -101,12 +101,12 @@
     备注:当前页面（标签页）刷新也可以保留住参数
 
 ## 13.编程式路由导航
-    借助 this.prosp.history 对象上的API对操作路由跳转、前进、后退
-    -this.prosp.history.push()
-    -this.prosp.history.replace()
-    -this.prosp.history.goBack()
-    -this.prosp.history.goForward()
-    -this.prosp.history.go()
+    借助 this.prop.history 对象上的API对操作路由跳转、前进、后退
+    -this.prop.history.push()
+    -this.prop.history.replace()
+    -this.prop.history.goBack()
+    -this.prop.history.goForward()
+    -this.prop.history.go()
 
 ## 14.非路由跳转组件
 不是所有组件都通过路由跳转，但也需要抓去路由上下文，解决方案：
@@ -151,10 +151,10 @@ this.setState({
         2.updater可以接收到state和props。
         3.callback是可选的回调函数，它在状态更新、界面也更新后(render调用后)才被调用。
 总结:
-    1.对象式的settate是函数式的setstate的简写方式(语法糖)
+    1.对象式的setstate是函数式的setstate的简写方式(语法糖)
     2.使用原则:
         (1).如果新状态不依赖于原状态===>使用对象方式
-        **(2).如果新状态依赖于原状态=-==>使用函数方式**
+        **(2).如果新状态依赖于原状态===>使用函数方式**
         **(3).如果需要在setstate()执行后获取最新的状态数据，要在第二个callback函数中读取。**
 
 ## 2.React路由组件懒加载
@@ -171,7 +171,8 @@ this.setState({
 </Suspense>
 
 ## 4.Effect Hook
-(1).Effect Hook 可以让你在函数组件中执行副作用操作(用于模拟类组件中的生命周期钩子)(2). React中的副作用操作:
+(1).Effect Hook 可以让你在函数组件中执行副作用操作(用于模拟类组件中的生命周期钩子)
+(2).React中的副作用操作:
         发ajax请求数据获取设置订阅/启动定时器
 (3)．语法和说明:
     useEffect(() =>{

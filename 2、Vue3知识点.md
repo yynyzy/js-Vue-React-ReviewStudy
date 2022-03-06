@@ -556,7 +556,7 @@ return person.firstName + '-' + person. lastName
 ```
 
 简单写法无法响应式，完整通过 get和set来变成响应式
-```
+```js
 //计算属性—完整
 let fullName = computed({
   get(){
@@ -674,7 +674,7 @@ let fullName = computed({
 ## 2.修改store.js
 ```js
 const countAbout = {
-      namespaced:true,   //用辅助函数就得开开启命名空间
+      namespaced:true,   //用辅助函数就得开启命名空间
       state:{x:1},
       mutations: { ... },
       actions: { ... },
@@ -768,7 +768,7 @@ return {
 
 
 # 16.vue 的一些不常用指令或API
-  ## 1. VUE2 的 filter过滤器 （Vue3 已经移除，推荐使用计算属性）
+  ## 1. VUE2 的 filter 过滤器 （Vue3 已经移除，推荐使用计算属性）
   定义:对要显示的数据进行特定格式化后再显示（适用于一些简单逻辑的处理)。语法:
     1.注册过滤器:
        ·在全局注册 Vue.filter(name, callback)
@@ -1012,7 +1012,7 @@ const gogo =() ={
 
 ```js
     directives: {
-      focus: {
+      'focus': {
         // 指令的定义
         mounted(el,binding) {
           el.focus()
@@ -1047,7 +1047,7 @@ export function Vnode (){
 
 # 23.new Vue后整个的流程
 ·initProxy：作用域代理，拦截组件内访问其它组件的数据。
-·initLifecycle：建立父子组件关系，在当前组件实例上添加一些属性和生命周期标识。如[Math ·Processing Error]parent,parent,refs,$children,_isMounted等。
+·initLifecycle：建立父子组件关系，在当前组件实例上添加一些属性和生命周期标识。如[Math·Processing Error]parent,parent,refs,$children,_isMounted等。
 ·initEvents：对父组件传入的事件添加监听，事件是谁创建谁监听，子组件创建事件子组件监听
 ·initRender：声明[Math Processing Error]slots和slots和createElement()等。
 ·initInjections：注入数据，初始化inject，一般用于组件更深层次之间的通信。
@@ -1109,11 +1109,11 @@ PWA
 
 # 26.Vue.$nextTick实现原理，是宏任务还是微任务
 ## 1.官方定义：Vue.nextTick([callback,context])
-         在下次DOM更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新之后的DOM
+    在下次DOM更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新之后的DOM
 
 ## 2.vue如何检测到DOM更新完毕呢？
     能监听到DOM改动的API：MutationObserver
-    MutationObserver是HTML5新增的属性，用于监听DOM修改事件，能够监听到节点的属性、文本内
+    MutationObserver 是HTML5新增的属性，用于监听DOM修改事件，能够监听到节点的属性、文本内
     容、子节点等的改动，是一个功能强大的利器。
 ```js
 //MutationObserver基本用法 
