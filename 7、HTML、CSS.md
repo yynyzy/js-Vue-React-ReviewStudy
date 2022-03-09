@@ -309,9 +309,9 @@ W3C官方解释为：BFC它决定了元素如何对其内容进行定位，以�
 **怎样触发BFC**
 这里简单列举几个触发BFC使用的CSS属性：
     ·overflow: hidden       （overflow的值不为visible的元素；）
-    ·display: inline-block
     ·position: absolute
     ·position: fixed
+    ·display: inline-block
     ·display: flex
 
 **BFC的规则**
