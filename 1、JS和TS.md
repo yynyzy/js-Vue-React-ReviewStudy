@@ -1677,11 +1677,19 @@ if-modified-since: Mon, 24 Dec 2018 09:49:49 GMT
    ### 8·连接结束
 
 
-## 18.**浏览器事件循环**
-1.Js在执行一段代码时候 首先会在*主进程创建一个执行栈* 然后*创建一个上下文*push到执行栈。当函数执行的时候，也创建一个上下文push到执行栈，当执行栈执行完成后，就会从栈中弹出。当*遇到异步任务*时，就将其*放入任务队列*中，等待当前执行栈所有同步代码执行完成之后，就会从异步任务队列中取出已完成的异步任务的回调并将其放入执行栈中继续执行。
-2.*同步任务*会在调用栈中*按照顺序*等待主线程依次执行，异步任务会在同步任务执行完，调用栈被清空后，从 Event Queue 读取到执行栈执行。
-3.异步任务又有*宏任务和微任务*。当同步任务执行完，会查看有没有微任务，如果有，从微任务队列中读取*执行完的所有微任务*。当所有微任务执行完毕后，开始*执行宏任务*，*每完成一个宏任务*，浏览器都会*重新看一下有没有新的微任务产生*，如果执行微任务，没有执行下一个宏任务。
-4.依照此循环运作
+## 18.**浏览器Event Loop事件循环**
+### 回答：
+1.Js在执行一段代码时候 首先会在*主进程创建一个执行栈* 然后*创建一个上下文*push到执行栈。当函数执行的时候，也创建一个上下文push到执行栈，当执行栈执行完成后，就会从栈中弹出。
+
+2.*同步任务*会在调用栈中*按照顺序*等待主线程依次执行，异步任务会在同步任务执行完，调用栈被清空后，从 Task Queue 读取到执行栈执行。
+
+3.当*遇到异步任务*时，就将他丢给*WebAPIs*,接着执行同步任务;在此期间WebAPIs完成这个异步任务有了运行结果，就将回调函数放入*任务队列 task queue*中。
+
+4.等待当前执行栈所有同步代码执行完成之后，系统就会读取"任务队列"，从中取出已完成的异步任务的回调并将其放入执行栈中继续执行。
+
+5.异步任务又有*宏任务和微任务*。当同步任务执行完，会查看有没有微任务，如果有，从微任务队列中读取*执行完的所有微任务*。当所有微任务执行完毕后，开始*执行宏任务*，*每完成一个宏任务*，浏览器都会*重新看一下有没有新的微任务产生*，如果执行微任务，没有执行下一个宏任务。
+
+6.依照此循环运作
 
 *微任务包含：*
 Promise.then
@@ -1699,6 +1707,80 @@ postMessage
 MessageChannel
 setImmediate(Node.js 环境)
 
+### 例子
+*例子1：*
+```js
+var start=new Date();
+setTimeout(function cb(){
+    console.log("时间间隔：",new Date()-start+'ms');
+},500);
+while(new Date()-start<1000){};
+```
+1.main(Script) 函数入栈,start变量开始初始化
+2.setTimeout入栈,出栈,丢给WebAPIs,开始定时500ms;
+3.while循环入栈,开始阻塞1000ms;
+4.500ms事后,WebAPIs把cb()放入任务队列,此时while循环还在栈中,cb()等待;
+5.又过了500ms,while循环执行完毕从栈中弹出,main()弹出,此时栈为空,Event Loop,cb()进入栈,log()进栈,输出'时间间隔：1003ms',出栈,cb()出栈
+
+*例子2：当 Event Loop 赶上事件冒泡*
+```js
+<div class="outer">
+  <div class="inner"></div>
+</div>
+
+var outer = document.querySelector('.outer');
+var inner = document.querySelector('.inner');
+function onClick() {
+  console.log('click');
+  setTimeout(function() {
+    console.log('timeout');
+  }, 0);
+  Promise.resolve().then(function() {
+    console.log('promise');
+  });
+}
+
+inner.addEventListener('click', onClick);
+outer.addEventListener('click', onClick);
+```
+#### **手动触发**:点击 inner，最终打印结果为：
+```
+click
+promise
+click
+promise
+timeout
+timeout
+```
+（0）将 script 标签内的代码（宏任务）放入执行栈执行，执行完后，宏任务微任务队列皆空。
+
+（1）点击 inner，onClick 函数入执行栈执行，打印 "click"。执行完后执行栈为空，由于事件冒泡的缘故，事件触发线程会将向上派发事件的任务放入宏任务队列。
+ 
+（2）遇到 setTimeout，在最小延迟时间后，将回调放入宏任务队列。遇到 promise，将 then 的任务放进微任务队列
+
+（3）此时，执行栈再次为空。开始清空微任务，打印 "promise"
+
+（4）此时，执行栈再次为空。从宏任务队列拿出一个任务执行，即前面提到的派发事件的任务，也就是冒泡。
+
+（5）事件冒泡到 outer，执行回调，重复上述 "click"、"promise" 的打印过程。
+
+（6）从宏任务队列取任务执行，这时咱们的宏任务队列已经累计了两个 setTimeout 的回调了，因此他们会在两个 Event Loop 周期里前后获得执行。
+
+#### **代码触发**:点击 inner，最终打印结果为：
+```
+click
+click
+promise
+promise
+timeout
+timeout
+```
+分析：
+
+（0）将 script（宏任务）放入执行栈执行，执行到 inner.click() 的时候，执行 onClick 函数，打印 "click"
+
+（1）当执行完 onClick 后，此时的 script（宏任务）还没返回，执行栈不为空，不会去清空微任务，而是会将事件往上冒泡派发
+...（关键步骤分析完后，续步骤就不分析了）
 
 ## 19.**手写 Promise(then与catch的返回值问题)**
 catch为then的语法糖，它是then(null,rejection)的别名，也就是说catch也是then,它用于捕获错误，它的参数也就是then的第二个参数，所以，假设catch中如果return值的话，新的promise对象也会是接受状态（即resolve）。
