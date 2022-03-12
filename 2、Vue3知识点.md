@@ -2164,6 +2164,16 @@ Vue3 由TS重写，相对于 Vue2 有更好地TypeScript支持。
 Vue2 Option API中 option 是个简单对象，而TS是一种类型系统，面向对象的语法，不是特别匹配。
 Vue2 需要vue-class-component强化vue原生组件，也需要vue-property-decorator增加更多结合Vue特性的装饰器，写法比较繁琐。
 
+# 51.Vue解决 scoped（deep选择器）
+Vue2中
+1. 使用Sass等预处理器： ::v-deep
+2. 不使用预处理器：     >>>
+Vue3中（前缀::v- 现在已经被弃用，不论是否使用了Sass等预处理器，都可以只使用统一的 :deep 选择器，不过现在推荐使用带括号的选择器）
+::deep(.child-class){
+  background-color:#000
+}
+
+
 # **200 性能优化!!!**
 ## 0.Vue3 虚拟DOM增加 patchFlag 字段
 Vue3 相比于 Vue2 虚拟DOM 上增加 patchFlag 字段。
