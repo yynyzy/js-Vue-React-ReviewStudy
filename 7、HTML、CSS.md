@@ -696,9 +696,9 @@ user-select: none;
 ```
 
 # 22、dom 节点的 Attribute 和 Property 有何区别?
-*1、什么是 Property*
+*1、什么是 Property（html属性）*
 每 个 DOM 节点都是一个 object 对象，有自己的 property 和 method 原则上 property 应该仅供 js 操作，不会出现在 html 中(默认属性除外:id/src/href/className/dir/title/lang 等)，和其他 js object 一样，自定义的 property 也会出现在 object 的 for...in 遍历中
-*2、什么是 Attribute*
+*2、什么是 Attribute（dom属性）*
 attribute 出现 在 dom 中，js 提供了 getAttribute/setAttribute 等方法来获取和改变它的值，最
 后作用于 html 中，可以影响 innerHTML 获取的值。可以通过访问 dom 节点的 attributes 属性来获 取 改节点的所有的 attribute。(在 IE<9 中,attribute 获取和改变的实际上是 property。)
 *3、两者之间的区别是*
