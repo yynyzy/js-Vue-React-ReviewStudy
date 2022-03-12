@@ -5,49 +5,31 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            min-width: 390px;
-        }
-        .center,
-        .left,
-        .right {
-            float: left;
-            height: 500px;
-        }
-        .container {
-            height: 500px;
-            padding: 0 200px 0 180px;
-            overflow: hidden;
-        }
-        .center {
-            width: 100%;
-            background-color: red;
-        }
-        .left {
-            background-color: rgb(76, 224, 62);
-            margin-left: -100%;
-            position: relative;
-            left: -180px;
-            width: 180px;
-        }
-        .right {
-            background-color: rgb(109, 28, 202);
-            margin-right: -200px;
-            width: 200px;
-        }
-    </style>
 </head>
-
 <body>
-    <div class="container">
-        <div class="center">我是center</div>
-        <div class="left">我是left</div>
-        <div class="right">我是right</div>
+    <div class = "outer">
+        <div class="inner">inner</div>
     </div>
 </body>
+<script>
+
+    
+var outer = document.querySelector(".outer")
+var inner = document.querySelector(".inner")
+console.log(outer,inner);
+new MutationObserver((mustation)=>{console.log("mutate")}).observe(outer,{attributes:true})
+function help(){
+    console.log("log");
+    setTimeout(()=>{
+        console.log("setTimeout");
+    },0)
+    new Promise(resolve=>resolve()).then(()=>{
+        console.log("promise");
+    })
+    outer.setAttribute("name",Math.random())
+}
+outer.addEventListener('click',help)
+inner.addEventListener('click',help)
+
+</script>
 </html>

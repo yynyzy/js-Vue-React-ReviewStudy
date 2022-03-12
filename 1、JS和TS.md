@@ -3609,7 +3609,267 @@ async无法保证顺序且下载完就会执行而defer则会等待整个HTML解
   ### 减少无意义的回流
 回流与重绘是一个老生常谈的问题，当浏览器大小改变/滚动，DOM增删，元素尺寸或者位置发生改变时都会发生回流，回流意味着浏览器要重新计算当前页面的与之相关的所有元素，重新进行整体的布局。
 
-## 101.generator函数(迭代函数—不常用)
+## 101.**10个常用的JS工具库**，80%的项目都在用！
+
+### **Day.js**
+一个极简的处理时间和日期的 JavaScript 库，和 Moment.js 的 API 设计保持一样, 但体积仅有2KB。
+```js
+npm install dayjs
+```
+基本用法
+```js
+import dayjs from 'dayjs'
+
+dayjs().format('YYYY-MM-DD HH:mm') // => 2022-01-03 15:06
+dayjs('2022-1-3 15:06').toDate() // => Mon Jan 03 2022 15:06:00 GMT+0800 (中国标准时间)
+```
+
+### **qs**
+一个轻量的 url 参数转换的 JavaScript 库
+```js
+npm install qs
+```
+基本用法
+```js
+import qs from 'qs'
+
+qs.parse('user=tom&age=22') // => { user: "tom", age: "22" }
+qs.stringify({ user: "tom", age: "22" }) // => user=tom&age=22
+```
+
+### **js-cookie**
+一个简单的、轻量的处理 cookies 的 js API
+```js
+npm install js-cookie
+```
+基本用法
+```js
+import Cookies from 'js-cookie'
+
+Cookies.set('name', 'value', { expires: 7 }) // 有效期7天
+Cookies.get('name') // => 'value'
+```
+
+### **flv.js**
+bilibili 开源的 html5 flash 视频播放器，使浏览器在不借助 flash 插件的情况下可以播放 flv，目前主流的直播、点播解决方案。
+```
+npm install flv.js
+```
+基本用法
+```js
+<video autoplay controls width="100%" height="500" id="myVideo"></video>
+
+import flvjs from 'flv.js'
+
+// 页面渲染完成后执行
+if (flvjs.isSupported()) {
+  var myVideo = document.getElementById('myVideo')
+  var flvPlayer = flvjs.createPlayer({
+    type: 'flv',
+    url: 'http://localhost:8080/test.flv' // 视频 url 地址
+  })
+  flvPlayer.attachMediaElement(myVideo)
+  flvPlayer.load()
+  flvPlayer.play()
+}
+```
+
+### **vConsole**
+一个轻量、可拓展、针对手机网页的前端开发者调试面板。如果你还苦于在手机上如何调试代码，用它就对了。
+```js
+npm install vconsole
+```
+基本用法
+```js
+import VConsole from 'vconsole'
+
+const vConsole = new VConsole()
+console.log('Hello world')
+```
+
+### **Animate.css**
+一个跨浏览器的 css3 动画库，内置了很多典型的 css3 动画，兼容性好，使用方便。
+```js
+npm install animate.css
+```
+基本用法
+```js
+<h1 class="animate__animated animate__bounce">An animated element</h1>
+
+import 'animate.css'
+```
+
+### **animejs**
+一款功能强大的 Javascript 动画库。可以与CSS3属性、SVG、DOM元素、JS对象一起工作，制作出各种高性能、平滑过渡的动画效果。
+```js
+npm install animejs
+```
+基本用法
+```js
+<div class="ball" style="width: 50px; height: 50px; background: blue"></div>
+
+import anime from 'animejs/lib/anime.es.js'
+
+// 页面渲染完成之后执行
+anime({
+  targets: '.ball',
+  translateX: 250,
+  rotate: '1turn',
+  backgroundColor: '#F00',
+  duration: 800
+})
+```
+
+### **lodash.js**
+一个一致性、模块化、高性能的 JavaScript 实用工具库
+```js
+npm install lodash
+```
+基本用法
+```js
+import _ from 'lodash'
+
+_.max([4, 2, 8, 6]) // 返回数组中的最大值 => 8
+_.intersection([1, 2, 3], [2, 3, 4]) // 返回多个数组的交集 => [2, 3]
+```
+
+### **mescroll.js**
+一款精致的、在H5端运行的下拉刷新和上拉加载插件，主要用于列表分页、刷新等场景。
+```js
+npm install mescroll.js
+```
+基本用法（vue组件）
+```vue
+<template>
+  <div>
+    <mescroll-vue
+      ref="mescroll"
+      :down="mescrollDown"
+      :up="mescrollUp"
+      @init="mescrollInit"
+    >
+      <!--内容...-->
+    </mescroll-vue>
+  </div>
+</template>
+
+<script>
+import MescrollVue from 'mescroll.js/mescroll.vue'
+
+export default {
+  components: {
+    MescrollVue
+  },
+  data() {
+    return {
+      mescroll: null, // mescroll实例对象
+      mescrollDown: {}, //下拉刷新的配置
+      mescrollUp: {
+        // 上拉加载的配置
+        callback: this.upCallback
+      },
+      dataList: [] // 列表数据
+    }
+  },
+  methods: {
+    // 初始化的回调,可获取到mescroll对象
+    mescrollInit(mescroll) {
+      this.mescroll = mescroll
+    },
+    // 上拉回调 page = {num:1, size:10}; num:当前页 ,默认从1开始; size:每页数据条数,默认10
+    upCallback(page, mescroll) {
+      // 发送请求
+      axios
+        .get('xxxxxx', {
+          params: {
+            num: page.num, // 当前页码
+            size: page.size // 每页长度
+          }
+        })
+        .then(response => {
+          // 请求的列表数据
+          let arr = response.data
+          // 如果是第一页需手动置空列表
+          if (page.num === 1) this.dataList = []
+          // 把请求到的数据添加到列表
+          this.dataList = this.dataList.concat(arr)
+          // 数据渲染成功后,隐藏下拉刷新的状态
+          this.$nextTick(() => {
+            mescroll.endSuccess(arr.length)
+          })
+        })
+        .catch(e => {
+          // 请求失败的回调,隐藏下拉刷新和上拉加载的状态;
+          mescroll.endErr()
+        })
+    }
+  }
+}
+</script>
+
+<style scoped>
+.mescroll {
+  position: fixed;
+  top: 44px;
+  bottom: 0;
+  height: auto;
+}
+</style>  
+```
+
+
+### **Chart.js**
+一套基于 HTML5 的简单、干净并且有吸引力的 JavaScript 图表库
+```js
+npm install chart.js
+```
+基本用法
+```js
+<canvas id="myChart" width="400" height="400"></canvas>
+
+import Chart from 'chart.js/auto'
+
+// 页面渲染完成后执行
+const ctx = document.getElementById('myChart')
+const myChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+    datasets: [
+      {
+        label: '# of Votes',
+        data: [12, 19, 3, 5, 2, 3],
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(255, 159, 64, 0.2)'
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)'
+        ],
+        borderWidth: 1
+      }
+    ]
+  },
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  }
+})
+```
+
+## 102.generator函数(迭代函数—不常用)
   ### 基本用法
 generator函数跟普通函数在写法上的区别就是，多了一个星号*，并且只有在generator函数中才能使用yield，什么是yield呢，他相当于generator函数执行的中途暂停点，比如下方有3个暂停点。而怎么才能暂停后继续走呢？那就得使用到next方法，next方法执行后会返回一个对象，对象中有value 和 done两个属性
 
@@ -3688,197 +3948,3 @@ VK（Virtual Keyboard）是指在没有硬件键盘的情况下，可用于输�
 VirtualKeyboard API 为开发者提供了对虚拟键盘（VK）可见性的更好控制，以及在 VK 可见性改变时调整网页布局的更大能力。
 
 
-# TS
-typescript在编译阶段进行类型检查，当类型不合符预期结果的时候则会出现错误提示
-
-## typescript 的数据类型主要有如下：
-· boolean（布尔类型）
-· number（数字类型）
-· string（字符串类型）
-· array（数组类型）
-· tuple（元组类型）
-· enum（枚举类型）
-· any（任意类型）
-· null 和 undefined 类型
-· void 类型
-· never 类型
-· object 对象类型
-
-## 1.boolean
-布尔类型
-```js
-let flag:boolean = true;
-// flag = 123; // 错误
-flag = false;  //正确
-```
-
-## 2.number
-数字类型，和javascript一样，typescript的数值类型都是浮点数，可支持二进制、八进制、十进制和十六进制
-```js
-let num:number = 123;
-// num = '456'; // 错误
-num = 456;  //正确
-进制表示：
-let decLiteral: number = 6; // 十进制
-let hexLiteral: number = 0xf00d; // 十六进制
-let binaryLiteral: number = 0b1010; // 二进制
-let octalLiteral: number = 0o744; // 八进制
-```
-
-## 3.string
-字符串类型，和JavaScript一样，可以使用双引号（"）或单引号（'）表示字符串
-```
-let str:string = 'this is ts';
-str = 'test';
-作为超集，当然也可以使用模版字符串``进行包裹，通过 ${} 嵌入变量
-
-let name: string = `Gene`;
-let age: number = 37;
-let sentence: string = `Hello, my name is ${ name }`
-```
-
-## 4.array
-数组类型，跟javascript一致，通过[]进行包裹，有两种写法：
-```js
-方式一：元素类型后面接上 []
-
- let arr:string[] = ['12', '23'];
- arr = ['45', '56'];
-方式二：使用数组泛型，Array<元素类型>：
-
-let arr:Array<number> = [1, 2];
-arr = ['45', '56'];
-```
-
-## 5.tuple
-元祖类型，允许表示一个已知元素数量和类型的数组，各元素的类型不必相同
-```js
-let tupleArr:[number, string, boolean]; 
-tupleArr = [12, '34', true]; //ok
-typleArr = [12, '34'] // no ok
-赋值的类型、位置、个数需要和定义（声明）的类型、位置、个数一致
-```
-
-## 6.enum
-enum类型是对JavaScript标准数据类型的一个补充，使用枚举类型可以为一组数值赋予友好的名字
-```js
-enum Color {Red, Green, Blue}
-let c: Color = Color.Green;
-```
-
-## 7.any
-可以指定任何类型的值，在编程阶段还不清楚类型的变量指定一个类型，不希望类型检查器对这些值进行检查而是直接让它们通过编译阶段的检查，这时候可以使用any类型
-
-使用any类型允许被赋值为任意类型，甚至可以调用其属性、方法
-```js
-let num:any = 123;
-num = 'str';
-num = true;
-定义存储各种类型数据的数组时，示例代码如下：
-let arrayList: any[] = [1, false, 'fine'];
-arrayList[1] = 100;
-```
-
-## 8.null 和 undefined
-在JavaScript 中 null表示 "什么都没有"，是一个只有一个值的特殊类型，表示一个空对象引用，而undefined表示一个没有设置值的变量
-
-默认情况下null和undefined是所有类型的子类型， 就是说你可以把 null和 undefined赋值给 number类型的变量
-```js
-let num:number | undefined; // 数值类型 或者 undefined
-console.log(num); // 正确
-num = 123;
-console.log(num); // 正确
-但是ts配置了--strictNullChecks标记，null和undefined只能赋值给void和它们各自
-```
-
-## 9.void
-用于标识方法返回值的类型，表示该方法没有返回值。
-```js
-function hello(): void {
-    alert("Hello Runoob");
-}
-```
-
-## 10.never
-never是其他类型 （包括null和 undefined）的子类型，可以赋值给任何类型，代表从不会出现的值
-但是没有类型是 never 的子类型，这意味着声明 never 的变量只能被 never 类型所赋值。
-never 类型一般用来指定那些总是会抛出异常、无限循环
-```js
-let a:never;
-a = 123; // 错误的写法
-
-a = (() => { // 正确的写法
-  throw new Error('错误');
-})()
-
-// 返回never的函数必须存在无法达到的终点
-function error(message: string): never {
-    throw new Error(message);
-}
-```
-
-## 11.object
-对象类型，非原始类型，常见的形式通过{}进行包裹
-```js
-let obj:object;
-obj = {name: 'Wang', age: 25};
-```
-
-## 12.泛型的使用(泛型在函数使用时才给定类型，声明函数时不需要用<T>代替,(字母可以换))
-    ```js
-    function getArr<T>(arr: T[]) {
-      return arr;
-    }
-    
-    getArr<number>([1, 2, 3]) //指定了number，那我的数组必须每一项也是number，如果不是就报错
-    getArr<string>(['g', 'q', 'f']) 
-    
-    ```
-    
-```js
-    function getVal<T>(obj: T, k: keyof T){
-      return obj[k];
-    }
-    
-    interface Person {
-      name: string;
-      age: number;
-    }
-    
-    getVal<Person>({
-      name: 'gqf',
-      age: 29
-    }, 'age') // 这里的key值只能传name或者age，否则就会报错，这个就是泛型的力量
-    
-```
-   ### 使用多个泛型
-    ```js
-    function manyTest<K, V>(a: K, b: V) {
-        return `${a} ${b}`
-    }
-    
-    manyTest<number, string>(1, '2') //泛型指定了第一个参数是数字，第二个参数是字符串
-    ```
-   ### 在类中使用泛型-泛型继承接口了
-    ```js
-    interface Skill {
-        name: string;
-        age: number;
-    }
-    
-    // 规定了数组每一项的Skill技能，要遵循接口的格式，有name和age字段
-    class DesignHero<T extends Skill> { 
-      constructor(private skills: T[]){}
-    
-      getSkillName (index: number) {
-        console.log(this.skills[index].name)
-        return this.skills[index].name;
-      }
-    }
-    ```
-
-## 总结
-和javascript基本一致，也分成：
-基本类型
-引用类型
-在基础类型上，typescript增添了void、any、emum等原始类型
