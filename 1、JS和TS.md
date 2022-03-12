@@ -1781,6 +1781,8 @@ timeout
 
 （1）当执行完 onClick 后，此时的 script（宏任务）还没返回，执行栈不为空，不会去清空微任务，而是会将事件往上冒泡派发
 ...（关键步骤分析完后，续步骤就不分析了）
+#### 总结
+在通常状况下，微任务的优先级是更高的，是会优先于事件冒泡的，但若是手动 .click() 会使得在 script代码块 还没弹出执行栈的时候，触发事件派发。
 
 ## 19.**手写 Promise(then与catch的返回值问题)**
 catch为then的语法糖，它是then(null,rejection)的别名，也就是说catch也是then,它用于捕获错误，它的参数也就是then的第二个参数，所以，假设catch中如果return值的话，新的promise对象也会是接受状态（即resolve）。
