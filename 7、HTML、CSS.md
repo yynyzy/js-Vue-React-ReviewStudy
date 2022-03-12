@@ -695,6 +695,17 @@ user-select: none;
 }
 ```
 
+# 22、dom 节点的 Attribute 和 Property 有何区别?
+*1、什么是 Property*
+每 个 DOM 节点都是一个 object 对象，有自己的 property 和 method 原则上 property 应该仅供 js 操作，不会出现在 html 中(默认属性除外:id/src/href/className/dir/title/lang 等)，和其他 js object 一样，自定义的 property 也会出现在 object 的 for...in 遍历中
+*2、什么是 Attribute*
+attribute 出现 在 dom 中，js 提供了 getAttribute/setAttribute 等方法来获取和改变它的值，最
+后作用于 html 中，可以影响 innerHTML 获取的值。可以通过访问 dom 节点的 attributes 属性来获 取 改节点的所有的 attribute。(在 IE<9 中,attribute 获取和改变的实际上是 property。)
+*3、两者之间的区别是*
+3.1)自定义的 Property 与 Attribute 不同步,不相等
+3.2)非自定义的 DOM property 与 attributes 是有条件同步的 
+3.3)非自定义的属性(id/src/href/name/value 等)，通过 setAttribute 修改其特性值可以同步作用到 property 上，而通过.property 修改属性值有的(value)时候不会同步到 attribute 上，即不会反应到 html 上(除以下几种情况，非自定义属性 在二者之间是同步的)。
+
 
 
 
