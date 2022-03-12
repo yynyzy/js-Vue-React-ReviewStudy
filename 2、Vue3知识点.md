@@ -2165,10 +2165,15 @@ Vue2 Option API中 option 是个简单对象，而TS是一种类型系统，面�
 Vue2 需要vue-class-component强化vue原生组件，也需要vue-property-decorator增加更多结合Vue特性的装饰器，写法比较繁琐。
 
 # 51.Vue解决 scoped（deep选择器）
-Vue2中
+Scoped扩展知识（使用了 postcss 对代码进行修改，为元素添加一个 data-xxxx 的hash 来区分元素不重复）
+好处：当使用Scoped时，父组件的样式不会泄露到子组件中。
+但是，一个子组件的根节点还是会被父组件的scoped css 和自组件的 scoped css 影响。
+
+·Vue2中
 1. 使用Sass等预处理器： ::v-deep
 2. 不使用预处理器：     >>>
-Vue3中（前缀::v- 现在已经被弃用，不论是否使用了Sass等预处理器，都可以只使用统一的 :deep 选择器，不过现在推荐使用带括号的选择器）
+
+·Vue3中（前缀::v- 现在已经被弃用，不论是否使用了Sass等预处理器，都可以只使用统一的 :deep 选择器，不过现在推荐使用带括号的选择器）
 ::deep(.child-class){
   background-color:#000
 }

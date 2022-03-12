@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,163 +6,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-          * {
+        * {
             margin: 0;
             padding: 0;
         }
         body {
             min-width: 390px;
         }
-/* .cointainer{  
-    height: 500px;
-    padding: 0 200px;
-}
-.middle,.left,.right{
-    height: 500px;
-    float: left;
-}
-.middle{
-    width: 100%;
-}
-.left{
-    width: 200px;
-    position: relative;
-    left:-200px;
-    margin-left: -100%;
-}
-.right{ 
-    width: 200px;
-    margin-right: -200px;
-} */
-
-.cointainer{
-    width: 100%;
-}
-.cointainer,.left,.right{
-    height: 500px;
-    float: left;
-}
-.middle{  
-    height: 500px;
-    margin: 0 200px;
-} 
-.left{
-    width: 200px;
-    margin-left: -100%;
-}
-.right{ 
-    width: 200px;
-    margin-left: -200px;
-}
-
-    </style>
-</head>
-<body>
-    <div class="cointainer">
-        <div class="middle" style="background:red">middle</div>
-    </div>
-        <div class="left" style="background:blue">left</div>
-        <div class="right" style="background:green">right</div>
-   
-</body>
-</html> -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=div, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        body{
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: aquamarine;
-            perspective: 1000px;
-            transform-style: preserve-3d;
+        .center,
+        .left,
+        .right {
+            float: left;
+            height: 500px;
         }
-        .d{
-            height: 200px;
+        .container {
+            height: 500px;
+            padding: 0 200px 0 180px;
+            overflow: hidden;
+        }
+        .center {
+            width: 100%;
+            background-color: red;
+        }
+        .left {
+            background-color: rgb(76, 224, 62);
+            margin-left: -100%;
+            position: relative;
+            left: -180px;
+            width: 180px;
+        }
+        .right {
+            background-color: rgb(109, 28, 202);
+            margin-right: -200px;
             width: 200px;
-            transform:rotateY(45deg);
-
         }
     </style>
 </head>
+
 <body>
-    <div class="d" style="background-color: red;">
-        haha
+    <div class="container">
+        <div class="center">我是center</div>
+        <div class="left">我是left</div>
+        <div class="right">我是right</div>
     </div>
 </body>
 </html>
-
-<script>
-    function observer(target){
-        if(typeof target !==  'object'){
-            return target
-        }
-
-        Object.keys(target).forEach(k=>{
-            defineReactive(target,k,target[key])
-        })
-    }
-    function defineReactive(obj,key,value){
-        observer(value)
-        const  dep = new Dep()
-        
-        Object.defineProperty(obj,key,{
-
-            get(obj,key){
-                if(Dep.target){
-                dep.depend()
-            }
-                return obj[key]
-            },
-            set(obj,key,newvalue){
-                if(value !== newvalue){
-                    observer(newvalue)
-                    value=newvalue
-                    dep.notify()
-                }
-            }
-        })
-    }
-    class Dep{
-        static target
-        constructor(){
-            this.subs=[]
-        }
-        depend(){
-            if (Dep.target){
-                Dep.target.adddep(this)
-            }
-        }
-        addSub(watcher){
-            this.subs.push(watcher)
-        }
-        notify(){
-            this.subs.forEach(v=>{
-                v.updater()
-            })
-        }
-    }
-    class Watcher{
-        constructor(){
-            this.get()
-        }
-        get(){
-            Dep.target = this
-        }
-        addDep(dep){
-            dep.addSub(this)
-        }
-
-        updater(){
-
-        }
-    }
-
-</script>
