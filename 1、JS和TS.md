@@ -2355,7 +2355,7 @@ function createAnother(original){
 
 
    ### 6.寄生组合式继承 
-   结合 借用构造函数 传递参数和 寄生模式 实现继承，这是最成熟的方法，也是现在库实现的方法
+   结合 *借用构造函数* 传递参数和 *寄生模式* 实现继承，这是最成熟的方法，也是现在库实现的方法
    这个例子的高效率体现在它只调用了一次 SuperType构造函数，并且因此避免了在SubType.prototype上创建不必要的、多余的属性。于此同时，原型链还能保持不变；因此，还能够正常使用instanceof和isPrototypeOf()
 ```js
 
@@ -2375,7 +2375,7 @@ function SubType(name, age){
 }
 
  function inheritPrototype(subType, superType){
-  var ptype = Object.create(superType.prototype); // 创建对象，创建父类原型的一个副本
+  var ptype = Object.create(superType.prototype); // 创建父类原型的一个副本
   subType.prototype = ptype;                      // 指定对象，将新创建的对象赋值给子类的原型
   subType.prototype.constructor = subType;                    // 增强对象，弥补因重写原型而失去的默认的constructor 属性
 }
@@ -3577,7 +3577,7 @@ const contentStr = compose(...loaders)(源文件)
     console.log(pipe(multiply, add)(10)); //66
 ```
 
-## *六种数据类型转Number规则：*
+## 82.*六种数据类型转Number规则：*
 1、Number转Number，本来多少就是多少；
 2、String转Number：数字字符串转成对应数字，空字符串转为0，其他均为NaN；
 3、Boolean转Number：true为1，false为0；
@@ -3594,6 +3594,20 @@ null与undefine单独与别的值比较都为false,但undefined为null的衍生�
 ```js
 console.log(null==false) //false
 console.log(null==undefined)//true
+```
+
+## 83.in 运算符
+in 运算符能够检测左侧操作数是否为右侧操作数的成员。其中，左侧操作数是一个字符串，或者可以转换为字符串的表达式，右侧操作数是一个对象或数组。
+```js
+const o = {  
+    a : 1,  
+    b : function() {}
+};
+console.log("a" in o);  //true
+console.log("b" in o);  //true
+console.log("c" in o);  //false
+console.log("valueOf" in o);  //返回true，继承Object的原型方法
+console.log("constructor" in o);  //返回true，继承Object的原型属性
 ```
 
 ## **100.前端性能优化 （performance，DNS预查询）**

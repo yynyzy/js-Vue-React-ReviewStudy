@@ -819,7 +819,7 @@ return {
 2.可利用它跳过:没有使用指令语法、没有使用插值语法的节点，会加快编译。
 
 
-# 17.**跨域解决**（代理转发，cors，JSONP）
+# 17.**跨域解决**（代理转发，cors，JSONP，Ngix）
 ## 代理转发
 ```js
 在 vue.config.js 文件中配置
@@ -878,6 +878,41 @@ axiosInstance.interceptors.response.use(response => {
 原因是 chrome 2020年新版本的浏览器更改了 cookie 的一个属性：samesite
 以前版本的 samesite 默认值是 none ，即只要配置了上述的 cors 跨域就可以带上 cookie。
 但是现在的默认值改成了 lax, 即只能在主域名相同情况下携带 cookie
+
+## nginx上的CORS配置：
+```js
+location / {
+     if ($request method = 'OPTIONS') { 
+         add_ header ' Access -Control- Allow-0rigin' *';
+         add_ header ” Access Control- Allow-Methods' 'GET， POST， OPTIONS' ;
+         add header Access Control Max-Age ' 86400；6 add header ' Content-Type’” text/plain' ;
+         add header ' Content-Length’0;
+         return 204;
+    }
+    if ($request_ method = 'GET') {
+         add_ header ' Access -Control-Allow-0rigin' 本';
+         add header ' Access-Control-Al low-Methods' 'GET， POST， OPTIONS' ;
+         add_ header' Access Control -Allow-Headers”'User-Agent ， X- Requested -With ， Cache - Control ， Content -Type;
+    }
+}
+```
+*http头如何做缓存*
+```js
+// 没有缓存
+Cache-Control: no-cache
+
+// 私有缓冲
+Cache-Control: private
+
+// 公共缓存
+Cache-Control: public
+
+// 过期
+Cache-Control: max-age=3153600
+
+// 验证方式
+Cache-Control: must-revalidate
+```
 
 
 # 18.Vue2 和 Vue3 全局事件总线(GlobalEventBus)
