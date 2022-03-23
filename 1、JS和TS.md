@@ -2613,21 +2613,23 @@ e.preventDefault();
 
 ## **43.实现promise retry重试**
 ```js
-function myGetData(promiseFunc, times) {//retry函数
-    return new Promise(function (resolve, reject) {
-        function attempt() {
-            promiseFunc().then((val)=>{
-                resolve(val)
-                }).catch(function (err) {
-                if ( times == 0) {
+function myGetData(promiseFn, times) {//retry函数
+    return new Promise(async(resolve, reject)=> {
+        while(times--){
+            try{
+                const result = await promiseFn();
+                console.log("执行成功,得到结果",res);
+                resolve(result)
+                break
+            }catch(err){
+                console.log("执行失败一次,得到结果"，err);
+                if(!times){
                     reject(err)
-                } else {
-                    times--
-                    attempt()
                 }
-            })
+            }
         }
-        attempt()
+    }).catch((error)=>{
+        console.log("全部尝试执行失败")
     })
 }
 ```
