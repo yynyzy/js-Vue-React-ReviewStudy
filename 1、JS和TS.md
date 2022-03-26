@@ -1,4 +1,4 @@
-## **0.ES6(包括ES7、8、9...)**
+## 0.**ES6(包括ES7、8、9...)**
 ·新增symbol类型 表示独一无二的值，用来定义独一无二的对象属性名;
 
 ·const/let  都是用来声明变量,不可重复声明，具有块级作用域。存在暂时性死区，也就是不存在变量提升。(const一般用于声明常量);
@@ -3534,7 +3534,7 @@ parseInt('-99', undefined); // -99
 parseInt('-99', 0); // -99
 ```
 
-## 81.美团前端笔试题、**实现一个compose高阶函数**
+## 81.**实现一个compose高阶函数**
 ### 1．什么是compose函数?
 compose函数可以将嵌套执行的函数平铺，嵌套执行就是一个函数的返回值将作为另一个函数的参数。例如: fn2(fn1(10))2．典型应用场景:
 *1. Redux的中间件就是用compose实现的*
@@ -3611,6 +3611,117 @@ console.log("c" in o);  //false
 console.log("valueOf" in o);  //返回true，继承Object的原型方法
 console.log("constructor" in o);  //返回true，继承Object的原型属性
 ```
+
+## 84.运用策略模式，优化表单校验代码
+**背景**
+假设我们正在编写一个注册页面，在点击注册按钮之时，有如下几条校验逻辑：
+用户名不能为空
+密码长度不能少于6位
+手机号码必须符合格式
+
+**常规写法：**
+```js
+const form = document.getElementById('registerForm');
+
+form.onsubmit = function () {
+  if (form.userName.value === '') {
+    alert('用户名不能为空');
+    return false;
+  }
+
+  if (form.password.value.length < 6) {
+    alert('密码长度不能少于6位');
+    return false;
+  }
+
+  if (!/^1[3|5|8][0-9]{9}$/.test(form.phoneNumber.value)) {
+    alert('手机号码格式不正确');
+    return false;
+  }
+
+  ...
+}
+```
+这是一种很常见的代码编写方式，但它有许多缺点：
+onsubmit 函数比较庞大，包含了很多 if-else 语句，这些语句需要覆盖所有的校验规则。
+onsubmit 函数缺乏弹性，如果增加了一种新的校验规则，或者想把密码的长度从6改成8，我们都必须深入 obsubmit 函数的内部实现，这是违反开放-封闭原则的。
+算法的复用性差，如果在项目中增加了另外一个表单，这个表单也需要进行一些类似的校验，我们很可能将这些校验逻辑复制得漫天遍野。
+
+**运用策略模式优化代码**
+一个策略模式至少由两部分组成。
+1.第一个部分是一组*策略类*，策略类封装了具体的算法，并负责具体的计算过程。
+2.第二个部分是*环境类* Context，Context 接受客户的请求，随后把请求委托给某一个策略类。
+利用策略模式改写
+
+*定义规则（策略）*，封装表单校验逻辑：
+```js
+const strategies = {
+  isNonEmpty: function (value, errMsg) {
+    if (value === '') {
+      return errMsg;
+    }
+  },
+  minLenth: function (value, length, errMsg) {
+    if (value.length < length) {
+      return errMsg;
+    }
+  },
+  isMobile: function (value, errMsg) {
+    if (!/^1[3|5|8][0-9]{9}$/.test(value)) {
+      return errMsg;
+    }
+  }
+}
+```
+定义*环境类 Context*，进行表单校验，调用策略：
+```js
+form.onsubmit = function () {
+ const validator = new Validator();
+ validator.add(form.userName, 'isNonEmpty', '用户名不能为空');
+ validator.add(form.password, 'minLength:6', '密码长度不能少于6位');
+ validator.add(form.phoneNumber, 'isMobile', '手机号码格式不正确');
+ const errMsg = validator.start();
+ if (errMsg) {
+  alert(errMsg);
+  return false;
+ }
+}
+```
+*Validator 类*代码如下：
+```js
+class Validator {
+ constructor() {
+  this.cache = [];
+ }
+
+ add(dom, rule, errMsg) {
+  const arr = rule.split(':');
+  this.cache.push(() => {
+   const strategy = arr.shift();
+   arr.unshift(dom.value);
+   arr.push(errMsg);
+   return strategies[strategy].apply(dom, arr);
+  })
+ }
+
+ start() {
+  for (let i = 0; i < this.cache.length; i++) {
+   const msg = this.cache[i]();
+   if (msg) return msg;
+  }
+ }
+}
+```
+
+**策略模式优缺点**
+*优点*：
+·可以有效地避免多重条件选择语句。
+·对开放-封闭原则完美支持，将算法封装在独立的 strategy 中，使得它们易于切换，易于理解，易于扩展。
+可以使算法复用在系统的其他地方，避免许多重复的复制粘贴工作。
+*缺点*：
+·使用策略模式会在程序中增加许多策略类或策略对象
+·要使用策略模式，必须了解所有的 strategy，了解它们的不同点，我们才能选择一个合适的 strategy。这是违反最少知识原则的。
+
 
 ## **100.前端性能优化 （performance，DNS预查询）**
   ### performance（在浏览器F12打开或js的 API ）
