@@ -1642,8 +1642,8 @@ Vue.filter('formatMessage', function(value) {
 Vue.$delete 是直接删除了元素，*改变了数组的长度*；
 delete 是将被*删除的元素变成 undefined* ，其他*元素键值不变*。
 
-# 37.Vue.$set 如何解决对象新增属性不能响应的问题
-Vue.$set的出现是由于Object.defineProperty的局限性：无法检测对象属性的新增或删除。
+# 37.Vue.$set 如何解决对象与数组新增属性或值不能响应的问题
+Vue.$set的出现是由于Object.defineProperty的局限性：无法检测对象属性的新增或删除，无法检测数组值的修改。
 
 源码位置：vue/src/core/observer/index.js
 ```js
