@@ -1656,6 +1656,8 @@ export function set(target, key, val) {
     target.splice(key, 1, val)
     return val
   }
+
+  // targe 是对象的情况
   // key 已经存在，直接修改属性值
   if(key in target && !(key in Object.prototype)) {
     target[key] = val
@@ -1667,7 +1669,7 @@ export function set(target, key, val) {
     target[key] = val
     return val
   }
-  // 响应式处理属性
+  //key 不在 target 中，响应式处理属性
   defineReactive(ob.value, key, val)
   // 派发更新
   ob.dep.notify()
