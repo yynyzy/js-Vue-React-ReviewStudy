@@ -3598,7 +3598,63 @@ console.log(null==false) //false
 console.log(null==undefined)//true
 ```
 
-## 83.in 运算符
+## 83.JSONP的使用
+JSON with padding（填充式JSON）
+
+*方案一*:
+用 // <script src="服务端接口地址"代替 $ajax发送请求 >
+服务端:将要发送的数据填充在一条js语句中 //res.write(`document.write("${weather}")`)
+客户端:<script src="服务端接口地址"><script/>
+script 发送请求到服务端并能够收到服务端返回的js语句字符串 document.write("${weather}")>
+script 只要收到js 语句，就立刻自动执行
+
+问题:要在客户端执行的js 语句，在服务端写死了，众口难调。
+
+*方案二*:
+提前在客户端定义一个函数，用于处理服务端返回的请求，服务端仅使用函数名拼接一条函数调用的js语句。
+客户端: function show(weather){
+                任意js语句
+        }
+服务端：res.write(`show("${weather}")`)
+
+问题:本该定义在客户端的函数名，在服务端写死了，众口难调。
+
+*方案三*:用请求参数，将函数名传递给服务器.
+  客户端:<script src="http://localhost:3000?callback=show">
+
+  服务端:接收客户端传来的名为callback的参数中保存的函数名
+        var callback = show
+        res.write(`${callback}("${返回的参数})`) //将callback函数名动态拼接到要返回的函数调用语句中
+        res.end()
+  
+  客户端： 执行服务端返回的语句即 show(参数)
+  
+  问题: <script> 是在页面中写死的，只能在页面加载过程中执行一次。无法按需反复执行，比如每次单击按钮时，
+随时发送请求。。
+
+*方案四*:每次单击按钮时动态创建<script>元素
+  客户端: 
+    $("button").click(function(){
+      //不要用 $("<script/>") 动态创建 script 元素
+      //浏览器会强行将<script>解析为标签
+      //退一步，用核心DOM
+      var script=document.createElement("script");
+      script.src=`http://localhost:3000?callback=doit`;
+      document.body.appendChild(script);
+})
+
+问题:每次单击时都会创建<script>，反复单击会导致<script>堆积
+  解决: 在回调函数结尾:
+    删除body最后一个<script>
+      function doit(weather){
+        alert(weather);
+        //回调函数结尾:删除用过的<script>
+        $("body>script:last").remove();
+      }
+
+
+
+## 84.in 运算符
 in 运算符能够检测左侧操作数是否为右侧操作数的成员。其中，左侧操作数是一个字符串，或者可以转换为字符串的表达式，右侧操作数是一个对象或数组。
 ```js
 const o = {  
@@ -3612,7 +3668,7 @@ console.log("valueOf" in o);  //返回true，继承Object的原型方法
 console.log("constructor" in o);  //返回true，继承Object的原型属性
 ```
 
-## 84.运用策略模式，优化表单校验代码
+## 85.运用策略模式，优化表单校验代码
 **背景**
 假设我们正在编写一个注册页面，在点击注册按钮之时，有如下几条校验逻辑：
 用户名不能为空
