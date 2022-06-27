@@ -969,7 +969,7 @@ function computeExpensiveValue() {
 
 const memoizedValue = useMemo(computeExpensiveValue, [a, b]);
 ```
-复制代码useMemo 的第一个参数就是一个函数，这个函数*返回的值*会被缓存起来，同时这个值会作为 useMemo 的返回值，第二个参数是一个数组依赖，如果数组里面的值有变化，那么就会重新去执行第一个参数里面的函数，并将函数返回的值缓存起来并作为 useMemo 的返回值 。
+useMemo 的第一个参数就是一个函数，这个函数*返回的值*会被缓存起来，同时这个值会作为 useMemo 的返回值，第二个参数是一个数组依赖，如果数组里面的值有变化，那么就会重新去执行第一个参数里面的函数，并将函数返回的值缓存起来并作为 useMemo 的返回值 。
 
 
 # 16.useEffect 和 useLayoutEffect
