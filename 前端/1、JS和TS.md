@@ -4257,12 +4257,13 @@ undefined、{n: 2}
 运算符优先级最高，所以会先执行a.x，此时a、b共同指向的{n: 1}变成了{n: 1, x: undefined}，然后按照连等操作从右到左执行代码，a = {n: 2}，显然，a现在指向了一个新对象，然后a.x = a，因为a.x最开始就执行过了，所以这里其实等价于：({n: 1, x: undefined}).x = b.x = a = {n: 2}。
 
 ### 第5题
+```js
 var arr = [0, 1, 2]
 arr[10] = 10
 console.log(arr.filter(function (x) {
   return x === undefined
 }))
-
+```
 答案
 
 []
@@ -4272,6 +4273,7 @@ console.log(arr.filter(function (x) {
 这题比较简单，arr[10]=10，那么索引3到9位置上都是undefined，arr[3]等打印出来也确实是undefined，但是，这里其实涉及到ECMAScript版本不同对应方法行为不同的问题，ES6之前的遍历方法都会跳过数组未赋值过的位置，也就是空位，但是ES6新增的for of方法就不会跳过。
 
 ### 第6题
+```js
 var name = 'World'
 ;(function () {
   if (typeof name === 'undefined') {
@@ -4331,6 +4333,7 @@ console.log(a[b])
 对象有两种方法设置和引用属性，obj.name和obj['name']，方括号里可以字符串、数字和变量设置是表达式等，但是最终计算出来得是一个字符串，对于上面的b和c，它们两个都是对象，所以会调用toString()方法转成字符串，对象转成字符串和数组不一样，和内容无关，结果都是[object Obejct]，所以a[b]=a[c]=a['[object Object]']。
 
 ### 第9题
+```js
 var out = 25
 var inner = {
   out: 20,
@@ -4343,7 +4346,7 @@ console.log((inner.func, inner.func)())
 console.log(inner.func())
 console.log((inner.func)())
 console.log((inner.func = inner.func)())
-
+```
 答案
 
 25、20、20、25
@@ -4361,11 +4364,12 @@ console.log((inner.func = inner.func)())
 4.赋值表达式和逗号表达式相似，都是返回的值本身，所以也相对于在全局环境下调用函数
 
 ### 第10题
+```js
 let {a,b,c} = { c:3, b:2, a:1 }
 console.log(a, b, c)
+```
 
 答案
-
 1、2、3
 
 解析
@@ -4373,7 +4377,9 @@ console.log(a, b, c)
 这题考察的是变量解构赋值的问题，数组解构赋值是按位置对应的，而对象只要变量与属性同名，顺序随意。
 
 ### 11题
+```js
 console.log(Object.assign([1, 2, 3], [4, 5]))
+```
 
 答案
 [4, 5, 3]
@@ -4382,6 +4388,7 @@ console.log(Object.assign([1, 2, 3], [4, 5]))
 是不是从来没有用assign方法合并过数组？assign方法可以用于处理数组，不过会把数组视为对象，比如这里会把目标数组视为是属性为0、1、2的对象，所以源数组的0、1属性的值覆盖了目标对象的值。
 
 ### 第12题
+```js
 var x=1
 switch(x++)
 {
@@ -4390,6 +4397,7 @@ switch(x++)
   case 2: ++x
 }
 console.log(x)
+```
 
 答案
 4
@@ -4398,8 +4406,10 @@ console.log(x)
 这题考查的是自增运算符的前缀版和后缀版，以及switch的语法，后缀版的自增运算符会在语句被求值后才发生，所以x会仍以1的值去匹配case分支，那么显然匹配到为1的分支，此时，x++生效，x变成2，再执行++x，变成3，因为没有break语句，所以会进入当前case后面的分支，所以再次++x，最终变成4。
 
 ### 第13题
+```js
 console.log(typeof undefined == typeof NULL)
 console.log(typeof function () {} == typeof class {})
+```
 
 答案
 true、true
@@ -4411,9 +4421,11 @@ true、true
 2.typeof对函数使用返回'function'，class只是es6新增的语法糖，本质上还是函数，所以两者相等
 
 ### 第14题
+```js
 var count = 0
 console.log(typeof count === "number")
 console.log(!!typeof count === "number")
+```
 
 答案
 
@@ -4425,15 +4437,16 @@ true、false
 
 2.这题考查的是运算符优先级的问题，逻辑非!的优先级比全等===高，所以先执行!!typeof count，结果为true，然后执行true === 'number'，结果当然为false，可以点击这里查看优先级列表。
 
-第15题
+### 第15题
+```js
 "use strict"
 a = 1
 var a = 2
 console.log(window.a)
 console.log(a)
+```
 
 答案
-
 2、2
 
 解析
